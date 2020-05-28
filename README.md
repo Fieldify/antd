@@ -6,8 +6,14 @@
 
 ## Install
 
+Using NPM
 ```bash
 npm install --save @fieldify/antd
+```
+
+Using Yarn
+```bash
+yarn add @fieldify/antd
 ```
 
 ## Usage

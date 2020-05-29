@@ -21,13 +21,6 @@ export default class FieldifyTypeForm extends Component {
   componentDidUpdate(props, state) {
     if (this.props !== props) {
       const cycle = this.cycle(this.props);
-
-      // // verify information
-      // if (cycle.verify === true) {
-      //   this.changeValue(cycle.value, 50)
-
-      // }
-
       this.setState(cycle)
     }
   }
@@ -37,15 +30,15 @@ export default class FieldifyTypeForm extends Component {
 
     const state = {
       value: props.value,
-      verify: props.verify,
-      feedback: false,
-      status: null,
-      help: this.schema.$help
+      // verify: props.verify,
+      // feedback: false,
+      // status: null,
+      // help: this.schema.$help
     }
 
     this.isInjected = props.isInjected;
 
-    this.onChanged = props.onChange ? props.onChange : () => { };
+    this.onChange = props.onChange ? props.onChange : () => { };
     this.onError = props.onError ? props.onError : () => { };
 
     if (!this.schema) return (state)
@@ -92,13 +85,12 @@ export default class FieldifyTypeForm extends Component {
     this.timedChange((end) => {
       this.verify(this._lastValue, (ret) => {
         this.setState(ret);
-
-        if (ret.error !== "success") {
+        if (ret.status !== "success") {
           end();
           return;
         }
-
-        this.onChanged(value);
+        
+        this.onChange(this.schema, this._lastValue);
         end();
       })
     }, speed)

@@ -9,7 +9,8 @@ import {
 export class FieldifySchemaForm extends React.Component {
   constructor(props) {
     super(props)
-    this.state = this.cycle(props);
+
+    this.state = this.cycle(props, true);
   }
 
   componentDidUpdate(props, state) {
@@ -19,7 +20,7 @@ export class FieldifySchemaForm extends React.Component {
     }
   }
 
-  cycle(props) {
+  cycle(props, first) {
     this.schema = props.schema;
     this.input = props.input;
 
@@ -29,42 +30,64 @@ export class FieldifySchemaForm extends React.Component {
 
     const state = {
       input: this.input.getValue(),
-      verify: props.verify
+      // verify: props.verify
     };
 
     state.reactive = this.update(state.input, state.verify);
 
     this.references = {};
 
+    this.onChange = props.onChange ? props.onChange : () => { };
+
     return (state)
   }
 
-  clickAddArray(item) {
-    this.input.set(item.$_wire)
-
-    const value = this.input.getValue();
-
+  clickAddArray(line) {
+    this.input.set(line)
+    const _value = this.input.getValue();
+    this.onChange(_value)
     this.setState({
-      input: value,
-      reactive: this.update(value, false)
+      input: _value,
+      reactive: this.update(_value, false)
     })
   }
 
+  clickRemoveArrayItem(line) {
+    this.input.remove(line)
+    const _value = this.input.getValue();
+    this.onChange(_value)
+    this.setState({
+      input: _value,
+      reactive: this.update(_value, false)
+    })
+  }
+
+  setValue(line, value) {
+    this.input.set(line, value)
+    const _value = this.input.getValue();
+    this.onChange(_value)
+    this.setState({
+      input: _value
+    })
+  }
 
   input(input, verify) {
     // const state = {
     //   verify,
     //   input
-    // }
+    // }    
     // state.reactive = this.update(input, verify)
     // this.setState(state)
   }
 
   update(input, verify) {
-    const follower = (schema, input, ret) => {
+    const follower = (schema, input, ret, line) => {
+      line = line || ""
+
       utils.orderedRead(schema, (index, item) => {
         const inputPtr = input ? input[item.$_key] : null;
-
+        const lineKey = line+"."+item.$_key;
+        
         // check if the item is hidden
         if (item.hidden === true)
           return;
@@ -72,7 +95,7 @@ export class FieldifySchemaForm extends React.Component {
         // ARRAY
         if (Array.isArray(item)) {
           const source = { ...item[0] };
-
+          var inputPtr2 = inputPtr;
           const options = source.$array || {};
           const min = options.min ? options.min : (source.$required === true ? 1 : 0)
 
@@ -94,10 +117,7 @@ export class FieldifySchemaForm extends React.Component {
            * Is an array with non nested schema inside
            */
           if (source.$_array === true && source.$_nested !== true) {
-
-
-
-            var inputPtr2 = inputPtr;
+            
             delete source.$doc; // source is cloned
             const TypeForm = source.$type.Form;
 
@@ -122,16 +142,16 @@ export class FieldifySchemaForm extends React.Component {
 
             for (var a = 0; a < inputPtr2.length; a++) {
               const value = inputPtr2[a];
-              const key = source.$_wire + "." + a
+              const key = lineKey + "." + a
 
               dataSource.push({
                 key,
                 form: <TypeForm
                   schema={source}
                   value={value}
-                  verify={verify}
+                  // verify={verify}
                   user={this.props.user}
-                  onChange={(value) => console.log("onChange", item, value)}
+                  onChange={(schema, value) => this.setValue(key, value)}
                   isInjected={true}
                   // reference errors
                   onError={(error, message) => {
@@ -146,7 +166,7 @@ export class FieldifySchemaForm extends React.Component {
                     }
                   }}
                 />,
-                actions: <Button size="small" onClick={() => console.log("delete")}>
+                actions: <Button size="small" onClick={() => this.clickRemoveArrayItem(key)}>
                   <span><DeleteIcon /></span>
                 </Button>
               })
@@ -172,7 +192,6 @@ export class FieldifySchemaForm extends React.Component {
               }
             }
 
-
             // very special case for field where there is subfield
             if (item[0].$_schematized === true) {
               delete source.$doc; // source is cloned
@@ -180,16 +199,16 @@ export class FieldifySchemaForm extends React.Component {
 
               for (var a = 0; a < inputPtr2.length; a++) {
                 const value = inputPtr2[a];
-                const key = source.$_wire + "." + a
-
+                const key = lineKey + "." + a
+      
                 dataSource.push({
                   key,
                   form: <TypeForm
                     schema={source}
                     value={value}
-                    verify={verify}
+                    // verify={verify}
                     user={this.props.user}
-                    onChange={(value) => console.log("onChange", item, value)}
+                    onChange={(schema, value) => this.setValue(key, value)}
                     isInjected={true}
                     // reference errors
                     onError={(error, message) => {
@@ -204,7 +223,7 @@ export class FieldifySchemaForm extends React.Component {
                       }
                     }}
                   />,
-                  actions: <Button size="small" onClick={() => console.log("delete")}>
+                  actions: <Button size="small" onClick={() => this.clickRemoveArrayItem(key)}>
                     <span><DeleteIcon /></span>
                   </Button>
                 })
@@ -213,14 +232,15 @@ export class FieldifySchemaForm extends React.Component {
             else {
               for (var a = 0; a < inputPtr2.length; a++) {
                 const value = inputPtr2[a];
+                const key = lineKey + "." + a
 
                 const child = [];
-                follower(item.$_ptr[0], value, child);
+                follower(item.$_ptr[0], value, child, key);
 
                 dataSource.push({
-                  key: item.$_wire + "." + a,
+                  key,
                   form: child,
-                  actions: <Button size="small" onClick={() => console.log("delete")}>
+                  actions: <Button size="small" onClick={() => this.clickRemoveArrayItem(key)}>
                     <span><DeleteIcon /></span>
                   </Button>
                 })
@@ -232,7 +252,7 @@ export class FieldifySchemaForm extends React.Component {
           ret.push(<Form.Item key={item.$_wire} noStyle={true}>
             <div className="ant-form-item">
               <Card size="small" title={source.$_access.$doc} extra={<div className="ant-radio-group ant-radio-group-outline ant-radio-group-small">
-                <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(item)}>
+                <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(lineKey+"."+inputPtr2.length)}>
                   <span><PlusIcon /></span>
                 </span>
               </div>}>
@@ -256,7 +276,7 @@ export class FieldifySchemaForm extends React.Component {
         // OBJECT
         else if (typeof item === "object" && !item.$type) {
           const child = [];
-          follower(item.$_ptr, inputPtr, child);
+          follower(item.$_ptr, inputPtr, child, lineKey);
           ret.push(<div key={item.$_wire} className="ant-form-item">
             <Card size="small" title={item.$doc}>
               {child}
@@ -271,9 +291,9 @@ export class FieldifySchemaForm extends React.Component {
             schema={item}
             value={inputPtr}
             key={item.$_wire}
-            verify={verify}
+            // verify={verify}
             user={this.props.user}
-            onChange={(value) => console.log("onChange", item, value)}
+            onChange={(schema, value) => this.setValue(lineKey, value)}
 
             // reference errors
             onError={(error, message) => {

@@ -31,23 +31,30 @@ const StringForm = TString.Form
 class NameForm extends TypeForm {
   constructor(props) {
     super(props)
+
   }
 
   cycle(props) {
     const ret = super.cycle(props)
-    if(!ret.value) ret.value = {}
-    return(ret)
+    if (!ret.value) ret.value = {}
+    
+    this.result = {...ret.value}
+    return (ret)
   }
 
   error(from, error, message) {
-
     // this.setState({
     //   help: "Please fill the form"
     // })
   }
 
+  setField(key, schema, value) {
+    this.result[key] = value;
+    this.onChange(this.schema, this.result);
+  }
+
   render() {
- 
+
     return (super.render(
       <Row gutter={16}>
         <Col className="gutter-row" span={12}>
@@ -55,17 +62,17 @@ class NameForm extends TypeForm {
             schema={this.schema.first}
             verify={this.state.verify}
             value={this.state.value.first}
-            onChange={() => console.log("First name changed")}
+            onChange={(schema, value) => this.setField("first", schema, value)}
             // onError={(error, message) => this.error("first", error, message)}
             isInjected={true}
           />
         </Col>
         <Col className="gutter-row" span={12}>
-        <StringForm
+          <StringForm
             schema={this.schema.last}
             verify={this.state.verify}
             value={this.state.value.last}
-            onChange={() => console.log("Last name changed")}
+            onChange={(schema, value) => this.setField("last", schema, value)}
             // onError={(error, message) => this.error("last", error, message)}
             isInjected={true}
           />

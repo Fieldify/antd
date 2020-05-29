@@ -27,14 +27,10 @@ class FieldifyTypeForm extends Component {
   cycle(props) {
     this.schema = props.schema;
     const state = {
-      value: props.value,
-      verify: props.verify,
-      feedback: false,
-      status: null,
-      help: this.schema.$help
+      value: props.value
     };
     this.isInjected = props.isInjected;
-    this.onChanged = props.onChange ? props.onChange : () => {};
+    this.onChange = props.onChange ? props.onChange : () => {};
     this.onError = props.onError ? props.onError : () => {};
     if (!this.schema) return state;
     state.options = this.schema.$options || {};
@@ -74,12 +70,12 @@ class FieldifyTypeForm extends Component {
       this.verify(this._lastValue, ret => {
         this.setState(ret);
 
-        if (ret.error !== "success") {
+        if (ret.status !== "success") {
           end();
           return;
         }
 
-        this.onChanged(value);
+        this.onChange(this.schema, this._lastValue);
         end();
       });
     }, speed);
@@ -283,10 +279,17 @@ class NameForm extends FieldifyTypeForm {
   cycle(props) {
     const ret = super.cycle(props);
     if (!ret.value) ret.value = {};
+    this.result = { ...ret.value
+    };
     return ret;
   }
 
   error(from, error, message) {}
+
+  setField(key, schema, value) {
+    this.result[key] = value;
+    this.onChange(this.schema, this.result);
+  }
 
   render() {
     return super.render( /*#__PURE__*/React.createElement(Row, {
@@ -298,7 +301,7 @@ class NameForm extends FieldifyTypeForm {
       schema: this.schema.first,
       verify: this.state.verify,
       value: this.state.value.first,
-      onChange: () => console.log("First name changed"),
+      onChange: (schema, value) => this.setField("first", schema, value),
       isInjected: true
     })), /*#__PURE__*/React.createElement(Col, {
       className: "gutter-row",
@@ -307,7 +310,7 @@ class NameForm extends FieldifyTypeForm {
       schema: this.schema.last,
       verify: this.state.verify,
       value: this.state.value.last,
-      onChange: () => console.log("Last name changed"),
+      onChange: (schema, value) => this.setField("last", schema, value),
       isInjected: true
     }))));
   }
@@ -631,7 +634,7 @@ class FieldifySchema extends schema$1 {
 class FieldifySchemaForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = this.cycle(props);
+    this.state = this.cycle(props, true);
   }
 
   componentDidUpdate(props, state) {
@@ -641,7 +644,7 @@ class FieldifySchemaForm extends React.Component {
     }
   }
 
-  cycle(props) {
+  cycle(props, first) {
     this.schema = props.schema;
     this.input = props.input;
 
@@ -650,34 +653,63 @@ class FieldifySchemaForm extends React.Component {
     }
 
     const state = {
-      input: this.input.getValue(),
-      verify: props.verify
+      input: this.input.getValue()
     };
     state.reactive = this.update(state.input, state.verify);
     this.references = {};
+    this.onChange = props.onChange ? props.onChange : () => {};
     return state;
   }
 
-  clickAddArray(item) {
-    this.input.set(item.$_wire);
-    const value = this.input.getValue();
+  clickAddArray(line) {
+    this.input.set(line);
+
+    const _value = this.input.getValue();
+
+    this.onChange(_value);
     this.setState({
-      input: value,
-      reactive: this.update(value, false)
+      input: _value,
+      reactive: this.update(_value, false)
+    });
+  }
+
+  clickRemoveArrayItem(line) {
+    this.input.remove(line);
+
+    const _value = this.input.getValue();
+
+    this.onChange(_value);
+    this.setState({
+      input: _value,
+      reactive: this.update(_value, false)
+    });
+  }
+
+  setValue(line, value) {
+    this.input.set(line, value);
+
+    const _value = this.input.getValue();
+
+    this.onChange(_value);
+    this.setState({
+      input: _value
     });
   }
 
   input(input, verify) {}
 
   update(input, verify) {
-    const follower = (schema, input, ret) => {
+    const follower = (schema, input, ret, line) => {
+      line = line || "";
       utils.orderedRead(schema, (index, item) => {
         const inputPtr = input ? input[item.$_key] : null;
+        const lineKey = line + "." + item.$_key;
         if (item.hidden === true) return;
 
         if (Array.isArray(item)) {
           const source = { ...item[0]
           };
+          var inputPtr2 = inputPtr;
           const options = source.$array || {};
           const min = options.min ? options.min : source.$required === true ? 1 : 0;
           const columns = [{
@@ -692,7 +724,6 @@ class FieldifySchemaForm extends React.Component {
           const dataSource = [];
 
           if (source.$_array === true && source.$_nested !== true) {
-            var inputPtr2 = inputPtr;
             delete source.$doc;
             const TypeForm = source.$type.Form;
 
@@ -711,15 +742,14 @@ class FieldifySchemaForm extends React.Component {
 
             for (var a = 0; a < inputPtr2.length; a++) {
               const value = inputPtr2[a];
-              const key = source.$_wire + "." + a;
+              const key = lineKey + "." + a;
               dataSource.push({
                 key,
                 form: /*#__PURE__*/React.createElement(TypeForm, {
                   schema: source,
                   value: value,
-                  verify: verify,
                   user: this.props.user,
-                  onChange: value => console.log("onChange", item, value),
+                  onChange: (schema, value) => this.setValue(key, value),
                   isInjected: true,
                   onError: (error, message) => {
                     if (error === true) {
@@ -735,7 +765,7 @@ class FieldifySchemaForm extends React.Component {
                 }),
                 actions: /*#__PURE__*/React.createElement(Button, {
                   size: "small",
-                  onClick: () => console.log("delete")
+                  onClick: () => this.clickRemoveArrayItem(key)
                 }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
               });
             }
@@ -755,15 +785,14 @@ class FieldifySchemaForm extends React.Component {
 
                 for (var a = 0; a < inputPtr2.length; a++) {
                   const value = inputPtr2[a];
-                  const key = source.$_wire + "." + a;
+                  const key = lineKey + "." + a;
                   dataSource.push({
                     key,
                     form: /*#__PURE__*/React.createElement(TypeForm, {
                       schema: source,
                       value: value,
-                      verify: verify,
                       user: this.props.user,
-                      onChange: value => console.log("onChange", item, value),
+                      onChange: (schema, value) => this.setValue(key, value),
                       isInjected: true,
                       onError: (error, message) => {
                         if (error === true) {
@@ -779,21 +808,22 @@ class FieldifySchemaForm extends React.Component {
                     }),
                     actions: /*#__PURE__*/React.createElement(Button, {
                       size: "small",
-                      onClick: () => console.log("delete")
+                      onClick: () => this.clickRemoveArrayItem(key)
                     }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
                   });
                 }
               } else {
                 for (var a = 0; a < inputPtr2.length; a++) {
                   const value = inputPtr2[a];
+                  const key = lineKey + "." + a;
                   const child = [];
-                  follower(item.$_ptr[0], value, child);
+                  follower(item.$_ptr[0], value, child, key);
                   dataSource.push({
-                    key: item.$_wire + "." + a,
+                    key,
                     form: child,
                     actions: /*#__PURE__*/React.createElement(Button, {
                       size: "small",
-                      onClick: () => console.log("delete")
+                      onClick: () => this.clickRemoveArrayItem(key)
                     }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
                   });
                 }
@@ -812,7 +842,7 @@ class FieldifySchemaForm extends React.Component {
               className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
             }, /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
-              onClick: () => this.clickAddArray(item)
+              onClick: () => this.clickAddArray(lineKey + "." + inputPtr2.length)
             }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))))
           }, /*#__PURE__*/React.createElement(Table, {
             size: "small",
@@ -829,7 +859,7 @@ class FieldifySchemaForm extends React.Component {
           })))));
         } else if (typeof item === "object" && !item.$type) {
             const child = [];
-            follower(item.$_ptr, inputPtr, child);
+            follower(item.$_ptr, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React.createElement("div", {
               key: item.$_wire,
               className: "ant-form-item"
@@ -843,9 +873,8 @@ class FieldifySchemaForm extends React.Component {
                 schema: item,
                 value: inputPtr,
                 key: item.$_wire,
-                verify: verify,
                 user: this.props.user,
-                onChange: value => console.log("onChange", item, value),
+                onChange: (schema, value) => this.setValue(lineKey, value),
                 onError: (error, message) => {
                   if (error === true) {
                     this.references[item.$_key] = message;

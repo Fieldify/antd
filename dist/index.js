@@ -60,14 +60,10 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _proto.cycle = function cycle(props) {
     this.schema = props.schema;
     var state = {
-      value: props.value,
-      verify: props.verify,
-      feedback: false,
-      status: null,
-      help: this.schema.$help
+      value: props.value
     };
     this.isInjected = props.isInjected;
-    this.onChanged = props.onChange ? props.onChange : function () {};
+    this.onChange = props.onChange ? props.onChange : function () {};
     this.onError = props.onError ? props.onError : function () {};
     if (!this.schema) return state;
     state.options = this.schema.$options || {};
@@ -111,12 +107,12 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
       _this3.verify(_this3._lastValue, function (ret) {
         _this3.setState(ret);
 
-        if (ret.error !== "success") {
+        if (ret.status !== "success") {
           end();
           return;
         }
 
-        _this3.onChanged(value);
+        _this3.onChange(_this3.schema, _this3._lastValue);
 
         end();
       });
@@ -379,12 +375,20 @@ var NameForm = /*#__PURE__*/function (_TypeForm) {
     var ret = _TypeForm.prototype.cycle.call(this, props);
 
     if (!ret.value) ret.value = {};
+    this.result = _extends({}, ret.value);
     return ret;
   };
 
   _proto.error = function error(from, _error, message) {};
 
+  _proto.setField = function setField(key, schema, value) {
+    this.result[key] = value;
+    this.onChange(this.schema, this.result);
+  };
+
   _proto.render = function render() {
+    var _this = this;
+
     return _TypeForm.prototype.render.call(this, /*#__PURE__*/React__default.createElement(antd.Row, {
       gutter: 16
     }, /*#__PURE__*/React__default.createElement(antd.Col, {
@@ -394,8 +398,8 @@ var NameForm = /*#__PURE__*/function (_TypeForm) {
       schema: this.schema.first,
       verify: this.state.verify,
       value: this.state.value.first,
-      onChange: function onChange() {
-        return console.log("First name changed");
+      onChange: function onChange(schema, value) {
+        return _this.setField("first", schema, value);
       },
       isInjected: true
     })), /*#__PURE__*/React__default.createElement(antd.Col, {
@@ -405,8 +409,8 @@ var NameForm = /*#__PURE__*/function (_TypeForm) {
       schema: this.schema.last,
       verify: this.state.verify,
       value: this.state.value.last,
-      onChange: function onChange() {
-        return console.log("Last name changed");
+      onChange: function onChange(schema, value) {
+        return _this.setField("last", schema, value);
       },
       isInjected: true
     }))));
@@ -440,23 +444,23 @@ var NameBuilder = /*#__PURE__*/function (_TypeBuilder) {
   _inheritsLoose(NameBuilder, _TypeBuilder);
 
   function NameBuilder(props) {
-    var _this;
+    var _this2;
 
-    _this = _TypeBuilder.call(this, props) || this;
-    _this["default"] = {
+    _this2 = _TypeBuilder.call(this, props) || this;
+    _this2["default"] = {
       minSize: 1,
       maxSize: 128
     };
 
-    _this.configure();
+    _this2.configure();
 
-    return _this;
+    return _this2;
   }
 
   var _proto3 = NameBuilder.prototype;
 
   _proto3.render = function render() {
-    var _this2 = this;
+    var _this3 = this;
 
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
       label: "Name min/max size"
@@ -464,13 +468,13 @@ var NameBuilder = /*#__PURE__*/function (_TypeBuilder) {
       min: 0,
       value: this.state.minSize,
       onChange: function onChange(value) {
-        return _this2.changeIt("minSize", value);
+        return _this3.changeIt("minSize", value);
       }
     }), /*#__PURE__*/React__default.createElement(antd.InputNumber, {
       min: 0,
       value: this.state.maxSize,
       onChange: function onChange(value) {
-        return _this2.changeIt("maxSize", value);
+        return _this3.changeIt("maxSize", value);
       }
     }))));
   };
@@ -896,7 +900,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
     var _this;
 
     _this = _React$Component.call(this, props) || this;
-    _this.state = _this.cycle(props);
+    _this.state = _this.cycle(props, true);
     return _this;
   }
 
@@ -909,7 +913,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
     }
   };
 
-  _proto.cycle = function cycle(props) {
+  _proto.cycle = function cycle(props, first) {
     this.schema = props.schema;
     this.input = props.input;
 
@@ -918,20 +922,46 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
     }
 
     var state = {
-      input: this.input.getValue(),
-      verify: props.verify
+      input: this.input.getValue()
     };
     state.reactive = this.update(state.input, state.verify);
     this.references = {};
+    this.onChange = props.onChange ? props.onChange : function () {};
     return state;
   };
 
-  _proto.clickAddArray = function clickAddArray(item) {
-    this.input.set(item.$_wire);
-    var value = this.input.getValue();
+  _proto.clickAddArray = function clickAddArray(line) {
+    this.input.set(line);
+
+    var _value = this.input.getValue();
+
+    this.onChange(_value);
     this.setState({
-      input: value,
-      reactive: this.update(value, false)
+      input: _value,
+      reactive: this.update(_value, false)
+    });
+  };
+
+  _proto.clickRemoveArrayItem = function clickRemoveArrayItem(line) {
+    this.input.remove(line);
+
+    var _value = this.input.getValue();
+
+    this.onChange(_value);
+    this.setState({
+      input: _value,
+      reactive: this.update(_value, false)
+    });
+  };
+
+  _proto.setValue = function setValue(line, value) {
+    this.input.set(line, value);
+
+    var _value = this.input.getValue();
+
+    this.onChange(_value);
+    this.setState({
+      input: _value
     });
   };
 
@@ -940,14 +970,17 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
   _proto.update = function update(input, verify) {
     var _this2 = this;
 
-    var follower = function follower(schema, input, ret) {
+    var follower = function follower(schema, input, ret, line) {
+      line = line || "";
       fieldify.utils.orderedRead(schema, function (index, item) {
         var inputPtr = input ? input[item.$_key] : null;
+        var lineKey = line + "." + item.$_key;
         if (item.hidden === true) return;
 
         if (Array.isArray(item)) {
           var source = _extends({}, item[0]);
 
+          var inputPtr2 = inputPtr;
           var options = source.$array || {};
           var min = options.min ? options.min : source.$required === true ? 1 : 0;
           var columns = [{
@@ -962,7 +995,6 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
           var dataSource = [];
 
           if (source.$_array === true && source.$_nested !== true) {
-            var inputPtr2 = inputPtr;
             delete source.$doc;
             var TypeForm = source.$type.Form;
 
@@ -981,16 +1013,15 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
 
             var _loop = function _loop() {
               var value = inputPtr2[a];
-              var key = source.$_wire + "." + a;
+              var key = lineKey + "." + a;
               dataSource.push({
                 key: key,
                 form: /*#__PURE__*/React__default.createElement(TypeForm, {
                   schema: source,
                   value: value,
-                  verify: verify,
                   user: _this2.props.user,
-                  onChange: function onChange(value) {
-                    return console.log("onChange", item, value);
+                  onChange: function onChange(schema, value) {
+                    return _this2.setValue(key, value);
                   },
                   isInjected: true,
                   onError: function onError(error, message) {
@@ -1008,7 +1039,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                 actions: /*#__PURE__*/React__default.createElement(antd.Button, {
                   size: "small",
                   onClick: function onClick() {
-                    return console.log("delete");
+                    return _this2.clickRemoveArrayItem(key);
                   }
                 }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))
               });
@@ -1033,16 +1064,15 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
 
                 var _loop2 = function _loop2() {
                   var value = inputPtr2[a];
-                  var key = source.$_wire + "." + a;
+                  var key = lineKey + "." + a;
                   dataSource.push({
                     key: key,
                     form: /*#__PURE__*/React__default.createElement(_TypeForm, {
                       schema: source,
                       value: value,
-                      verify: verify,
                       user: _this2.props.user,
-                      onChange: function onChange(value) {
-                        return console.log("onChange", item, value);
+                      onChange: function onChange(schema, value) {
+                        return _this2.setValue(key, value);
                       },
                       isInjected: true,
                       onError: function onError(error, message) {
@@ -1060,7 +1090,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                     actions: /*#__PURE__*/React__default.createElement(antd.Button, {
                       size: "small",
                       onClick: function onClick() {
-                        return console.log("delete");
+                        return _this2.clickRemoveArrayItem(key);
                       }
                     }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))
                   });
@@ -1070,20 +1100,25 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                   _loop2();
                 }
               } else {
-                for (var a = 0; a < inputPtr2.length; a++) {
+                var _loop3 = function _loop3() {
                   var value = inputPtr2[a];
+                  var key = lineKey + "." + a;
                   var child = [];
-                  follower(item.$_ptr[0], value, child);
+                  follower(item.$_ptr[0], value, child, key);
                   dataSource.push({
-                    key: item.$_wire + "." + a,
+                    key: key,
                     form: child,
                     actions: /*#__PURE__*/React__default.createElement(antd.Button, {
                       size: "small",
                       onClick: function onClick() {
-                        return console.log("delete");
+                        return _this2.clickRemoveArrayItem(key);
                       }
                     }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))
                   });
+                };
+
+                for (var a = 0; a < inputPtr2.length; a++) {
+                  _loop3();
                 }
               }
             }
@@ -1101,7 +1136,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
             }, /*#__PURE__*/React__default.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: function onClick() {
-                return _this2.clickAddArray(item);
+                return _this2.clickAddArray(lineKey + "." + inputPtr2.length);
               }
             }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))))
           }, /*#__PURE__*/React__default.createElement(antd.Table, {
@@ -1118,25 +1153,24 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
             bordered: true
           })))));
         } else if (typeof item === "object" && !item.$type) {
-            var _child = [];
-            follower(item.$_ptr, inputPtr, _child);
+            var child = [];
+            follower(item.$_ptr, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React__default.createElement("div", {
               key: item.$_wire,
               className: "ant-form-item"
             }, /*#__PURE__*/React__default.createElement(antd.Card, {
               size: "small",
               title: item.$doc
-            }, _child)));
+            }, child)));
           } else {
               var _TypeForm2 = item.$type.Form;
               ret.push( /*#__PURE__*/React__default.createElement(_TypeForm2, {
                 schema: item,
                 value: inputPtr,
                 key: item.$_wire,
-                verify: verify,
                 user: _this2.props.user,
-                onChange: function onChange(value) {
-                  return console.log("onChange", item, value);
+                onChange: function onChange(schema, value) {
+                  return _this2.setValue(lineKey, value);
                 },
                 onError: function onError(error, message) {
                   if (error === true) {

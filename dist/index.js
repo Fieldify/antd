@@ -60,7 +60,11 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _proto.cycle = function cycle(props) {
     this.schema = props.schema;
     var state = {
-      value: props.value
+      value: props.value,
+      verify: props.verify,
+      feedback: false,
+      status: null,
+      help: this.schema.$help
     };
     this.isInjected = props.isInjected;
     this.onChange = props.onChange ? props.onChange : function () {};
@@ -98,7 +102,7 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _proto.changeValue = function changeValue(value, speed) {
     var _this3 = this;
 
-    speed = speed || 500;
+    speed = speed || 100;
     this.setState({
       value: value
     });
@@ -579,6 +583,86 @@ var Email = {
   Form: EmailForm
 };
 
+var NumberForm = /*#__PURE__*/function (_TypeForm) {
+  _inheritsLoose(NumberForm, _TypeForm);
+
+  function NumberForm() {
+    return _TypeForm.apply(this, arguments) || this;
+  }
+
+  var _proto = NumberForm.prototype;
+
+  _proto.render = function render() {
+    var _this = this;
+
+    return _TypeForm.prototype.render.call(this, /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+      value: this.state.value,
+      placeholder: this.state.options.placeholder,
+      onChange: function onChange(value) {
+        return _this.changeValue(value);
+      },
+      style: {
+        width: "100%"
+      }
+    }));
+  };
+
+  return NumberForm;
+}(FieldifyTypeForm);
+
+var NumberInfo = /*#__PURE__*/function (_TypeInfo) {
+  _inheritsLoose(NumberInfo, _TypeInfo);
+
+  function NumberInfo() {
+    return _TypeInfo.apply(this, arguments) || this;
+  }
+
+  var _proto2 = NumberInfo.prototype;
+
+  _proto2.render = function render() {
+    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+      color: "#ff7a45"
+    }, /*#__PURE__*/React__default.createElement(icons.NumberOutlined, null)));
+  };
+
+  return NumberInfo;
+}(SignderivaTypeInfo);
+
+var NumberBuilder = /*#__PURE__*/function (_TypeBuilder) {
+  _inheritsLoose(NumberBuilder, _TypeBuilder);
+
+  function NumberBuilder(props) {
+    var _this2;
+
+    _this2 = _TypeBuilder.call(this, props) || this;
+    _this2["default"] = {
+      minSize: 1,
+      maxSize: 128
+    };
+
+    _this2.configure();
+
+    return _this2;
+  }
+
+  var _proto3 = NumberBuilder.prototype;
+
+  _proto3.render = function render() {
+    return /*#__PURE__*/React__default.createElement("div", null);
+  };
+
+  return NumberBuilder;
+}(SignderivaTypeBuilder);
+
+var Number = {
+  code: fieldify.types.Number.code,
+  description: fieldify.types.Number.description,
+  "class": fieldify.types.Number["class"],
+  Info: NumberInfo,
+  Builder: NumberBuilder,
+  Form: NumberForm
+};
+
 var CheckboxForm = /*#__PURE__*/function (_TypeForm) {
   _inheritsLoose(CheckboxForm, _TypeForm);
 
@@ -681,6 +765,13 @@ var SelectForm = /*#__PURE__*/function (_TypeForm) {
       options: {}
     };
     if (props.schema.$options) _this.state.options = props.schema.$options;
+
+    if (!_this.state.value && _this.state.options["default"]) {
+      _this.state.value = _this.state.options["default"];
+
+      _this.onChange(_this.schema, _this.state.value);
+    }
+
     _this.state.items = _this.updateItems();
     return _this;
   }
@@ -727,11 +818,11 @@ var SelectInfo = /*#__PURE__*/function (_TypeInfo) {
 
   _proto2.render = function render() {
     return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
-      color: "#fadb14",
+      color: "#52c41a",
       style: {
-        color: "#555555"
+        color: "white"
       }
-    }, /*#__PURE__*/React__default.createElement(icons.FieldStringOutlined, null)));
+    }, /*#__PURE__*/React__default.createElement(icons.SelectOutlined, null)));
   };
 
   return SelectInfo;
@@ -868,13 +959,273 @@ var FieldName = {
   Form: FieldNameForm
 };
 
+var KVForm = /*#__PURE__*/function (_TypeForm) {
+  _inheritsLoose(KVForm, _TypeForm);
+
+  function KVForm(props) {
+    return _TypeForm.call(this, props) || this;
+  }
+
+  var _proto = KVForm.prototype;
+
+  _proto.cycle = function cycle(props) {
+    var ret = _TypeForm.prototype.cycle.call(this, props);
+
+    if (!ret.value) ret.value = {};
+    this.result = _extends({}, ret.value);
+    ret.modal = false;
+    ret.modalCurrent = {
+      key: "",
+      value: ""
+    };
+    ret.dataTree = _extends({}, ret.value);
+    ret.dataSource = this.computeDataSource(ret.dataTree);
+    return ret;
+  };
+
+  _proto.computeDataSource = function computeDataSource(tree) {
+    var _this = this;
+
+    var ds = [];
+
+    var _loop = function _loop(key) {
+      var value = tree[key];
+      ds.push({
+        key: key,
+        value: value,
+        actions: /*#__PURE__*/React__default.createElement("div", {
+          className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
+        }, /*#__PURE__*/React__default.createElement("span", {
+          className: "ant-radio-button-wrapper",
+          onClick: function onClick() {
+            return _this.removeKey(key);
+          }
+        }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null))), /*#__PURE__*/React__default.createElement("span", {
+          className: "ant-radio-button-wrapper",
+          onClick: function onClick() {
+            return _this.openModal({
+              key: key,
+              value: value
+            });
+          }
+        }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))))
+      });
+    };
+
+    for (var key in tree) {
+      _loop(key);
+    }
+
+    return ds;
+  };
+
+  _proto.handleModalChange = function handleModalChange(key, value) {
+    var modalCurrent = _extends({}, this.state.modalCurrent);
+
+    modalCurrent[key] = value;
+    this.setState({
+      modalCurrent: modalCurrent
+    });
+  };
+
+  _proto.openModal = function openModal(data) {
+    var state = {
+      modalError: false,
+      modalInitial: null,
+      modalCurrent: data || {
+        key: "",
+        value: ""
+      },
+      modal: true
+    };
+    if (data) state.modalInitial = _extends({}, state.modalCurrent);
+    this.setState(state);
+  };
+
+  _proto.removeKey = function removeKey(key) {
+    var state = _extends({}, this.state);
+
+    delete state.dataTree[key];
+    state.dataSource = this.computeDataSource(state.dataTree);
+    this.setState(state);
+    this.changeValue(state.dataTree);
+  };
+
+  _proto.editedButton = function editedButton() {
+    var _this2 = this;
+
+    var state = _extends({}, this.state);
+
+    var mc = this.state.modalCurrent;
+    var type = this.schema.$_type;
+    var data = {};
+    data[mc.key] = mc.value;
+    type.verify(data, function (error, message) {
+      state.modalError = error;
+      state.modalErrorMessage = message;
+
+      if (error === false) {
+        if (state.modalInitial) {
+          delete state.dataTree[state.modalInitial.key];
+        }
+
+        state.dataTree[state.modalCurrent.key] = state.modalCurrent.value;
+        state.dataSource = _this2.computeDataSource(state.dataTree);
+        state.modal = false;
+      }
+
+      _this2.setState(state);
+
+      _this2.changeValue(state.dataTree);
+    });
+  };
+
+  _proto.render = function render() {
+    var _this3 = this;
+
+    var onCancel = function onCancel() {
+      _this3.setState({
+        modal: false
+      });
+    };
+
+    var columns = [{
+      title: 'Key',
+      dataIndex: 'key',
+      key: 'key'
+    }, {
+      title: 'Value',
+      dataIndex: 'value',
+      key: 'value'
+    }, {
+      title: /*#__PURE__*/React__default.createElement("div", {
+        className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
+      }, /*#__PURE__*/React__default.createElement("span", {
+        className: "ant-radio-button-wrapper",
+        onClick: function onClick() {
+          return _this3.openModal();
+        }
+      }, /*#__PURE__*/React__default.createElement("span", null, "Add ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
+      dataIndex: 'actions',
+      key: 'actions',
+      align: "right"
+    }];
+    var layout = {
+      labelCol: {
+        span: 8
+      },
+      wrapperCol: {
+        span: 16
+      }
+    };
+    return _TypeForm.prototype.render.call(this, /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Modal, {
+      centered: true,
+      closable: false,
+      visible: this.state.modal,
+      width: 300,
+      onOk: this.editedButton.bind(this),
+      onCancel: onCancel
+    }, this.state.modalError === true ? /*#__PURE__*/React__default.createElement("div", {
+      style: {
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React__default.createElement(antd.Alert, {
+      size: "small",
+      message: this.state.modalErrorMessage,
+      type: "error"
+    })) : null, /*#__PURE__*/React__default.createElement(antd.Form, layout, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+      label: "Key"
+    }, /*#__PURE__*/React__default.createElement(antd.Input, {
+      value: this.state.modalCurrent.key,
+      onChange: function onChange(_ref) {
+        var target = _ref.target;
+        return _this3.handleModalChange("key", target.value);
+      }
+    })), /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+      label: "Value"
+    }, /*#__PURE__*/React__default.createElement(antd.Input, {
+      value: this.state.modalCurrent.value,
+      onChange: function onChange(_ref2) {
+        var target = _ref2.target;
+        return _this3.handleModalChange("value", target.value);
+      }
+    })))), /*#__PURE__*/React__default.createElement(antd.Table, {
+      size: "small",
+      dataSource: this.state.dataSource,
+      columns: columns,
+      pagination: {
+        total: this.state.dataSource.length,
+        pageSize: this.state.dataSource.length,
+        hideOnSinglePage: true
+      }
+    })));
+  };
+
+  return KVForm;
+}(FieldifyTypeForm);
+
+var KVInfo = /*#__PURE__*/function (_TypeInfo) {
+  _inheritsLoose(KVInfo, _TypeInfo);
+
+  function KVInfo() {
+    return _TypeInfo.apply(this, arguments) || this;
+  }
+
+  var _proto2 = KVInfo.prototype;
+
+  _proto2.render = function render() {
+    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+      color: "#22075e"
+    }, /*#__PURE__*/React__default.createElement(icons.SmallDashOutlined, null)));
+  };
+
+  return KVInfo;
+}(SignderivaTypeInfo);
+
+var KVBuilder = /*#__PURE__*/function (_TypeBuilder) {
+  _inheritsLoose(KVBuilder, _TypeBuilder);
+
+  function KVBuilder(props) {
+    var _this4;
+
+    _this4 = _TypeBuilder.call(this, props) || this;
+    _this4["default"] = {
+      minSize: 1,
+      maxSize: 128
+    };
+
+    _this4.configure();
+
+    return _this4;
+  }
+
+  var _proto3 = KVBuilder.prototype;
+
+  _proto3.render = function render() {
+    return /*#__PURE__*/React__default.createElement("div", null);
+  };
+
+  return KVBuilder;
+}(SignderivaTypeBuilder);
+
+var KV = {
+  code: fieldify.types.KV.code,
+  description: fieldify.types.KV.description,
+  "class": fieldify.types.KV["class"],
+  Info: KVInfo,
+  Builder: KVBuilder,
+  Form: KVForm
+};
+
 var types = {
   Name: Name,
   Email: Email,
   String: String,
+  Number: Number,
   Select: Select,
   Checkbox: Checkbox,
-  FieldName: FieldName
+  FieldName: FieldName,
+  KV: KV
 };
 
 var FieldifySchema = /*#__PURE__*/function (_schema) {
@@ -885,6 +1236,10 @@ var FieldifySchema = /*#__PURE__*/function (_schema) {
   }
 
   var _proto = FieldifySchema.prototype;
+
+  _proto.resolver = function resolver(type) {
+    return types[type];
+  };
 
   _proto.compile = function compile(schema) {
     _schema.prototype.compile.call(this, schema);
@@ -900,6 +1255,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
     var _this;
 
     _this = _React$Component.call(this, props) || this;
+    _this.formRef = React__default.createRef();
     _this.state = _this.cycle(props, true);
     return _this;
   }
@@ -907,13 +1263,14 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
   var _proto = FieldifySchemaForm.prototype;
 
   _proto.componentDidUpdate = function componentDidUpdate(props, state) {
-    if (this.props !== props) {
+    if (props.schema !== this.schema || props.input !== this.input) {
       var cycle = this.cycle(this.props);
       this.setState(cycle);
     }
   };
 
   _proto.cycle = function cycle(props, first) {
+    var state = {};
     this.schema = props.schema;
     this.input = props.input;
 
@@ -921,9 +1278,8 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
       this.input = new fieldify.input(this.schema);
     }
 
-    var state = {
-      input: this.input.getValue()
-    };
+    state.input = this.input.getValue();
+    state.verify = props.verify || false;
     state.reactive = this.update(state.input, state.verify);
     this.references = {};
     this.onChange = props.onChange ? props.onChange : function () {};
@@ -1019,6 +1375,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                 form: /*#__PURE__*/React__default.createElement(TypeForm, {
                   schema: source,
                   value: value,
+                  verify: verify,
                   user: _this2.props.user,
                   onChange: function onChange(schema, value) {
                     return _this2.setValue(key, value);
@@ -1070,6 +1427,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                     form: /*#__PURE__*/React__default.createElement(_TypeForm, {
                       schema: source,
                       value: value,
+                      verify: verify,
                       user: _this2.props.user,
                       onChange: function onChange(schema, value) {
                         return _this2.setValue(key, value);
@@ -1168,6 +1526,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                 schema: item,
                 value: inputPtr,
                 key: item.$_wire,
+                verify: verify,
                 user: _this2.props.user,
                 onChange: function onChange(schema, value) {
                   return _this2.setValue(lineKey, value);
@@ -1203,7 +1562,9 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
         span: 16
       }
     };
-    return /*#__PURE__*/React__default.createElement(antd.Form, _extends({}, layout, {
+    return /*#__PURE__*/React__default.createElement(antd.Form, _extends({
+      key: this.formRef
+    }, layout, {
       name: "basic"
     }), this.state.reactive);
   };
@@ -1211,6 +1572,32 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
   return FieldifySchemaForm;
 }(React__default.Component);
 
+var allTypes = {};
+
+for (var a in types) {
+  allTypes[a] = types[a].description;
+}
+
+var baseSchema = {
+  key: {
+    $doc: "Name of the field",
+    $type: types.FieldName,
+    $required: true
+  },
+  type: {
+    $doc: "Field type",
+    $type: types.Select,
+    $required: true,
+    $options: {
+      items: allTypes
+    }
+  },
+  doc: {
+    $doc: "Description",
+    $required: true,
+    $type: types.String
+  }
+};
 var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
   _inheritsLoose(FieldifySchemaBuilderModal, _React$Component);
 
@@ -1218,88 +1605,131 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
     var _this;
 
     _this = _React$Component.call(this, props) || this;
-    _this.state = {
-      visible: props.visible,
-      user: props.user,
-      size: 1
-    };
-    _this.allTypes = {};
-
-    for (var a in types) {
-      _this.allTypes[a] = types[a].description;
-    }
-
-    _this.schema = new FieldifySchema("modal");
-
-    _this.schema.compile({
-      key: {
-        $doc: "Name of the field",
-        $type: types.FieldName,
-        $required: true
-      },
-      type: {
-        $doc: "Field type",
-        $type: types.Select,
-        $required: true,
-        $options: {
-          items: _this.allTypes
-        }
-      },
-      doc: {
-        $doc: "Description",
-        $required: true,
-        $type: types.String
-      }
-    });
-
     _this.formRef = React__default.createRef();
+    _this.state = _this.cycle(props, true);
+    _this.currentSchema = baseSchema;
     return _this;
   }
 
   var _proto = FieldifySchemaBuilderModal.prototype;
 
-  _proto.componentDidUpdate = function componentDidUpdate(props, state) {
-    var newState = _extends({}, this.state);
-
+  _proto.componentDidUpdate = function componentDidUpdate(props) {
     var changed = false;
 
-    if (this.state.visible !== this.props.visible) {
-      newState.visible = this.props.visible;
+    var state = _extends({}, this.state);
+
+    if (this.props.visible !== props.visible) {
+      this.currentSchema = baseSchema;
+      state = this.cycle(this.props);
       changed = true;
     }
 
-    if (this.state.user !== this.props.user) {
-      newState.user = this.props.user;
-      changed = true;
-    }
-
-    if (changed === true) this.setState(newState);
+    if (changed === true) this.setState(state);
   };
 
-  _proto.receiveHeadForm = function receiveHeadForm() {
-    console.log("receiveHeadForm");
+  _proto.cycle = function cycle(props, first) {
+    var state = {
+      form: {
+        state: "Filling",
+        color: "blue"
+      },
+      value: {},
+      visible: props.visible,
+      user: props.user
+    };
+
+    if (props.value) {
+      state.value = {
+        key: props.value.$_key,
+        type: props.value.$type.code,
+        doc: props.value.$doc,
+        options: props.value.$options
+      };
+    } else {
+      state.value = {};
+    }
+
+    this.driveSchema(state);
+    state.input.setValue(state.value);
+    return state;
+  };
+
+  _proto.driveSchema = function driveSchema(state) {
+    var value = state.value;
+    var Type = types[value.type];
+
+    if (Type && Type !== this.currentType) {
+      var TypeObject = new Type["class"]();
+      var configuration = TypeObject.configuration();
+      this.currentSchema = _extends({}, baseSchema);
+      if (configuration) this.currentSchema.options = _extends({}, configuration, {
+        $doc: "Type configuration"
+      });
+      this.currentType = Type;
+      state.schema = new FieldifySchema("modal");
+      state.schema.compile(this.currentSchema);
+      state.input = new fieldify.input(state.schema);
+    } else if (!state.schema) {
+      state.schema = new FieldifySchema("modal");
+      state.schema.compile(this.currentSchema);
+      state.input = new fieldify.input(state.schema);
+    }
+  };
+
+  _proto.formChanged = function formChanged(value) {
+    var _this2 = this;
+
+    var state = {
+      schema: this.state.schema,
+      input: this.state.input,
+      value: _extends({}, this.state.value, value)
+    };
+    console.log("state", state);
+    this.driveSchema(state);
+    state.input.setValue(state.value);
+    this.setState(state);
+    state.input.verify(function (result) {
+      var state = {
+        form: {}
+      };
+      state.error = result.error;
+
+      if (result.error === true) {
+        state.form.color = "blue";
+        state.form.state = "Filling";
+      } else {
+        state.form.color = "green";
+        state.form.state = "Passed";
+      }
+
+      _this2.setState(state);
+    });
+    console.log("formChanged", value, state);
   };
 
   _proto.render = function render() {
-    var _this2 = this;
+    var _this3 = this;
 
     var onOk = function onOk() {};
 
     var onCancel = function onCancel() {
-      _this2.props.onCancel(_this2.state);
+      _this3.props.onCancel(_this3.state);
     };
     return /*#__PURE__*/React__default.createElement(antd.Modal, {
-      title: "Add New Field To Your Schema",
-      width: this.state.size * 520,
+      title: /*#__PURE__*/React__default.createElement("span", null, "Add New Field To Your Schema ", /*#__PURE__*/React__default.createElement(antd.Tag, {
+        color: this.state.form.color
+      }, this.state.form.state)),
       centered: true,
       visible: this.state.visible,
+      width: 600,
       onOk: onOk,
       onCancel: onCancel
     }, /*#__PURE__*/React__default.createElement(FieldifySchemaForm, {
       ref: this.formRef,
-      schema: this.schema,
+      schema: this.state.schema,
+      input: this.state.input,
       user: this.props.user,
-      onChange: this.receiveHeadForm.bind(this)
+      onChange: this.formChanged.bind(this)
     }));
   };
 
@@ -1370,6 +1800,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
     console.log("handing add", path, lineup);
     this.setState({
       modal: true,
+      modalContent: null,
       modalUser: lineup
     });
   };
@@ -1504,7 +1935,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
     var data = null;
 
     if (this.schema) {
-      data = fieldify2antDataTable(this.schema.tree);
+      data = fieldify2antDataTable(this.schema.handler.schema);
       return data;
     }
 
@@ -1518,6 +1949,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(FieldifySchemaBuilderModal, {
       user: this.state.modalUser,
       visible: this.state.modal,
+      value: this.state.modalContent,
       onCancel: function onCancel() {
         return _this2.setState({
           modal: false

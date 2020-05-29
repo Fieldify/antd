@@ -1,5 +1,5 @@
-import React from 'react';
 import { utils, input as FieldifyInput } from "fieldify";
+import React from 'react';
 import { Form, Table, Button, Input, Card } from "antd";
 import {
   PlusOutlined as PlusIcon,
@@ -10,17 +10,20 @@ export class FieldifySchemaForm extends React.Component {
   constructor(props) {
     super(props)
 
+    this.formRef = React.createRef()
     this.state = this.cycle(props, true);
   }
 
   componentDidUpdate(props, state) {
-    if (this.props !== props) {
+    if(props.schema !== this.schema || props.input !== this.input) {
       const cycle = this.cycle(this.props);
       this.setState(cycle)
     }
   }
 
   cycle(props, first) {
+    const state = {}
+
     this.schema = props.schema;
     this.input = props.input;
 
@@ -28,10 +31,8 @@ export class FieldifySchemaForm extends React.Component {
       this.input = new FieldifyInput(this.schema)
     }
 
-    const state = {
-      input: this.input.getValue(),
-      // verify: props.verify
-    };
+    state.input = this.input.getValue()
+    state.verify = props.verify||false
 
     state.reactive = this.update(state.input, state.verify);
 
@@ -86,8 +87,8 @@ export class FieldifySchemaForm extends React.Component {
 
       utils.orderedRead(schema, (index, item) => {
         const inputPtr = input ? input[item.$_key] : null;
-        const lineKey = line+"."+item.$_key;
-        
+        const lineKey = line + "." + item.$_key;
+
         // check if the item is hidden
         if (item.hidden === true)
           return;
@@ -117,7 +118,7 @@ export class FieldifySchemaForm extends React.Component {
            * Is an array with non nested schema inside
            */
           if (source.$_array === true && source.$_nested !== true) {
-            
+
             delete source.$doc; // source is cloned
             const TypeForm = source.$type.Form;
 
@@ -149,7 +150,7 @@ export class FieldifySchemaForm extends React.Component {
                 form: <TypeForm
                   schema={source}
                   value={value}
-                  // verify={verify}
+                  verify={verify}
                   user={this.props.user}
                   onChange={(schema, value) => this.setValue(key, value)}
                   isInjected={true}
@@ -200,13 +201,13 @@ export class FieldifySchemaForm extends React.Component {
               for (var a = 0; a < inputPtr2.length; a++) {
                 const value = inputPtr2[a];
                 const key = lineKey + "." + a
-      
+
                 dataSource.push({
                   key,
                   form: <TypeForm
                     schema={source}
                     value={value}
-                    // verify={verify}
+                    verify={verify}
                     user={this.props.user}
                     onChange={(schema, value) => this.setValue(key, value)}
                     isInjected={true}
@@ -252,7 +253,7 @@ export class FieldifySchemaForm extends React.Component {
           ret.push(<Form.Item key={item.$_wire} noStyle={true}>
             <div className="ant-form-item">
               <Card size="small" title={source.$_access.$doc} extra={<div className="ant-radio-group ant-radio-group-outline ant-radio-group-small">
-                <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(lineKey+"."+inputPtr2.length)}>
+                <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(lineKey + "." + inputPtr2.length)}>
                   <span><PlusIcon /></span>
                 </span>
               </div>}>
@@ -291,7 +292,7 @@ export class FieldifySchemaForm extends React.Component {
             schema={item}
             value={inputPtr}
             key={item.$_wire}
-            // verify={verify}
+            verify={verify}
             user={this.props.user}
             onChange={(schema, value) => this.setValue(lineKey, value)}
 
@@ -326,7 +327,10 @@ export class FieldifySchemaForm extends React.Component {
       wrapperCol: { span: 16 },
     };
 
-    return (<Form {...layout} name="basic">
+    return (<Form
+      key={this.formRef}
+      {...layout}
+      name="basic" >
       {this.state.reactive}
     </Form>);
   }

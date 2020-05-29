@@ -1,7 +1,7 @@
 import { types as types$1, schema as schema$1, input, utils } from 'fieldify';
 import React, { Component } from 'react';
-import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Card, Table, Button, Modal, notification, Tooltip, Popconfirm } from 'antd';
-import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, PlusOutlined, DeleteOutlined, CopyOutlined, EditOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
+import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, DeleteOutlined, EditOutlined, PlusOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
 class FieldifyTypeForm extends Component {
   constructor(props) {
@@ -27,7 +27,11 @@ class FieldifyTypeForm extends Component {
   cycle(props) {
     this.schema = props.schema;
     const state = {
-      value: props.value
+      value: props.value,
+      verify: props.verify,
+      feedback: false,
+      status: null,
+      help: this.schema.$help
     };
     this.isInjected = props.isInjected;
     this.onChange = props.onChange ? props.onChange : () => {};
@@ -61,7 +65,7 @@ class FieldifyTypeForm extends Component {
   }
 
   changeValue(value, speed) {
-    speed = speed || 500;
+    speed = speed || 100;
     this.setState({
       value: value
     });
@@ -418,6 +422,54 @@ var Email = {
   Form: EmailForm
 };
 
+class NumberForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(InputNumber, {
+      value: this.state.value,
+      placeholder: this.state.options.placeholder,
+      onChange: value => this.changeValue(value),
+      style: {
+        width: "100%"
+      }
+    }));
+  }
+
+}
+
+class NumberInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#ff7a45"
+    }, /*#__PURE__*/React.createElement(NumberOutlined, null)));
+  }
+
+}
+
+class NumberBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.default = {
+      minSize: 1,
+      maxSize: 128
+    };
+    this.configure();
+  }
+
+  render() {
+    return /*#__PURE__*/React.createElement("div", null);
+  }
+
+}
+
+var Number = {
+  code: types$1.Number.code,
+  description: types$1.Number.description,
+  class: types$1.Number.class,
+  Info: NumberInfo,
+  Builder: NumberBuilder,
+  Form: NumberForm
+};
+
 class CheckboxForm extends FieldifyTypeForm {
   render() {
     return super.render( /*#__PURE__*/React.createElement(Input$1, {
@@ -482,6 +534,12 @@ class SelectForm extends FieldifyTypeForm {
       options: {}
     };
     if (props.schema.$options) this.state.options = props.schema.$options;
+
+    if (!this.state.value && this.state.options.default) {
+      this.state.value = this.state.options.default;
+      this.onChange(this.schema, this.state.value);
+    }
+
     this.state.items = this.updateItems();
   }
 
@@ -512,11 +570,11 @@ class SelectForm extends FieldifyTypeForm {
 class SelectInfo extends SignderivaTypeInfo {
   render() {
     return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
-      color: "#fadb14",
+      color: "#52c41a",
       style: {
-        color: "#555555"
+        color: "white"
       }
-    }, /*#__PURE__*/React.createElement(FieldStringOutlined, null)));
+    }, /*#__PURE__*/React.createElement(SelectOutlined, null)));
   }
 
 }
@@ -611,18 +669,241 @@ var FieldName = {
   Form: FieldNameForm
 };
 
+class KVForm extends FieldifyTypeForm {
+  constructor(props) {
+    super(props);
+  }
+
+  cycle(props) {
+    const ret = super.cycle(props);
+    if (!ret.value) ret.value = {};
+    this.result = { ...ret.value
+    };
+    ret.modal = false;
+    ret.modalCurrent = {
+      key: "",
+      value: ""
+    };
+    ret.dataTree = { ...ret.value
+    };
+    ret.dataSource = this.computeDataSource(ret.dataTree);
+    return ret;
+  }
+
+  computeDataSource(tree) {
+    const ds = [];
+
+    for (let key in tree) {
+      const value = tree[key];
+      ds.push({
+        key: key,
+        value: value,
+        actions: /*#__PURE__*/React.createElement("div", {
+          className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
+        }, /*#__PURE__*/React.createElement("span", {
+          className: "ant-radio-button-wrapper",
+          onClick: () => this.removeKey(key)
+        }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null))), /*#__PURE__*/React.createElement("span", {
+          className: "ant-radio-button-wrapper",
+          onClick: () => this.openModal({
+            key,
+            value
+          })
+        }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))))
+      });
+    }
+
+    return ds;
+  }
+
+  handleModalChange(key, value) {
+    const modalCurrent = { ...this.state.modalCurrent
+    };
+    modalCurrent[key] = value;
+    this.setState({
+      modalCurrent
+    });
+  }
+
+  openModal(data) {
+    const state = {
+      modalError: false,
+      modalInitial: null,
+      modalCurrent: data || {
+        key: "",
+        value: ""
+      },
+      modal: true
+    };
+    if (data) state.modalInitial = { ...state.modalCurrent
+    };
+    this.setState(state);
+  }
+
+  removeKey(key) {
+    const state = { ...this.state
+    };
+    delete state.dataTree[key];
+    state.dataSource = this.computeDataSource(state.dataTree);
+    this.setState(state);
+    this.changeValue(state.dataTree);
+  }
+
+  editedButton() {
+    const state = { ...this.state
+    };
+    const mc = this.state.modalCurrent;
+    const type = this.schema.$_type;
+    const data = {};
+    data[mc.key] = mc.value;
+    type.verify(data, (error, message) => {
+      state.modalError = error;
+      state.modalErrorMessage = message;
+
+      if (error === false) {
+        if (state.modalInitial) {
+          delete state.dataTree[state.modalInitial.key];
+        }
+
+        state.dataTree[state.modalCurrent.key] = state.modalCurrent.value;
+        state.dataSource = this.computeDataSource(state.dataTree);
+        state.modal = false;
+      }
+
+      this.setState(state);
+      this.changeValue(state.dataTree);
+    });
+  }
+
+  render() {
+    const onCancel = () => {
+      this.setState({
+        modal: false
+      });
+    };
+
+    const columns = [{
+      title: 'Key',
+      dataIndex: 'key',
+      key: 'key'
+    }, {
+      title: 'Value',
+      dataIndex: 'value',
+      key: 'value'
+    }, {
+      title: /*#__PURE__*/React.createElement("div", {
+        className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "ant-radio-button-wrapper",
+        onClick: () => this.openModal()
+      }, /*#__PURE__*/React.createElement("span", null, "Add ", /*#__PURE__*/React.createElement(PlusOutlined, null)))),
+      dataIndex: 'actions',
+      key: 'actions',
+      align: "right"
+    }];
+    const layout = {
+      labelCol: {
+        span: 8
+      },
+      wrapperCol: {
+        span: 16
+      }
+    };
+    return super.render( /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Modal, {
+      centered: true,
+      closable: false,
+      visible: this.state.modal,
+      width: 300,
+      onOk: this.editedButton.bind(this),
+      onCancel: onCancel
+    }, this.state.modalError === true ? /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 8
+      }
+    }, /*#__PURE__*/React.createElement(Alert, {
+      size: "small",
+      message: this.state.modalErrorMessage,
+      type: "error"
+    })) : null, /*#__PURE__*/React.createElement(Form, layout, /*#__PURE__*/React.createElement(Form.Item, {
+      label: "Key"
+    }, /*#__PURE__*/React.createElement(Input$1, {
+      value: this.state.modalCurrent.key,
+      onChange: ({
+        target
+      }) => this.handleModalChange("key", target.value)
+    })), /*#__PURE__*/React.createElement(Form.Item, {
+      label: "Value"
+    }, /*#__PURE__*/React.createElement(Input$1, {
+      value: this.state.modalCurrent.value,
+      onChange: ({
+        target
+      }) => this.handleModalChange("value", target.value)
+    })))), /*#__PURE__*/React.createElement(Table, {
+      size: "small",
+      dataSource: this.state.dataSource,
+      columns: columns,
+      pagination: {
+        total: this.state.dataSource.length,
+        pageSize: this.state.dataSource.length,
+        hideOnSinglePage: true
+      }
+    })));
+  }
+
+}
+
+class KVInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#22075e"
+    }, /*#__PURE__*/React.createElement(SmallDashOutlined, null)));
+  }
+
+}
+
+class KVBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.default = {
+      minSize: 1,
+      maxSize: 128
+    };
+    this.configure();
+  }
+
+  render() {
+    return /*#__PURE__*/React.createElement("div", null);
+  }
+
+}
+
+var KV = {
+  code: types$1.KV.code,
+  description: types$1.KV.description,
+  class: types$1.KV.class,
+  Info: KVInfo,
+  Builder: KVBuilder,
+  Form: KVForm
+};
+
 var types = {
   Name,
   Email,
   String,
+  Number,
   Select,
   Checkbox,
-  FieldName
+  FieldName,
+  KV
 };
 
 class FieldifySchema extends schema$1 {
   constructor(name, options) {
     super(name, options);
+  }
+
+  resolver(type) {
+    return types[type];
   }
 
   compile(schema) {
@@ -634,17 +915,19 @@ class FieldifySchema extends schema$1 {
 class FieldifySchemaForm extends React.Component {
   constructor(props) {
     super(props);
+    this.formRef = React.createRef();
     this.state = this.cycle(props, true);
   }
 
   componentDidUpdate(props, state) {
-    if (this.props !== props) {
+    if (props.schema !== this.schema || props.input !== this.input) {
       const cycle = this.cycle(this.props);
       this.setState(cycle);
     }
   }
 
   cycle(props, first) {
+    const state = {};
     this.schema = props.schema;
     this.input = props.input;
 
@@ -652,9 +935,8 @@ class FieldifySchemaForm extends React.Component {
       this.input = new input(this.schema);
     }
 
-    const state = {
-      input: this.input.getValue()
-    };
+    state.input = this.input.getValue();
+    state.verify = props.verify || false;
     state.reactive = this.update(state.input, state.verify);
     this.references = {};
     this.onChange = props.onChange ? props.onChange : () => {};
@@ -748,6 +1030,7 @@ class FieldifySchemaForm extends React.Component {
                 form: /*#__PURE__*/React.createElement(TypeForm, {
                   schema: source,
                   value: value,
+                  verify: verify,
                   user: this.props.user,
                   onChange: (schema, value) => this.setValue(key, value),
                   isInjected: true,
@@ -791,6 +1074,7 @@ class FieldifySchemaForm extends React.Component {
                     form: /*#__PURE__*/React.createElement(TypeForm, {
                       schema: source,
                       value: value,
+                      verify: verify,
                       user: this.props.user,
                       onChange: (schema, value) => this.setValue(key, value),
                       isInjected: true,
@@ -873,6 +1157,7 @@ class FieldifySchemaForm extends React.Component {
                 schema: item,
                 value: inputPtr,
                 key: item.$_wire,
+                verify: verify,
                 user: this.props.user,
                 onChange: (schema, value) => this.setValue(lineKey, value),
                 onError: (error, message) => {
@@ -906,71 +1191,142 @@ class FieldifySchemaForm extends React.Component {
         span: 16
       }
     };
-    return /*#__PURE__*/React.createElement(Form, Object.assign({}, layout, {
+    return /*#__PURE__*/React.createElement(Form, Object.assign({
+      key: this.formRef
+    }, layout, {
       name: "basic"
     }), this.state.reactive);
   }
 
 }
 
+const allTypes = {};
+
+for (var a in types) {
+  allTypes[a] = types[a].description;
+}
+
+const baseSchema = {
+  key: {
+    $doc: "Name of the field",
+    $type: types.FieldName,
+    $required: true
+  },
+  type: {
+    $doc: "Field type",
+    $type: types.Select,
+    $required: true,
+    $options: {
+      items: allTypes
+    }
+  },
+  doc: {
+    $doc: "Description",
+    $required: true,
+    $type: types.String
+  }
+};
 class FieldifySchemaBuilderModal extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      visible: props.visible,
-      user: props.user,
-      size: 1
-    };
-    this.allTypes = {};
-
-    for (var a in types) {
-      this.allTypes[a] = types[a].description;
-    }
-
-    this.schema = new FieldifySchema("modal");
-    this.schema.compile({
-      key: {
-        $doc: "Name of the field",
-        $type: types.FieldName,
-        $required: true
-      },
-      type: {
-        $doc: "Field type",
-        $type: types.Select,
-        $required: true,
-        $options: {
-          items: this.allTypes
-        }
-      },
-      doc: {
-        $doc: "Description",
-        $required: true,
-        $type: types.String
-      }
-    });
     this.formRef = React.createRef();
+    this.state = this.cycle(props, true);
+    this.currentSchema = baseSchema;
   }
 
-  componentDidUpdate(props, state) {
-    const newState = { ...this.state
-    };
+  componentDidUpdate(props) {
     var changed = false;
+    var state = { ...this.state
+    };
 
-    if (this.state.visible !== this.props.visible) {
-      newState.visible = this.props.visible;
+    if (this.props.visible !== props.visible) {
+      this.currentSchema = baseSchema;
+      state = this.cycle(this.props);
       changed = true;
     }
 
-    if (this.state.user !== this.props.user) {
-      newState.user = this.props.user;
-      changed = true;
-    }
-
-    if (changed === true) this.setState(newState);
+    if (changed === true) this.setState(state);
   }
 
-  receiveHeadForm() {
-    console.log("receiveHeadForm");
+  cycle(props, first) {
+    const state = {
+      form: {
+        state: "Filling",
+        color: "blue"
+      },
+      value: {},
+      visible: props.visible,
+      user: props.user
+    };
+
+    if (props.value) {
+      state.value = {
+        key: props.value.$_key,
+        type: props.value.$type.code,
+        doc: props.value.$doc,
+        options: props.value.$options
+      };
+    } else {
+      state.value = {};
+    }
+
+    this.driveSchema(state);
+    state.input.setValue(state.value);
+    return state;
+  }
+
+  driveSchema(state) {
+    const value = state.value;
+    const Type = types[value.type];
+
+    if (Type && Type !== this.currentType) {
+      const TypeObject = new Type.class();
+      const configuration = TypeObject.configuration();
+      this.currentSchema = { ...baseSchema
+      };
+      if (configuration) this.currentSchema.options = { ...configuration,
+        $doc: "Type configuration"
+      };
+      this.currentType = Type;
+      state.schema = new FieldifySchema("modal");
+      state.schema.compile(this.currentSchema);
+      state.input = new input(state.schema);
+    } else if (!state.schema) {
+      state.schema = new FieldifySchema("modal");
+      state.schema.compile(this.currentSchema);
+      state.input = new input(state.schema);
+    }
+  }
+
+  formChanged(value) {
+    const state = {
+      schema: this.state.schema,
+      input: this.state.input,
+      value: { ...this.state.value,
+        ...value
+      }
+    };
+    console.log("state", state);
+    this.driveSchema(state);
+    state.input.setValue(state.value);
+    this.setState(state);
+    state.input.verify(result => {
+      const state = {
+        form: {}
+      };
+      state.error = result.error;
+
+      if (result.error === true) {
+        state.form.color = "blue";
+        state.form.state = "Filling";
+      } else {
+        state.form.color = "green";
+        state.form.state = "Passed";
+      }
+
+      this.setState(state);
+    });
+    console.log("formChanged", value, state);
   }
 
   render() {
@@ -980,17 +1336,20 @@ class FieldifySchemaBuilderModal extends React.Component {
       this.props.onCancel(this.state);
     };
     return /*#__PURE__*/React.createElement(Modal, {
-      title: "Add New Field To Your Schema",
-      width: this.state.size * 520,
+      title: /*#__PURE__*/React.createElement("span", null, "Add New Field To Your Schema ", /*#__PURE__*/React.createElement(Tag, {
+        color: this.state.form.color
+      }, this.state.form.state)),
       centered: true,
       visible: this.state.visible,
+      width: 600,
       onOk: onOk,
       onCancel: onCancel
     }, /*#__PURE__*/React.createElement(FieldifySchemaForm, {
       ref: this.formRef,
-      schema: this.schema,
+      schema: this.state.schema,
+      input: this.state.input,
       user: this.props.user,
-      onChange: this.receiveHeadForm.bind(this)
+      onChange: this.formChanged.bind(this)
     }));
   }
 
@@ -1051,6 +1410,7 @@ class FieldifySchemaBuilder extends React.Component {
     console.log("handing add", path, lineup);
     this.setState({
       modal: true,
+      modalContent: null,
       modalUser: lineup
     });
   }
@@ -1169,7 +1529,7 @@ class FieldifySchemaBuilder extends React.Component {
     var data = null;
 
     if (this.schema) {
-      data = fieldify2antDataTable(this.schema.tree);
+      data = fieldify2antDataTable(this.schema.handler.schema);
       return data;
     }
 
@@ -1181,6 +1541,7 @@ class FieldifySchemaBuilder extends React.Component {
     return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FieldifySchemaBuilderModal, {
       user: this.state.modalUser,
       visible: this.state.modal,
+      value: this.state.modalContent,
       onCancel: () => this.setState({
         modal: false
       }),

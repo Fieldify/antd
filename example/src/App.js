@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Schema, Types, Input } from '@fieldify/antd'
 
-import { Row, Col, Card, Tabs } from 'antd';
+import { Row, Col, Card, Tabs, Tag } from 'antd';
 
 import '@fieldify/antd/dist/index.css'
 import "antd/dist/antd.css";
@@ -33,11 +33,37 @@ class App extends React.Component {
         $position: 2
       },
 
+      age: {
+        $doc: "Age",
+        $type: Types.Number,
+        $position: 3
+      },
+
+      KV: {
+        $doc: "Key and Value",
+        $type: Types.KV,
+        $position: 4
+      },
+
+      types: {
+        $doc: 'What kind of number to accept',
+        $required: true,
+        $type: 'Select',
+        $options: {
+          default: 'both',
+          items: {
+            both: 'Both Integer & Float',
+            integer: 'Only Integer',
+            float: 'Only Float'
+          }
+        }
+      },
+
       address: {
         $doc: "Address",
         home: {
           $doc: "Home",
-          street: { $doc: "Street", $type: Types.String, $options: { min: 2 } },
+          street: { $doc: "Street", $type: Types.String, $options: { min: 2, placeholder: "Your street" } },
           zip: { $doc: "ZIP", $type: Types.String },
           country: { $doc: "Country", $type: Types.String },
         },
@@ -77,7 +103,7 @@ class App extends React.Component {
       inlinedArrayString: [{
         $required: true,
         $doc: "Array of String type (non-nested)",
-        $type: Types.String,
+        $type: "String",
         $array: {
           min: 1,
           max: 100
@@ -85,9 +111,14 @@ class App extends React.Component {
       }]
     }
 
-    this.state = { 
+    this.state = {
       schema: initial,
-      formJSON: ""
+
+      form: {
+        json: "",
+        state: "Filling",
+        color: "blue"
+      }
     }
 
     // compile the schema
@@ -102,28 +133,46 @@ class App extends React.Component {
         last: "Vergoz"
       },
       email: "mvcdsa@cdas.com",
+      KV: {
+        "testcas": "Awesome"
+      },
 
       nestedArray: [{
         name: {
           first: "Michael",
           last: "Vergoz"
         },
-        description: "Un test"
+        description: "This is a description"
       }],
-
-      
-      inlinedArray: [{first: "Michael"}],
+      inlinedArray: [{ first: "Michael" }],
 
       inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
     })
-    this.state.formJSON = JSON.stringify(this.input.getValue(), null, "  ")
+    this.state.form.json = JSON.stringify(this.input.getValue(), null, "  ")
   }
 
-  formChanged(value) {
-    this.setState({
-      formJSON: JSON.stringify(value, null, "  ")
+  formChanged(value) {
+    // run the verifier on each change to 
+    // get the status into the title
+    this.input.verify((result) => {
+      const state = {
+        form: {
+          ...this.state.form,
+          json: JSON.stringify(value, null, "  ")
+        }
+      }
+
+      if (result.error === true) {
+        state.form.color = "orange"
+        state.form.state = "Verify Failed"
+      }
+      else {
+        state.form.color = "green"
+        state.form.state = "Passed"
+      }
+
+      this.setState(state)
     })
-    console.log("Form changed", value)
   }
 
   render() {
@@ -134,7 +183,7 @@ class App extends React.Component {
       <h2>Schema Builder</h2>
 
       <Row>
-        <Col span={8}>
+        <Col sm={12} xxl={8}>
           <div style={style}>
             <Card size="small" title="Pass #1 - Building">
               <Tabs defaultActiveKey="1">
@@ -148,23 +197,23 @@ class App extends React.Component {
             </Card>
           </div>
         </Col>
-        <Col span={8}>
+        <Col sm={12} xxl={8}>
           <div style={style}>
-            <Card size="small" title="Pass #2 - Filling Form">
+            <Card size="small" title={<>Pass #2 - Filling Form <Tag color={this.state.form.color}>{this.state.form.state}</Tag></>}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Rendering" key="1">
-                  <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)}/>
+                  <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)} />
                 </TabPane>
-                <TabPane tab="Sanatized Input" key="2">
+                <TabPane tab="Sanatized JSON Input" key="2">
                   <pre>
-                    {this.state.formJSON}
+                    {this.state.form.json}
                   </pre>
                 </TabPane>
               </Tabs>
             </Card>
           </div>
         </Col>
-        <Col span={8}>
+        <Col sm={12} xxl={8}>
           <div style={style}>
             <Card size="small" title="Pass #3 - Final Result">
 
@@ -177,13 +226,11 @@ class App extends React.Component {
                 </TabPane>
               </Tabs>
 
-              
+
             </Card>
           </div>
         </Col>
       </Row>
-
-      <h2>Email</h2>
     </div>
   }
 }

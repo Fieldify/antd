@@ -93,7 +93,7 @@ export class FieldifySchemaBuilder extends React.Component {
     path = path || ".";
     const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
     console.log("handing add", path, lineup);
-    this.setState({ modal: true, modalUser: lineup });
+    this.setState({ modal: true, modalContent: null, modalUser: lineup });
   }
 
   handlingEdit(item) {
@@ -212,7 +212,7 @@ export class FieldifySchemaBuilder extends React.Component {
 
     var data = null;
     if (this.schema) {
-      data = fieldify2antDataTable(this.schema.tree);
+      data = fieldify2antDataTable(this.schema.handler.schema);
       return (data)
     }
 
@@ -226,6 +226,7 @@ export class FieldifySchemaBuilder extends React.Component {
       <FieldifySchemaBuilderModal
         user={this.state.modalUser}
         visible={this.state.modal}
+        value={this.state.modalContent}
         onCancel={() => this.setState({ modal: false })}
         onOk={this.itemChanged.bind(this)}
       />

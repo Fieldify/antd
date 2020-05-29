@@ -30,10 +30,10 @@ export default class FieldifyTypeForm extends Component {
 
     const state = {
       value: props.value,
-      // verify: props.verify,
-      // feedback: false,
-      // status: null,
-      // help: this.schema.$help
+      verify: props.verify,
+      feedback: false,
+      status: null,
+      help: this.schema.$help
     }
 
     this.isInjected = props.isInjected;
@@ -74,7 +74,7 @@ export default class FieldifyTypeForm extends Component {
   }
 
   changeValue(value, speed) {
-    speed = speed || 500;
+    speed = speed || 100;
 
     this.setState({
       value: value

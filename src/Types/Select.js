@@ -14,7 +14,7 @@ import {
   Row
 } from "antd";
 
-import { FieldStringOutlined as Icon } from '@ant-design/icons';
+import { SelectOutlined as Icon } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
 import TypeInfo from '../lib/TypeInfo';
@@ -36,6 +36,12 @@ class SelectForm extends TypeForm {
 
     if (props.schema.$options) this.state.options = props.schema.$options
 
+    if(!this.state.value && this.state.options.default) {
+      this.state.value = this.state.options.default
+      // inform the change
+      this.onChange(this.schema, this.state.value);
+    }
+
     this.state.items = this.updateItems()
   }
 
@@ -53,7 +59,7 @@ class SelectForm extends TypeForm {
 
   render() {
     return (super.render(
-      <Select value={this.state.value} onChange={(value) => this.changeValue(value)}>
+      <Select value={this.state.value} onChange={(value)  => this.changeValue(value)}>
         {this.state.items}
       </Select>
     ))
@@ -69,7 +75,7 @@ class SelectInfo extends TypeInfo {
   render() {
     return (
       <span>
-        <Tag color="#fadb14" style={{ color: "#555555" }}><Icon /></Tag>
+        <Tag color="#52c41a" style={{ color: "white" }}><Icon /></Tag>
       </span>
     )
   }

@@ -170,18 +170,12 @@ class App extends React.Component {
   }
 
   builderChanged(schema) {
-    // create an input instance
-    this.input = new Input(this.schema)
-    this.input.setValue(this.state.input)
-
-    this.setState({
-      builder: {
-        json: JSON.stringify(schema, null, "  ")
-      },
-      form: {
-        json: JSON.stringify(this.input.getValue(), null, "  ")
-      }
+    const state = this.cycle({
+      schema: this.schema.export(),
+      input: this.input.getValue()
     })
+
+    this.setState(state)
   }
 
   formChanged(value) {

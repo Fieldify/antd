@@ -31,15 +31,35 @@ export class FieldifySchemaBuilder extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.state = this.cycle(props, true);
+  }
+
+  componentDidUpdate(props) {
+    var changed = false
+    var state = { }
+
+    if (this.props.schema !== props.schema) {
+      state = this.cycle(this.props)
+      changed = true;
+    }
+
+    if (changed === true) this.setState(state)
+  }
+
+
+  cycle(props, first) {
+    const state = {
       modal: false,
       modalUser: null,
       schemaDataSource: []
     };
 
+    this.onChange = ()=>{}
+    if(props.onChange) this.onChange = props.onChange
+
     this.schema = props.schema;
 
-    this.state.schemaDataSource = this.updateDataSource()
+    state.schemaDataSource = this.updateDataSource()
 
     this.columns = [
       {
@@ -55,7 +75,7 @@ export class FieldifySchemaBuilder extends React.Component {
       {
         title: <div className="ant-radio-group ant-radio-group-outline ant-radio-group-small">
           <span className="ant-radio-button-wrapper" onClick={() => this.handlingAdd()}>
-            <span>Add Field <PlusIcon /></span>
+            <span>Add <PlusIcon /></span>
           </span>
         </div>,
         dataIndex: 'actions',
@@ -64,18 +84,56 @@ export class FieldifySchemaBuilder extends React.Component {
       },
     ];
 
+    return(state)
   }
 
   fireOnChange() {
+    const ex = this.schema.export()
+    this.schema.compile(ex)
 
+    // fire on change for exporting the new schema
+    this.onChange(ex)
   }
 
   itemChanged(arg) {
-    console.log("itemChanged", arg);
+    if (arg.edition === true) {
+      const lineup = this.props.schema.getLineup(arg.oldPath);
+
+      // delete org
+      this.props.schema.removeLineup(arg.oldPath)
+
+      // put new
+      this.props.schema.setLineup(arg.newPath, arg.value)
+
+      notification.success({
+        message: "Field updated",
+        description: `Field at ${arg.oldPath} has been successfully updated`
+      })
+    }
+
+    // manage addition
+    else {
+      // just put the new one
+      this.props.schema.setLineup(arg.newPath, arg.value)
+
+      notification.success({
+        message: "Field added",
+        description: `Field at ${arg.newPath} has been successfully added`
+      })
+    }
+
+    this.fireOnChange();
+
+    this.setState({
+      modal: false,
+      modalContent: null,
+      modalUser: null,
+      schemaDataSource: this.updateDataSource()
+    });
   }
 
   itemRemove(item) {
-    this.props.schema.removeLineup(item.$_path);
+    this.props.schema.removeLineup(item.$_wire);
 
     this.fireOnChange();
 
@@ -85,20 +143,36 @@ export class FieldifySchemaBuilder extends React.Component {
 
     notification.success({
       message: "Field removed",
-      description: `Field at ${item.$_path} has been removed successfully`
+      description: `Field at ${item.$_wire} has been successfully removed`
     })
   }
 
   handlingAdd(path) {
     path = path || ".";
+
     const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
-    console.log("handing add", path, lineup);
-    this.setState({ modal: true, modalContent: null, modalUser: lineup });
+
+    const state = {
+      modal: true, 
+      modalContent: null, 
+      modalUser: lineup
+    }
+
+    this.setState(state);
   }
 
   handlingEdit(item) {
-    console.log("handing edit", item, Array.isArray(item));
-    this.setState({ modal: true, modalContent: item });
+    const path = item.$_wire || ".";
+
+    const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
+
+    const state = {
+      modal: true, 
+      modalContent: item, 
+      modalUser: lineup
+    }
+
+    this.setState(state);
   }
 
   updateDataSource() {
@@ -108,11 +182,14 @@ export class FieldifySchemaBuilder extends React.Component {
         wire = "";
       const current = [];
       utils.orderedRead(schema, (index, item) => {
-        const path = wire + "." + item.$_key;
+        var path = wire + "." + item.$_key;
         item.$_path = path;
 
         // Is array
         if (Array.isArray(item)) {
+          path = wire + "." + item[0].$_key;
+          item[0].$_path = path;
+
           var composite = <Tooltip title="... of objects">
             <Tag color="#722ed1"><ObjectIcon /></Tag>
           </Tooltip>;
@@ -122,25 +199,25 @@ export class FieldifySchemaBuilder extends React.Component {
             composite = <TypeInfo />;
           }
           current.push({
-            ptr: item,
+            ptr: item[0],
             key: path,
             name: <div>
               <Tooltip title="This field is an array ...">
                 <Tag color="#eb2f96"><ArrayIcon /></Tag>
               </Tooltip>
               {composite}
-              <strong>{item.$_key}</strong>
+              <strong>{item[0].$_key}</strong>
             </div>,
-            doc: item.$doc,
+            doc: item[0].$doc,
             children: !("$type" in item[0]) ? fieldify2antDataTable(item[0], path) : null,
             actions: <div className="ant-radio-group ant-radio-group-outline ant-radio-group-small">
-              <Popconfirm title={<span>Are you sure to delete the Array <strong>{path}</strong></span>} onConfirm={() => self.itemRemove(item)} okText="Yes" cancelText="No">
+              <Popconfirm title={<span>Are you sure to delete the Array <strong>{path}</strong></span>} onConfirm={() => self.itemRemove(item[0])} okText="Yes" cancelText="No">
                 <span className="ant-radio-button-wrapper">
                   <span><DeleteIcon /></span>
                 </span>
               </Popconfirm>
 
-              <span className="ant-radio-button-wrapper" onClick={() => self.handlingEdit(item)}>
+              <span className="ant-radio-button-wrapper" onClick={() => self.handlingEdit(item[0])}>
                 <span><EditIcon /></span>
               </span>
 

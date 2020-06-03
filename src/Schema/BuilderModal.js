@@ -5,11 +5,16 @@ import Types from '../Types';
 import { Modal, Form, Input, Select, Checkbox, Tag } from "antd";
 import { FieldifySchema } from "../Schema/Schema";
 import { FieldifySchemaForm } from './Form'
+import { ConsoleSqlOutlined } from "@ant-design/icons";
 
 // build all available types
 const allTypes = {}
+const allTypesNoArray = {}
 for (var a in Types) {
   allTypes[a] = Types[a].description
+  if (a !== "Array") {
+    allTypesNoArray[a] = Types[a].description
+  }
 }
 
 // set the very basic schema for the modal
@@ -17,20 +22,33 @@ const baseSchema = {
   key: {
     $doc: "Name of the field",
     $type: Types.FieldName,
-    $required: true
+    $required: true,
+    $position: 10
   },
   type: {
     $doc: "Field type",
-    $type: Types.Select,
+    $type: "Select",
     $required: true,
     $options: {
       items: allTypes
-    }
+    },
+    $position: 11
   },
   doc: {
     $doc: "Description",
-    $required: true,
-    $type: Types.String
+    $required: false,
+    $type: "String",
+    $position: 22
+  },
+  position: {
+    $doc: "Position in the serie",
+    $required: false,
+    $type: "Number",
+    $default: 0,
+    $options: {
+      acceptedTypes: "integer"
+    },
+    $position: 23
   },
   // options: {
   //   $doc: "Options",
@@ -65,90 +83,145 @@ export class FieldifySchemaBuilderModal extends React.Component {
   }
 
   cycle(props, first) {
+    // here we have 3 cases
+    // normal case = $_array !== true && $_nested !== true
+    // nested in array = $_array === true && $_nested === true
+    // normal in array = $_array === true && $_nested !== true
+    // single nested = $_array !== true && $_nested === true
 
     const state = {
+      edition: false,
+      original: props.value,
       form: {
         state: "Filling",
         color: "blue"
       },
       value: {},
       visible: props.visible,
-      user: props.user
+      user: props.user,
+      verify: false
     };
 
+    if (state.user && state.user.$_wire) {
+      state.initialPath = state.user.$_wire;
+    }
+    else state.initialPath = '';
+
     if (props.value) {
-      state.value = {
-        key: props.value.$_key,
-        type: props.value.$type.code,
-        doc: props.value.$doc,
-        options: props.value.$options,
+      const val = props.value;
+
+      state.edition = true;
+
+      // normal case
+      if (val.$_array !== true && val.$_nested !== true) {
+        state.value = {
+          key: val.$_key,
+          type: val.$type.code,
+          doc: val.$doc,
+          required: val.$required,
+          read: val.$read,
+          write: val.$write,
+          options: val.$options,
+          position: val.$position,
+        }
+      }
+      // nested in array
+      else if (val.$_array === true && val.$_nested === true) {
+        state.value = {
+          key: val.$_key,
+          type: "Array",
+          content: "Object",
+          doc: val.$doc,
+          required: val.$required,
+          read: val.$read,
+          write: val.$write,
+          options: val.$options,
+          position: val.$position,
+        }
+      }
+      // normal in array
+      else if (val.$_array === true && val.$_nested !== true) {
+        state.value = {
+          key: val.$_key,
+          type: "Array",
+          content: typeof val.$type === "string" ? val.$type : val.$type.code,
+          doc: val.$doc,
+          required: val.$required,
+          read: val.$read,
+          write: val.$write,
+          options: val.$options,
+          position: val.$position,
+        }
+      }
+      // special handle for objects
+      else if (val.$_array !== true && val.$_nested === true) {
+        state.value = {
+          key: val.$_key,
+          type: "Object",
+          doc: val.$doc,
+          required: val.$required,
+          read: val.$read,
+          write: val.$write,
+          options: val.$options,
+          position: val.$position,
+        }
       }
     }
+    // single addition
     else {
+      // nothing to set
       state.value = {}
     }
 
-    // const Type = Types[state.value.type]
-    // if (Type) {
-    //   // create a fake tmp type
-    //   const TypeObject = new Type.class
-
-    //   const configuration = TypeObject.configuration()
-
-    //   this.currentSchema = { ...baseSchema }
-    //   if (configuration) this.currentSchema.options = {
-    //     ...configuration,
-    //     $doc: "Type configuration"
-    //   };
-
-    //   // const upSchema = Type.
-    //   this.currentType = Type;
-    // }
-
-    // state.schema = new FieldifySchema("modal");
-    // state.schema.compile(this.currentSchema);
-    // state.input= new FieldifyInput(state.schema)
-
-    // if (props.value) this.input.setValue(state.value)
     this.driveSchema(state)
-
     state.input.setValue(state.value)
-
     return (state)
   }
 
-  driveSchema(state) {
+  driveSchema(state, force) {
     const value = state.value;
 
     const Type = Types[value.type]
     if (Type && Type !== this.currentType) {
-
       // create a fake tmp type
       const TypeObject = new Type.class
 
       const configuration = TypeObject.configuration()
 
       this.currentSchema = { ...baseSchema }
+
+      // special cases for array 
+      if (value.type === "Array") {
+        this.currentSchema.content = {
+          $doc: "Item content type",
+          $type: "Select",
+          $required: true,
+          $options: {
+            default: value.content || "Object",
+            items: allTypesNoArray
+          },
+          $position: 12
+        }
+      }
+
       if (configuration) this.currentSchema.options = {
         ...configuration,
         $doc: "Type configuration"
       };
 
       // const upSchema = Type.
-      this.currentType = Type;
+      state.currentType = Type;
 
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new FieldifyInput(state.schema)
 
     }
-    else if(!state.schema) {
+    else if (!state.schema || force === true) {
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new FieldifyInput(state.schema)
     }
-
-
   }
 
 
@@ -159,13 +232,14 @@ export class FieldifySchemaBuilderModal extends React.Component {
       input: this.state.input,
       value: { ...this.state.value, ...value }
     }
-    console.log("state", state)
+
     this.driveSchema(state)
     state.input.setValue(state.value)
     this.setState(state)
 
     state.input.verify((result) => {
       const state = { form: {} }
+      state.verify = true;
 
       state.error = result.error
 
@@ -180,7 +254,78 @@ export class FieldifySchemaBuilderModal extends React.Component {
 
       this.setState(state)
     })
-    console.log("formChanged", value, state)
+
+  }
+
+  handleOK() {
+    this.state.input.verify((result) => {
+      const state = { form: {} }
+      state.verify = true;
+
+      state.error = result.error
+
+      if (result.error === true) {
+        state.form.color = "red"
+        state.form.state = "Error"
+      }
+      else {
+        state.form.color = "green"
+        state.form.state = "Passed"
+
+        this.setState(state)
+
+        // get the current input values 
+        const value = this.state.input.getValue()
+        var nvalue = {}
+
+        // rename all root value with $
+        for (var key in value) nvalue['$' + key] = value[key]
+        
+        // we will save the last path in order to reconstruct the field name
+        const source = this.state.initialPath.split('.')
+        source.pop()
+        source.push(value.key)
+        const npath = source.join('.')
+        delete nvalue.$key;
+        
+        // because object and array are virtualized in the builder 
+        // then we need to remap the item with the correct schema underlining
+        
+        if (nvalue.$type === "Array" && nvalue.$content === "Object") {
+          delete nvalue.$type;
+          delete nvalue.$content;
+          nvalue = [nvalue]
+        }
+        // normal in array
+        else if (nvalue.$type === "Array" && nvalue.$content !== "Object") {
+          nvalue.$type = nvalue.$content;
+          delete nvalue.$content;
+          nvalue = [nvalue]
+        }
+        // special handle for objects
+        else if (nvalue.$type === "Object") {
+          delete nvalue.$type;
+        }
+        
+        if(this.state.edition === true) {
+          this.props.onOk(({
+            edition: true,
+            oldPath: this.state.initialPath,
+            newPath: npath,
+            key: value.key,
+            value: nvalue
+          }))
+        }
+        else {
+          this.props.onOk(({
+            edition: false,
+            newPath: this.state.initialPath+"."+value.key,
+            key: value.key,
+            value: nvalue
+          }))
+        }
+      }
+    })
 
   }
 
@@ -202,15 +347,15 @@ export class FieldifySchemaBuilderModal extends React.Component {
       centered
       visible={this.state.visible}
       width={600}
-      onOk={onOk}
+      onOk={this.handleOK.bind(this)}
       onCancel={onCancel}
     >
-
       <FieldifySchemaForm
         ref={this.formRef}
         schema={this.state.schema}
         input={this.state.input}
         user={this.props.user}
+        verify={this.state.verify}
         onChange={this.formChanged.bind(this)}
       />
 

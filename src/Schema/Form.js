@@ -236,7 +236,7 @@ export class FieldifySchemaForm extends React.Component {
                 const key = lineKey + "." + a
 
                 const child = [];
-                follower(item.$_ptr[0], value, child, key);
+                follower(item[0], value, child, key);
 
                 dataSource.push({
                   key,
@@ -277,7 +277,7 @@ export class FieldifySchemaForm extends React.Component {
         // OBJECT
         else if (typeof item === "object" && !item.$type) {
           const child = [];
-          follower(item.$_ptr, inputPtr, child, lineKey);
+          follower(item, inputPtr, child, lineKey);
           ret.push(<div key={item.$_wire} className="ant-form-item">
             <Card size="small" title={item.$doc}>
               {child}

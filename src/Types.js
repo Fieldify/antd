@@ -4,6 +4,8 @@ import String from "./Types/String"
 import Number from "./Types/Number"
 import Checkbox from "./Types/Checkbox"
 import Select from "./Types/Select"
+import Object from "./Types/Object"
+import Array from "./Types/Array"
 import FieldName from "./Types/FieldName"
 import KV from "./Types/KV"
 
@@ -14,6 +16,8 @@ export default {
   Number,
   Select,
   Checkbox,
+  Object,
+  Array,
   FieldName,
   KV
 }

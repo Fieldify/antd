@@ -879,6 +879,55 @@ var Select = {
   Form: SelectForm
 };
 
+var ObjectClass = /*#__PURE__*/function (_fieldifyType) {
+  _inheritsLoose(ObjectClass, _fieldifyType);
+
+  function ObjectClass() {
+    return _fieldifyType.apply(this, arguments) || this;
+  }
+
+  return ObjectClass;
+}(fieldify.fieldifyType);
+
+var Object$1 = {
+  code: "Object",
+  description: "Nested Sub Object",
+  "class": ObjectClass
+};
+
+var ArrayClass = /*#__PURE__*/function (_fieldifyType) {
+  _inheritsLoose(ArrayClass, _fieldifyType);
+
+  function ArrayClass() {
+    return _fieldifyType.apply(this, arguments) || this;
+  }
+
+  var _proto = ArrayClass.prototype;
+
+  _proto.configuration = function configuration() {
+    return {
+      min: {
+        $doc: 'Minimum of items',
+        $required: false,
+        $type: 'Number'
+      },
+      max: {
+        $doc: 'Maximun of items',
+        $required: false,
+        $type: 'Number'
+      }
+    };
+  };
+
+  return ArrayClass;
+}(fieldify.fieldifyType);
+
+var Array$1 = {
+  code: "Array",
+  description: "Array",
+  "class": ArrayClass
+};
+
 var FieldNameForm = /*#__PURE__*/function (_String$Form) {
   _inheritsLoose(FieldNameForm, _String$Form);
 
@@ -1224,6 +1273,8 @@ var types = {
   Number: Number,
   Select: Select,
   Checkbox: Checkbox,
+  Object: Object$1,
+  Array: Array$1,
   FieldName: FieldName,
   KV: KV
 };
@@ -1462,7 +1513,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
                   var value = inputPtr2[a];
                   var key = lineKey + "." + a;
                   var child = [];
-                  follower(item.$_ptr[0], value, child, key);
+                  follower(item[0], value, child, key);
                   dataSource.push({
                     key: key,
                     form: child,
@@ -1512,7 +1563,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
           })))));
         } else if (typeof item === "object" && !item.$type) {
             var child = [];
-            follower(item.$_ptr, inputPtr, child, lineKey);
+            follower(item, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React__default.createElement("div", {
               key: item.$_wire,
               className: "ant-form-item"
@@ -1573,29 +1624,47 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
 }(React__default.Component);
 
 var allTypes = {};
+var allTypesNoArray = {};
 
 for (var a in types) {
   allTypes[a] = types[a].description;
+
+  if (a !== "Array") {
+    allTypesNoArray[a] = types[a].description;
+  }
 }
 
 var baseSchema = {
   key: {
     $doc: "Name of the field",
     $type: types.FieldName,
-    $required: true
+    $required: true,
+    $position: 10
   },
   type: {
     $doc: "Field type",
-    $type: types.Select,
+    $type: "Select",
     $required: true,
     $options: {
       items: allTypes
-    }
+    },
+    $position: 11
   },
   doc: {
     $doc: "Description",
-    $required: true,
-    $type: types.String
+    $required: false,
+    $type: "String",
+    $position: 22
+  },
+  position: {
+    $doc: "Position in the serie",
+    $required: false,
+    $type: "Number",
+    $default: 0,
+    $options: {
+      acceptedTypes: "integer"
+    },
+    $position: 23
   }
 };
 var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
@@ -1629,32 +1698,83 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
 
   _proto.cycle = function cycle(props, first) {
     var state = {
+      edition: false,
+      original: props.value,
       form: {
         state: "Filling",
         color: "blue"
       },
       value: {},
       visible: props.visible,
-      user: props.user
+      user: props.user,
+      verify: false
     };
 
+    if (state.user && state.user.$_wire) {
+      state.initialPath = state.user.$_wire;
+    } else state.initialPath = '';
+
     if (props.value) {
-      state.value = {
-        key: props.value.$_key,
-        type: props.value.$type.code,
-        doc: props.value.$doc,
-        options: props.value.$options
-      };
+      var val = props.value;
+      state.edition = true;
+
+      if (val.$_array !== true && val.$_nested !== true) {
+        state.value = {
+          key: val.$_key,
+          type: val.$type.code,
+          doc: val.$doc,
+          required: val.$required,
+          read: val.$read,
+          write: val.$write,
+          options: val.$options,
+          position: val.$position
+        };
+      } else if (val.$_array === true && val.$_nested === true) {
+          state.value = {
+            key: val.$_key,
+            type: "Array",
+            content: "Object",
+            doc: val.$doc,
+            required: val.$required,
+            read: val.$read,
+            write: val.$write,
+            options: val.$options,
+            position: val.$position
+          };
+        } else if (val.$_array === true && val.$_nested !== true) {
+            state.value = {
+              key: val.$_key,
+              type: "Array",
+              content: typeof val.$type === "string" ? val.$type : val.$type.code,
+              doc: val.$doc,
+              required: val.$required,
+              read: val.$read,
+              write: val.$write,
+              options: val.$options,
+              position: val.$position
+            };
+          } else if (val.$_array !== true && val.$_nested === true) {
+              state.value = {
+                key: val.$_key,
+                type: "Object",
+                doc: val.$doc,
+                required: val.$required,
+                read: val.$read,
+                write: val.$write,
+                options: val.$options,
+                position: val.$position
+              };
+            }
     } else {
-      state.value = {};
-    }
+        state.value = {};
+      }
 
     this.driveSchema(state);
     state.input.setValue(state.value);
     return state;
   };
 
-  _proto.driveSchema = function driveSchema(state) {
+  _proto.driveSchema = function driveSchema(state, force) {
     var value = state.value;
     var Type = types[value.type];
 
@@ -1662,14 +1782,28 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
       var TypeObject = new Type["class"]();
       var configuration = TypeObject.configuration();
       this.currentSchema = _extends({}, baseSchema);
+
+      if (value.type === "Array") {
+        this.currentSchema.content = {
+          $doc: "Item content type",
+          $type: "Select",
+          $required: true,
+          $options: {
+            "default": value.content || "Object",
+            items: allTypesNoArray
+          },
+          $position: 12
+        };
+      }
+
       if (configuration) this.currentSchema.options = _extends({}, configuration, {
         $doc: "Type configuration"
       });
-      this.currentType = Type;
+      state.currentType = Type;
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new fieldify.input(state.schema);
-    } else if (!state.schema) {
+    } else if (!state.schema || force === true) {
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new fieldify.input(state.schema);
@@ -1684,7 +1818,6 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
       input: this.state.input,
       value: _extends({}, this.state.value, value)
     };
-    console.log("state", state);
     this.driveSchema(state);
     state.input.setValue(state.value);
     this.setState(state);
@@ -1692,6 +1825,7 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
       var state = {
         form: {}
       };
+      state.verify = true;
       state.error = result.error;
 
       if (result.error === true) {
@@ -1704,16 +1838,79 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
 
       _this2.setState(state);
     });
-    console.log("formChanged", value, state);
+  };
+
+  _proto.handleOK = function handleOK() {
+    var _this3 = this;
+
+    this.state.input.verify(function (result) {
+      var state = {
+        form: {}
+      };
+      state.verify = true;
+      state.error = result.error;
+
+      if (result.error === true) {
+        state.form.color = "red";
+        state.form.state = "Error";
+      } else {
+        state.form.color = "green";
+        state.form.state = "Passed";
+
+        _this3.setState(state);
+
+        var value = _this3.state.input.getValue();
+
+        var nvalue = {};
+
+        for (var key in value) {
+          nvalue['$' + key] = value[key];
+        }
+
+        var source = _this3.state.initialPath.split('.');
+
+        source.pop();
+        source.push(value.key);
+        var npath = source.join('.');
+        delete nvalue.$key;
+
+        if (nvalue.$type === "Array" && nvalue.$content === "Object") {
+          delete nvalue.$type;
+          delete nvalue.$content;
+          nvalue = [nvalue];
+        } else if (nvalue.$type === "Array" && nvalue.$content !== "Object") {
+            nvalue.$type = nvalue.$content;
+            delete nvalue.$content;
+            nvalue = [nvalue];
+          } else if (nvalue.$type === "Object") {
+              delete nvalue.$type;
+            }
+
+        if (_this3.state.edition === true) {
+          _this3.props.onOk({
+            edition: true,
+            oldPath: _this3.state.initialPath,
+            newPath: npath,
+            key: value.key,
+            value: nvalue
+          });
+        } else {
+          _this3.props.onOk({
+            edition: false,
+            newPath: _this3.state.initialPath + "." + value.key,
+            key: value.key,
+            value: nvalue
+          });
+        }
+      }
+    });
   };
 
   _proto.render = function render() {
-    var _this3 = this;
-
-    var onOk = function onOk() {};
+    var _this4 = this;
 
     var onCancel = function onCancel() {
-      _this3.props.onCancel(_this3.state);
+      _this4.props.onCancel(_this4.state);
     };
     return /*#__PURE__*/React__default.createElement(antd.Modal, {
       title: /*#__PURE__*/React__default.createElement("span", null, "Add New Field To Your Schema ", /*#__PURE__*/React__default.createElement(antd.Tag, {
@@ -1722,13 +1919,14 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
       centered: true,
       visible: this.state.visible,
       width: 600,
-      onOk: onOk,
+      onOk: this.handleOK.bind(this),
       onCancel: onCancel
     }, /*#__PURE__*/React__default.createElement(FieldifySchemaForm, {
       ref: this.formRef,
       schema: this.state.schema,
       input: this.state.input,
       user: this.props.user,
+      verify: this.state.verify,
       onChange: this.formChanged.bind(this)
     }));
   };
@@ -1743,14 +1941,39 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
     var _this;
 
     _this = _React$Component.call(this, props) || this;
-    _this.state = {
+    _this.state = _this.cycle(props, true);
+    return _this;
+  }
+
+  var _proto = FieldifySchemaBuilder.prototype;
+
+  _proto.componentDidUpdate = function componentDidUpdate(props) {
+    var changed = false;
+    var state = {};
+
+    if (this.props.schema !== props.schema) {
+      state = this.cycle(this.props);
+      changed = true;
+    }
+
+    if (changed === true) this.setState(state);
+  };
+
+  _proto.cycle = function cycle(props, first) {
+    var _this2 = this;
+
+    var state = {
       modal: false,
       modalUser: null,
       schemaDataSource: []
     };
-    _this.schema = props.schema;
-    _this.state.schemaDataSource = _this.updateDataSource();
-    _this.columns = [{
+
+    this.onChange = function () {};
+
+    if (props.onChange) this.onChange = props.onChange;
+    this.schema = props.schema;
+    state.schemaDataSource = this.updateDataSource();
+    this.columns = [{
       title: 'Key',
       dataIndex: 'name',
       key: 'key'
@@ -1764,53 +1987,80 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
       }, /*#__PURE__*/React__default.createElement("span", {
         className: "ant-radio-button-wrapper",
         onClick: function onClick() {
-          return _this.handlingAdd();
+          return _this2.handlingAdd();
         }
-      }, /*#__PURE__*/React__default.createElement("span", null, "Add Field ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
+      }, /*#__PURE__*/React__default.createElement("span", null, "Add ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
       dataIndex: 'actions',
       key: 'actions',
       align: "right"
     }];
-    return _this;
-  }
+    return state;
+  };
 
-  var _proto = FieldifySchemaBuilder.prototype;
-
-  _proto.fireOnChange = function fireOnChange() {};
+  _proto.fireOnChange = function fireOnChange() {
+    var ex = this.schema["export"]();
+    this.schema.compile(ex);
+    this.onChange(ex);
+  };
 
   _proto.itemChanged = function itemChanged(arg) {
-    console.log("itemChanged", arg);
+    if (arg.edition === true) {
+      var lineup = this.props.schema.getLineup(arg.oldPath);
+      this.props.schema.removeLineup(arg.oldPath);
+      this.props.schema.setLineup(arg.newPath, arg.value);
+      antd.notification.success({
+        message: "Field updated",
+        description: "Field at " + arg.oldPath + " has been successfully updated"
+      });
+    } else {
+        this.props.schema.setLineup(arg.newPath, arg.value);
+        antd.notification.success({
+          message: "Field added",
+          description: "Field at " + arg.newPath + " has been successfully added"
+        });
+      }
+
+    this.fireOnChange();
+    this.setState({
+      modal: false,
+      modalContent: null,
+      modalUser: null,
+      schemaDataSource: this.updateDataSource()
+    });
   };
 
   _proto.itemRemove = function itemRemove(item) {
-    this.props.schema.removeLineup(item.$_path);
+    this.props.schema.removeLineup(item.$_wire);
     this.fireOnChange();
     this.setState({
       schemaDataSource: this.updateDataSource()
     });
     antd.notification.success({
       message: "Field removed",
-      description: "Field at " + item.$_path + " has been removed successfully"
+      description: "Field at " + item.$_wire + " has been successfully removed"
     });
   };
 
   _proto.handlingAdd = function handlingAdd(path) {
     path = path || ".";
     var lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
-    console.log("handing add", path, lineup);
-    this.setState({
+    var state = {
       modal: true,
       modalContent: null,
       modalUser: lineup
-    });
+    };
+    this.setState(state);
   };
 
   _proto.handlingEdit = function handlingEdit(item) {
-    console.log("handing edit", item, Array.isArray(item));
-    this.setState({
+    var path = item.$_wire || ".";
+    var lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
+    var state = {
       modal: true,
-      modalContent: item
-    });
+      modalContent: item,
+      modalUser: lineup
+    };
+    this.setState(state);
   };
 
   _proto.updateDataSource = function updateDataSource() {
@@ -1824,6 +2074,8 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
         item.$_path = path;
 
         if (Array.isArray(item)) {
+          path = wire + "." + item[0].$_key;
+          item[0].$_path = path;
           var composite = /*#__PURE__*/React__default.createElement(antd.Tooltip, {
             title: "... of objects"
           }, /*#__PURE__*/React__default.createElement(antd.Tag, {
@@ -1836,21 +2088,21 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
           }
 
           current.push({
-            ptr: item,
+            ptr: item[0],
             key: path,
             name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Tooltip, {
               title: "This field is an array ..."
             }, /*#__PURE__*/React__default.createElement(antd.Tag, {
               color: "#eb2f96"
-            }, /*#__PURE__*/React__default.createElement(icons.CopyOutlined, null))), composite, /*#__PURE__*/React__default.createElement("strong", null, item.$_key)),
-            doc: item.$doc,
+            }, /*#__PURE__*/React__default.createElement(icons.CopyOutlined, null))), composite, /*#__PURE__*/React__default.createElement("strong", null, item[0].$_key)),
+            doc: item[0].$doc,
             children: !("$type" in item[0]) ? fieldify2antDataTable(item[0], path) : null,
             actions: /*#__PURE__*/React__default.createElement("div", {
               className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
             }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
               title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete the Array ", /*#__PURE__*/React__default.createElement("strong", null, path)),
               onConfirm: function onConfirm() {
-                return self.itemRemove(item);
+                return self.itemRemove(item[0]);
               },
               okText: "Yes",
               cancelText: "No"
@@ -1859,7 +2111,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
             }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: function onClick() {
-                return self.handlingEdit(item);
+                return self.handlingEdit(item[0]);
               }
             }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))), !("$type" in item[0]) ? /*#__PURE__*/React__default.createElement("span", {
               className: "ant-radio-button-wrapper",
@@ -1943,7 +2195,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
   };
 
   _proto.render = function render() {
-    var _this2 = this;
+    var _this3 = this;
 
     var sds = this.state.schemaDataSource;
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(FieldifySchemaBuilderModal, {
@@ -1951,7 +2203,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
       visible: this.state.modal,
       value: this.state.modalContent,
       onCancel: function onCancel() {
-        return _this2.setState({
+        return _this3.setState({
           modal: false
         });
       },

@@ -23,7 +23,7 @@ class App extends React.Component {
 
       name: {
         $doc: "Civility",
-        $type: Types.Name,
+        $type: "Name",
         $position: 1
       },
 
@@ -72,7 +72,17 @@ class App extends React.Component {
           street: { $doc: "Street", $type: Types.String },
           zip: { $doc: "ZIP", $type: Types.String },
           country: { $doc: "Country", $type: Types.String },
-        }
+        },
+        inlinedArray: [{
+          $required: true,
+          $doc: "Array of User Defined types (non-nested)",
+          $type: Types.Name,
+          $options: { min: 2 },
+          $array: {
+            min: 2,
+            max: 100
+          }
+        }],
       },
 
       nestedArray: [{
@@ -118,6 +128,9 @@ class App extends React.Component {
         json: "",
         state: "Filling",
         color: "blue"
+      },
+      builder: {
+        json: ""
       }
     }
 
@@ -148,7 +161,16 @@ class App extends React.Component {
 
       inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
     })
+    this.state.builder.json = JSON.stringify(this.schema.export(), null, "  ")
     this.state.form.json = JSON.stringify(this.input.getValue(), null, "  ")
+  }
+
+  builderChanged(schema) {
+    this.setState({
+      builder: {
+        json: JSON.stringify(schema, null, "  ")
+      }
+    })
   }
 
   formChanged(value) {
@@ -188,10 +210,12 @@ class App extends React.Component {
             <Card size="small" title="Pass #1 - Building">
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Editor" key="1">
-                  <FieldifySchemaBuilder schema={this.schema} />
+                  <FieldifySchemaBuilder schema={this.schema} onChange={this.builderChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="JSON Schema" key="2">
-                  Coming soon
+                  <pre>
+                    {this.state.builder.json}
+                  </pre>
                 </TabPane>
               </Tabs>
             </Card>
@@ -202,7 +226,7 @@ class App extends React.Component {
             <Card size="small" title={<>Pass #2 - Filling Form <Tag color={this.state.form.color}>{this.state.form.state}</Tag></>}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Rendering" key="1">
-                  <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)} />
+                  {/* <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)} /> */}
                 </TabPane>
                 <TabPane tab="Sanatized JSON Input" key="2">
                   <pre>

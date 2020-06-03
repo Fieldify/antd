@@ -1,4 +1,4 @@
-import { types as types$1, schema as schema$1, input, utils } from 'fieldify';
+import { types as types$1, fieldifyType, schema as schema$1, input, utils } from 'fieldify';
 import React, { Component } from 'react';
 import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
 import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, DeleteOutlined, EditOutlined, PlusOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
@@ -614,6 +614,38 @@ var Select = {
   Form: SelectForm
 };
 
+class ObjectClass extends fieldifyType {}
+
+var Object$1 = {
+  code: "Object",
+  description: "Nested Sub Object",
+  class: ObjectClass
+};
+
+class ArrayClass extends fieldifyType {
+  configuration() {
+    return {
+      min: {
+        $doc: 'Minimum of items',
+        $required: false,
+        $type: 'Number'
+      },
+      max: {
+        $doc: 'Maximun of items',
+        $required: false,
+        $type: 'Number'
+      }
+    };
+  }
+
+}
+
+var Array$1 = {
+  code: "Array",
+  description: "Array",
+  class: ArrayClass
+};
+
 class FieldNameForm extends String.Form {
   constructor(props) {
     super(props);
@@ -893,6 +925,8 @@ var types = {
   Number,
   Select,
   Checkbox,
+  Object: Object$1,
+  Array: Array$1,
   FieldName,
   KV
 };
@@ -1101,7 +1135,7 @@ class FieldifySchemaForm extends React.Component {
                   const value = inputPtr2[a];
                   const key = lineKey + "." + a;
                   const child = [];
-                  follower(item.$_ptr[0], value, child, key);
+                  follower(item[0], value, child, key);
                   dataSource.push({
                     key,
                     form: child,
@@ -1143,7 +1177,7 @@ class FieldifySchemaForm extends React.Component {
           })))));
         } else if (typeof item === "object" && !item.$type) {
             const child = [];
-            follower(item.$_ptr, inputPtr, child, lineKey);
+            follower(item, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React.createElement("div", {
               key: item.$_wire,
               className: "ant-form-item"
@@ -1201,29 +1235,47 @@ class FieldifySchemaForm extends React.Component {
 }
 
 const allTypes = {};
+const allTypesNoArray = {};
 
 for (var a in types) {
   allTypes[a] = types[a].description;
+
+  if (a !== "Array") {
+    allTypesNoArray[a] = types[a].description;
+  }
 }
 
 const baseSchema = {
   key: {
     $doc: "Name of the field",
     $type: types.FieldName,
-    $required: true
+    $required: true,
+    $position: 10
   },
   type: {
     $doc: "Field type",
-    $type: types.Select,
+    $type: "Select",
     $required: true,
     $options: {
       items: allTypes
-    }
+    },
+    $position: 11
   },
   doc: {
     $doc: "Description",
-    $required: true,
-    $type: types.String
+    $required: false,
+    $type: "String",
+    $position: 22
+  },
+  position: {
+    $doc: "Position in the serie",
+    $required: false,
+    $type: "Number",
+    $default: 0,
+    $options: {
+      acceptedTypes: "integer"
+    },
+    $position: 23
   }
 };
 class FieldifySchemaBuilderModal extends React.Component {
@@ -1250,32 +1302,83 @@ class FieldifySchemaBuilderModal extends React.Component {
 
   cycle(props, first) {
     const state = {
+      edition: false,
+      original: props.value,
       form: {
         state: "Filling",
         color: "blue"
       },
       value: {},
       visible: props.visible,
-      user: props.user
+      user: props.user,
+      verify: false
     };
 
+    if (state.user && state.user.$_wire) {
+      state.initialPath = state.user.$_wire;
+    } else state.initialPath = '';
+
     if (props.value) {
-      state.value = {
-        key: props.value.$_key,
-        type: props.value.$type.code,
-        doc: props.value.$doc,
-        options: props.value.$options
-      };
+      const val = props.value;
+      state.edition = true;
+
+      if (val.$_array !== true && val.$_nested !== true) {
+        state.value = {
+          key: val.$_key,
+          type: val.$type.code,
+          doc: val.$doc,
+          required: val.$required,
+          read: val.$read,
+          write: val.$write,
+          options: val.$options,
+          position: val.$position
+        };
+      } else if (val.$_array === true && val.$_nested === true) {
+          state.value = {
+            key: val.$_key,
+            type: "Array",
+            content: "Object",
+            doc: val.$doc,
+            required: val.$required,
+            read: val.$read,
+            write: val.$write,
+            options: val.$options,
+            position: val.$position
+          };
+        } else if (val.$_array === true && val.$_nested !== true) {
+            state.value = {
+              key: val.$_key,
+              type: "Array",
+              content: typeof val.$type === "string" ? val.$type : val.$type.code,
+              doc: val.$doc,
+              required: val.$required,
+              read: val.$read,
+              write: val.$write,
+              options: val.$options,
+              position: val.$position
+            };
+          } else if (val.$_array !== true && val.$_nested === true) {
+              state.value = {
+                key: val.$_key,
+                type: "Object",
+                doc: val.$doc,
+                required: val.$required,
+                read: val.$read,
+                write: val.$write,
+                options: val.$options,
+                position: val.$position
+              };
+            }
     } else {
-      state.value = {};
-    }
+        state.value = {};
+      }
 
     this.driveSchema(state);
     state.input.setValue(state.value);
     return state;
   }
 
-  driveSchema(state) {
+  driveSchema(state, force) {
     const value = state.value;
     const Type = types[value.type];
 
@@ -1284,14 +1387,28 @@ class FieldifySchemaBuilderModal extends React.Component {
       const configuration = TypeObject.configuration();
       this.currentSchema = { ...baseSchema
       };
+
+      if (value.type === "Array") {
+        this.currentSchema.content = {
+          $doc: "Item content type",
+          $type: "Select",
+          $required: true,
+          $options: {
+            default: value.content || "Object",
+            items: allTypesNoArray
+          },
+          $position: 12
+        };
+      }
+
       if (configuration) this.currentSchema.options = { ...configuration,
         $doc: "Type configuration"
       };
-      this.currentType = Type;
+      state.currentType = Type;
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new input(state.schema);
-    } else if (!state.schema) {
+    } else if (!state.schema || force === true) {
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new input(state.schema);
@@ -1306,7 +1423,6 @@ class FieldifySchemaBuilderModal extends React.Component {
         ...value
       }
     };
-    console.log("state", state);
     this.driveSchema(state);
     state.input.setValue(state.value);
     this.setState(state);
@@ -1314,6 +1430,7 @@ class FieldifySchemaBuilderModal extends React.Component {
       const state = {
         form: {}
       };
+      state.verify = true;
       state.error = result.error;
 
       if (result.error === true) {
@@ -1326,11 +1443,67 @@ class FieldifySchemaBuilderModal extends React.Component {
 
       this.setState(state);
     });
-    console.log("formChanged", value, state);
+  }
+
+  handleOK() {
+    this.state.input.verify(result => {
+      const state = {
+        form: {}
+      };
+      state.verify = true;
+      state.error = result.error;
+
+      if (result.error === true) {
+        state.form.color = "red";
+        state.form.state = "Error";
+      } else {
+        state.form.color = "green";
+        state.form.state = "Passed";
+        this.setState(state);
+        const value = this.state.input.getValue();
+        var nvalue = {};
+
+        for (var key in value) nvalue['$' + key] = value[key];
+
+        const source = this.state.initialPath.split('.');
+        source.pop();
+        source.push(value.key);
+        const npath = source.join('.');
+        delete nvalue.$key;
+
+        if (nvalue.$type === "Array" && nvalue.$content === "Object") {
+          delete nvalue.$type;
+          delete nvalue.$content;
+          nvalue = [nvalue];
+        } else if (nvalue.$type === "Array" && nvalue.$content !== "Object") {
+            nvalue.$type = nvalue.$content;
+            delete nvalue.$content;
+            nvalue = [nvalue];
+          } else if (nvalue.$type === "Object") {
+              delete nvalue.$type;
+            }
+
+        if (this.state.edition === true) {
+          this.props.onOk({
+            edition: true,
+            oldPath: this.state.initialPath,
+            newPath: npath,
+            key: value.key,
+            value: nvalue
+          });
+        } else {
+          this.props.onOk({
+            edition: false,
+            newPath: this.state.initialPath + "." + value.key,
+            key: value.key,
+            value: nvalue
+          });
+        }
+      }
+    });
   }
 
   render() {
-    const onOk = () => {};
 
     const onCancel = () => {
       this.props.onCancel(this.state);
@@ -1342,13 +1515,14 @@ class FieldifySchemaBuilderModal extends React.Component {
       centered: true,
       visible: this.state.visible,
       width: 600,
-      onOk: onOk,
+      onOk: this.handleOK.bind(this),
       onCancel: onCancel
     }, /*#__PURE__*/React.createElement(FieldifySchemaForm, {
       ref: this.formRef,
       schema: this.state.schema,
       input: this.state.input,
       user: this.props.user,
+      verify: this.state.verify,
       onChange: this.formChanged.bind(this)
     }));
   }
@@ -1358,13 +1532,33 @@ class FieldifySchemaBuilderModal extends React.Component {
 class FieldifySchemaBuilder extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
+    this.state = this.cycle(props, true);
+  }
+
+  componentDidUpdate(props) {
+    var changed = false;
+    var state = {};
+
+    if (this.props.schema !== props.schema) {
+      state = this.cycle(this.props);
+      changed = true;
+    }
+
+    if (changed === true) this.setState(state);
+  }
+
+  cycle(props, first) {
+    const state = {
       modal: false,
       modalUser: null,
       schemaDataSource: []
     };
+
+    this.onChange = () => {};
+
+    if (props.onChange) this.onChange = props.onChange;
     this.schema = props.schema;
-    this.state.schemaDataSource = this.updateDataSource();
+    state.schemaDataSource = this.updateDataSource();
     this.columns = [{
       title: 'Key',
       dataIndex: 'name',
@@ -1379,48 +1573,78 @@ class FieldifySchemaBuilder extends React.Component {
       }, /*#__PURE__*/React.createElement("span", {
         className: "ant-radio-button-wrapper",
         onClick: () => this.handlingAdd()
-      }, /*#__PURE__*/React.createElement("span", null, "Add Field ", /*#__PURE__*/React.createElement(PlusOutlined, null)))),
+      }, /*#__PURE__*/React.createElement("span", null, "Add ", /*#__PURE__*/React.createElement(PlusOutlined, null)))),
       dataIndex: 'actions',
       key: 'actions',
       align: "right"
     }];
+    return state;
   }
 
-  fireOnChange() {}
+  fireOnChange() {
+    const ex = this.schema.export();
+    this.schema.compile(ex);
+    this.onChange(ex);
+  }
 
   itemChanged(arg) {
-    console.log("itemChanged", arg);
+    if (arg.edition === true) {
+      const lineup = this.props.schema.getLineup(arg.oldPath);
+      this.props.schema.removeLineup(arg.oldPath);
+      this.props.schema.setLineup(arg.newPath, arg.value);
+      notification.success({
+        message: "Field updated",
+        description: `Field at ${arg.oldPath} has been successfully updated`
+      });
+    } else {
+        this.props.schema.setLineup(arg.newPath, arg.value);
+        notification.success({
+          message: "Field added",
+          description: `Field at ${arg.newPath} has been successfully added`
+        });
+      }
+
+    this.fireOnChange();
+    this.setState({
+      modal: false,
+      modalContent: null,
+      modalUser: null,
+      schemaDataSource: this.updateDataSource()
+    });
   }
 
   itemRemove(item) {
-    this.props.schema.removeLineup(item.$_path);
+    this.props.schema.removeLineup(item.$_wire);
     this.fireOnChange();
     this.setState({
       schemaDataSource: this.updateDataSource()
     });
     notification.success({
       message: "Field removed",
-      description: `Field at ${item.$_path} has been removed successfully`
+      description: `Field at ${item.$_wire} has been successfully removed`
     });
   }
 
   handlingAdd(path) {
     path = path || ".";
     const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
-    console.log("handing add", path, lineup);
-    this.setState({
+    const state = {
       modal: true,
       modalContent: null,
       modalUser: lineup
-    });
+    };
+    this.setState(state);
   }
 
   handlingEdit(item) {
-    console.log("handing edit", item, Array.isArray(item));
-    this.setState({
+    const path = item.$_wire || ".";
+    const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
+    const state = {
       modal: true,
-      modalContent: item
-    });
+      modalContent: item,
+      modalUser: lineup
+    };
+    this.setState(state);
   }
 
   updateDataSource() {
@@ -1430,10 +1654,12 @@ class FieldifySchemaBuilder extends React.Component {
       if (!wire) wire = "";
       const current = [];
       utils.orderedRead(schema, (index, item) => {
-        const path = wire + "." + item.$_key;
+        var path = wire + "." + item.$_key;
         item.$_path = path;
 
         if (Array.isArray(item)) {
+          path = wire + "." + item[0].$_key;
+          item[0].$_path = path;
           var composite = /*#__PURE__*/React.createElement(Tooltip, {
             title: "... of objects"
           }, /*#__PURE__*/React.createElement(Tag, {
@@ -1446,27 +1672,27 @@ class FieldifySchemaBuilder extends React.Component {
           }
 
           current.push({
-            ptr: item,
+            ptr: item[0],
             key: path,
             name: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Tooltip, {
               title: "This field is an array ..."
             }, /*#__PURE__*/React.createElement(Tag, {
               color: "#eb2f96"
-            }, /*#__PURE__*/React.createElement(CopyOutlined, null))), composite, /*#__PURE__*/React.createElement("strong", null, item.$_key)),
-            doc: item.$doc,
+            }, /*#__PURE__*/React.createElement(CopyOutlined, null))), composite, /*#__PURE__*/React.createElement("strong", null, item[0].$_key)),
+            doc: item[0].$doc,
             children: !("$type" in item[0]) ? fieldify2antDataTable(item[0], path) : null,
             actions: /*#__PURE__*/React.createElement("div", {
               className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
             }, /*#__PURE__*/React.createElement(Popconfirm, {
               title: /*#__PURE__*/React.createElement("span", null, "Are you sure to delete the Array ", /*#__PURE__*/React.createElement("strong", null, path)),
-              onConfirm: () => self.itemRemove(item),
+              onConfirm: () => self.itemRemove(item[0]),
               okText: "Yes",
               cancelText: "No"
             }, /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper"
             }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))), /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
-              onClick: () => self.handlingEdit(item)
+              onClick: () => self.handlingEdit(item[0])
             }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))), !("$type" in item[0]) ? /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: () => self.handlingAdd(path)

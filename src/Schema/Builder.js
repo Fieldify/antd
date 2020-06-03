@@ -166,11 +166,12 @@ export class FieldifySchemaBuilder extends RecycledComponent {
         wire = "";
       const current = [];
       utils.orderedRead(schema, (index, item) => {
+        const source = { ...Array.isArray(item) ? item[0] : item };
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
         // Is array
-        if (Array.isArray(item)) {
+        if(source.$_array === true) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
 
@@ -214,7 +215,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
           });
         }
         // is object
-        else if (typeof item === "object" && !item.$type) {
+        else if(source.$_array !== true && source.$_nested === true) {
           current.push({
             ptr: item,
             key: path,
@@ -243,7 +244,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
             </div>
           });
         }
-        else if (item.$type) {
+        else if (source.$_array !== true && source.$_nested !== true) {
           const TypeInfo = item.$type.Info;
           current.push({
             ptr: item,

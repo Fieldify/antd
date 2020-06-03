@@ -2046,10 +2046,12 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
       if (!wire) wire = "";
       var current = [];
       fieldify.utils.orderedRead(schema, function (index, item) {
+        var source = _extends({}, Array.isArray(item) ? item[0] : item);
+
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
-        if (Array.isArray(item)) {
+        if (source.$_array === true) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
           var composite = /*#__PURE__*/React__default.createElement(antd.Tooltip, {
@@ -2096,7 +2098,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
               }
             }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))) : null)
           });
-        } else if (typeof item === "object" && !item.$type) {
+        } else if (source.$_array !== true && source.$_nested === true) {
             current.push({
               ptr: item,
               key: path,
@@ -2130,7 +2132,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
                 }
               }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))))
             });
-          } else if (item.$type) {
+          } else if (source.$_array !== true && source.$_nested !== true) {
             var _TypeInfo = item.$type.Info;
             current.push({
               ptr: item,

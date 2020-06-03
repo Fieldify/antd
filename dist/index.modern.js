@@ -1628,10 +1628,12 @@ class FieldifySchemaBuilder extends RecycledComponent {
       if (!wire) wire = "";
       const current = [];
       utils.orderedRead(schema, (index, item) => {
+        const source = { ...(Array.isArray(item) ? item[0] : item)
+        };
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
-        if (Array.isArray(item)) {
+        if (source.$_array === true) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
           var composite = /*#__PURE__*/React.createElement(Tooltip, {
@@ -1672,7 +1674,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
               onClick: () => self.handlingAdd(path)
             }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))) : null)
           });
-        } else if (typeof item === "object" && !item.$type) {
+        } else if (source.$_array !== true && source.$_nested === true) {
             current.push({
               ptr: item,
               key: path,
@@ -1700,7 +1702,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
                 onClick: () => self.handlingAdd(path)
               }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))))
             });
-          } else if (item.$type) {
+          } else if (source.$_array !== true && source.$_nested !== true) {
             const TypeInfo = item.$type.Info;
             current.push({
               ptr: item,

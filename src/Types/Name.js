@@ -16,6 +16,7 @@ import {
 import { UserSwitchOutlined as Icon } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
+import TypeRender from '../lib/TypeRender';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
 
@@ -31,7 +32,6 @@ const StringForm = TString.Form
 class NameForm extends TypeForm {
   constructor(props) {
     super(props)
-
   }
 
   cycle(props) {
@@ -97,6 +97,27 @@ class NameInfo extends TypeInfo {
   }
 }
 
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *
+ * Rendering of the field
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+class NameRender extends TypeRender {
+  static getDerivedStateFromProps(props, state) {
+    if(state.value && typeof state.value === "object") {
+      var final = ""
+
+      if(state.value.first) final += state.value.first
+      if(state.value.last) final += " "+state.value.last
+
+      state.value = final.trim()
+    }
+    return(state)
+  }
+}
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *
@@ -138,6 +159,7 @@ export default {
   Info: NameInfo,
   Builder: NameBuilder,
   Form: NameForm,
+  Render: NameRender,
 
   noFormItem: true
 }

@@ -16,6 +16,7 @@ import {
 import { NumberOutlined as Icon } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
+import TypeRender from '../lib/TypeRender';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
 
@@ -55,6 +56,14 @@ class NumberInfo extends TypeInfo {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *
+ * Rendering of the field
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+class NumberRender extends TypeRender {
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *
  * Field builder
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 class NumberBuilder extends TypeBuilder {
@@ -84,7 +93,8 @@ export default {
 
   Info: NumberInfo,
   Builder: NumberBuilder,
-  Form: NumberForm
+  Form: NumberForm,
+  Render: NumberRender
 }
 
 

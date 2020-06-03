@@ -17,6 +17,7 @@ import {
 import { SelectOutlined as Icon } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
+import TypeRender from '../lib/TypeRender';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
 
@@ -84,6 +85,26 @@ class SelectInfo extends TypeInfo {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *
+ * Rendering of the field
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+class SelectRender extends TypeRender {
+  static getDerivedStateFromProps(props, state) {
+    if(typeof state.value === "string") {
+
+      if(props.schema.$options && props.schema.$options.items) {
+        const ptr = props.schema.$options.items
+        if(ptr[state.value]) state.value = ptr[state.value]
+      }
+    }
+    return(state)
+  }
+
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *
  * Field builder
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 class SelectBuilder extends TypeBuilder {
@@ -121,7 +142,8 @@ export default {
 
   Info: SelectInfo,
   Builder: SelectBuilder,
-  Form: SelectForm
+  Form: SelectForm,
+  Render: SelectRender
 }
 
 

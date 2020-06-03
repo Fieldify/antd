@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
+import TypeRender from '../lib/TypeRender';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
 
@@ -235,6 +236,73 @@ class KVInfo extends TypeInfo {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *
+ * Rendering of the field
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+class KVRender extends TypeRender {
+
+  cycle(props) {
+    const ret = super.cycle(props)
+
+    if (!ret.value) ret.value = {}
+
+    this.result = { ...ret.value }
+
+    ret.dataTree = { ...ret.value }
+    ret.dataSource = this.computeDataSource(ret.dataTree);
+
+    return (ret)
+  }
+
+  computeDataSource(tree) {
+    const ds = []
+    for (let key in tree) {
+      const value = tree[key]
+      ds.push({
+        key: key,
+        value: value
+      })
+    }
+    return (ds)
+  }
+
+
+  render() {
+    const columns = [
+      {
+        dataIndex: 'key',
+        key: 'key',
+      },
+      {
+        dataIndex: 'value',
+        key: 'value',
+      }
+    ];
+
+    const layout = {
+      labelCol: { span: 8 },
+      wrapperCol: { span: 16 },
+    };
+
+    return (super.subRender(<div>
+      <Table
+        showHeader={false}
+        size="small"
+        dataSource={this.state.dataSource}
+        columns={columns}
+        pagination={{
+          total: this.state.dataSource.length,
+          pageSize: this.state.dataSource.length,
+          hideOnSinglePage: true
+        }}
+      />
+    </div>));
+  }
+
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *
  * Field builder
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 class KVBuilder extends TypeBuilder {
@@ -264,7 +332,8 @@ export default {
 
   Info: KVInfo,
   Builder: KVBuilder,
-  Form: KVForm
+  Form: KVForm,
+  Render: KVRender
 }
 
 

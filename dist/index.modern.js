@@ -170,6 +170,48 @@ class FieldifyTypeForm extends Component {
 
 }
 
+class FieldifyTypeRender extends RecycledComponent {
+  cycle(props) {
+    const state = {
+      schema: props.schema,
+      value: props.value,
+      injected: props.injected
+    };
+    return state;
+  }
+
+  subRender(children) {
+    if (this.state.injected === true) {
+      return /*#__PURE__*/React.createElement(Form.Item, {
+        label: this.state.schema.$doc,
+        hasFeedback: true,
+        validateStatus: "success",
+        style: {
+          marginBottom: "0px"
+        },
+        wrapperCol: {
+          sm: 24
+        }
+      }, children);
+    }
+
+    return /*#__PURE__*/React.createElement(Form.Item, {
+      label: this.state.schema.$doc,
+      hasFeedback: true,
+      validateStatus: "success"
+    }, children);
+  }
+
+  render() {
+    return this.subRender( /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%"
+      }
+    }, this.state.value));
+  }
+
+}
+
 class SignderivaTypeInfo extends Component {
   constructor(props) {
     super(props);
@@ -260,6 +302,8 @@ class StringForm extends FieldifyTypeForm {
 
 }
 
+class StringRender extends FieldifyTypeRender {}
+
 class StringInfo extends SignderivaTypeInfo {
   render() {
     return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
@@ -304,7 +348,8 @@ var String = {
   class: types$1.String.class,
   Info: StringInfo,
   Builder: StringBuilder,
-  Form: StringForm
+  Form: StringForm,
+  Render: StringRender
 };
 
 const StringForm$1 = String.Form;
@@ -367,6 +412,20 @@ class NameInfo extends SignderivaTypeInfo {
 
 }
 
+class NameRender extends FieldifyTypeRender {
+  static getDerivedStateFromProps(props, state) {
+    if (state.value && typeof state.value === "object") {
+      var final = "";
+      if (state.value.first) final += state.value.first;
+      if (state.value.last) final += " " + state.value.last;
+      state.value = final.trim();
+    }
+
+    return state;
+  }
+
+}
+
 class NameBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
@@ -400,6 +459,7 @@ var Name = {
   Info: NameInfo,
   Builder: NameBuilder,
   Form: NameForm,
+  Render: NameRender,
   noFormItem: true
 };
 
@@ -424,6 +484,8 @@ class EmailInfo extends SignderivaTypeInfo {
   }
 
 }
+
+class EmailRender extends FieldifyTypeRender {}
 
 class EmailBuilder extends SignderivaTypeBuilder {
   constructor(props) {
@@ -453,7 +515,8 @@ var Email = {
   class: types$1.Email.class,
   Info: EmailInfo,
   Builder: EmailBuilder,
-  Form: EmailForm
+  Form: EmailForm,
+  Render: EmailRender
 };
 
 class NumberForm extends FieldifyTypeForm {
@@ -479,6 +542,8 @@ class NumberInfo extends SignderivaTypeInfo {
 
 }
 
+class NumberRender extends FieldifyTypeRender {}
+
 class NumberBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
@@ -501,7 +566,8 @@ var Number = {
   class: types$1.Number.class,
   Info: NumberInfo,
   Builder: NumberBuilder,
-  Form: NumberForm
+  Form: NumberForm,
+  Render: NumberRender
 };
 
 class CheckboxForm extends FieldifyTypeForm {
@@ -613,6 +679,20 @@ class SelectInfo extends SignderivaTypeInfo {
 
 }
 
+class SelectRender extends FieldifyTypeRender {
+  static getDerivedStateFromProps(props, state) {
+    if (typeof state.value === "string") {
+      if (props.schema.$options && props.schema.$options.items) {
+        const ptr = props.schema.$options.items;
+        if (ptr[state.value]) state.value = ptr[state.value];
+      }
+    }
+
+    return state;
+  }
+
+}
+
 class SelectBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
@@ -645,7 +725,8 @@ var Select = {
   class: types$1.Select.class,
   Info: SelectInfo,
   Builder: SelectBuilder,
-  Form: SelectForm
+  Form: SelectForm,
+  Render: SelectRender
 };
 
 class ObjectClass extends fieldifyType {}
@@ -927,6 +1008,55 @@ class KVInfo extends SignderivaTypeInfo {
 
 }
 
+class KVRender extends FieldifyTypeRender {
+  cycle(props) {
+    const ret = super.cycle(props);
+    if (!ret.value) ret.value = {};
+    this.result = { ...ret.value
+    };
+    ret.dataTree = { ...ret.value
+    };
+    ret.dataSource = this.computeDataSource(ret.dataTree);
+    return ret;
+  }
+
+  computeDataSource(tree) {
+    const ds = [];
+
+    for (let key in tree) {
+      const value = tree[key];
+      ds.push({
+        key: key,
+        value: value
+      });
+    }
+
+    return ds;
+  }
+
+  render() {
+    const columns = [{
+      dataIndex: 'key',
+      key: 'key'
+    }, {
+      dataIndex: 'value',
+      key: 'value'
+    }];
+    return super.subRender( /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Table, {
+      showHeader: false,
+      size: "small",
+      dataSource: this.state.dataSource,
+      columns: columns,
+      pagination: {
+        total: this.state.dataSource.length,
+        pageSize: this.state.dataSource.length,
+        hideOnSinglePage: true
+      }
+    })));
+  }
+
+}
+
 class KVBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
@@ -949,7 +1079,8 @@ var KV = {
   class: types$1.KV.class,
   Info: KVInfo,
   Builder: KVBuilder,
-  Form: KVForm
+  Form: KVForm,
+  Render: KVRender
 };
 
 var types = {
@@ -1765,18 +1896,181 @@ class FieldifySchemaBuilder extends RecycledComponent {
 
 }
 
-class FieldifySchemaRender extends React.Component {
+class FieldifySchemaRender extends RecycledComponent {
+  constructor(props) {
+    super(props);
+    this.formRef = React.createRef();
+  }
+
+  cycle(props, first) {
+    const state = {
+      input: props.input,
+      layout: props.layout ? props.layout : "horizontal"
+    };
+    this.schema = props.schema;
+    state.verify = props.verify || false;
+    state.reactive = this.update(state.input, state.verify);
+    this.references = {};
+    this.onChange = props.onChange ? props.onChange : () => {};
+    return state;
+  }
+
+  update(input, verify) {
+    const follower = (schema, input, ret, line) => {
+      line = line || "";
+      utils.orderedRead(schema, (index, item) => {
+        const source = { ...(Array.isArray(item) ? item[0] : item)
+        };
+        const inputPtr = input ? input[source.$_key] : null;
+        const lineKey = line + "." + source.$_key;
+
+        if (source.$_array === true) {
+          const columns = [{
+            dataIndex: 'form',
+            key: 'form',
+            width: "100%"
+          }];
+          const dataSource = [];
+          var inputPtr2 = inputPtr;
+          const options = source.$array || {};
+          const min = options.min ? options.min : source.$required === true ? 1 : 0;
+
+          if (source.$_nested === true) {
+            var inputPtr2 = input[source.$_key];
+            if (!Array.isArray(inputPtr)) inputPtr2 = input[source.$_key] = [];
+
+            if (min - inputPtr2.length > 0) {
+              for (var a = 0; a <= min - inputPtr2.length; a++) {
+                inputPtr2.push({});
+              }
+            }
+
+            for (var a = 0; a < inputPtr2.length; a++) {
+              const value = inputPtr2[a];
+              const key = lineKey + "." + a;
+              const child = [];
+              follower(source, value, child, key);
+              dataSource.push({
+                key,
+                form: child
+              });
+            }
+          } else {
+            delete source.$doc;
+            const TypeRender = source.$type.Render;
+
+            if (TypeRender) {
+              if (!Array.isArray(inputPtr)) {
+                input[item.$_key] = [];
+                inputPtr2 = input[item.$_key];
+              }
+
+              if (!inputPtr2) return ret;
+
+              if (min - inputPtr2.length > 0) {
+                for (var a = 0; a <= min - inputPtr2.length; a++) {
+                  inputPtr2.push(null);
+                }
+              }
+
+              for (var a = 0; a < inputPtr2.length; a++) {
+                const value = inputPtr2[a];
+                const key = lineKey + "." + a;
+                dataSource.push({
+                  key,
+                  form: /*#__PURE__*/React.createElement(TypeRender, {
+                    schema: source,
+                    value: value,
+                    injected: true,
+                    key: "render." + source.$_wire
+                  })
+                });
+              }
+            }
+          }
+
+          ret.push( /*#__PURE__*/React.createElement(Form.Item, {
+            key: source.$_wire,
+            noStyle: true
+          }, /*#__PURE__*/React.createElement("div", {
+            className: "ant-form-item"
+          }, /*#__PURE__*/React.createElement(Card, {
+            size: "small",
+            title: source.$_access.$doc
+          }, /*#__PURE__*/React.createElement(Table, {
+            size: "small",
+            dataSource: dataSource,
+            columns: columns,
+            showHeader: false,
+            pagination: {
+              total: dataSource.length,
+              pageSize: dataSource.length,
+              hideOnSinglePage: true
+            }
+          })))));
+        } else {
+          if (source.$_nested === true) {
+            const child = [];
+            follower(source, inputPtr, child, lineKey);
+            ret.push( /*#__PURE__*/React.createElement("div", {
+              key: "render." + source.$_wire,
+              className: "ant-form-item"
+            }, /*#__PURE__*/React.createElement(Card, {
+              size: "small",
+              title: source.$doc
+            }, child)));
+          } else {
+            const TypeRender = item.$type.Render;
+
+            if (TypeRender) {
+              ret.push( /*#__PURE__*/React.createElement(TypeRender, {
+                schema: source,
+                value: inputPtr,
+                key: "render." + source.$_wire
+              }));
+            }
+          }
+        }
+      });
+      return ret;
+    };
+
+    const ret = [];
+    follower(this.schema.handler.schema, input, ret);
+    return ret;
+  }
+
   render() {
-    return /*#__PURE__*/React.createElement("div", null, "test");
+    var layout = {};
+
+    if (this.state.layout === 'horizontal') {
+      layout = {
+        labelCol: {
+          span: 8
+        },
+        wrapperCol: {
+          span: 16
+        }
+      };
+    }
+
+    return /*#__PURE__*/React.createElement(Form, Object.assign({
+      layout: this.state.layout,
+      key: this.formRef
+    }, layout, {
+      name: "basic"
+    }), this.state.reactive);
   }
 
 }
 
+
+
 var schema = {
   __proto__: null,
-  FieldifySchemaRender: FieldifySchemaRender,
   FieldifySchemaBuilder: FieldifySchemaBuilder,
   FieldifySchemaForm: FieldifySchemaForm,
+  FieldifySchemaRender: FieldifySchemaRender,
   FieldifySchema: FieldifySchema
 };
 

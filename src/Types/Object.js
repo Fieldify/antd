@@ -4,8 +4,6 @@ import { types,  fieldifyType } from 'fieldify'
 
 
 class ObjectClass extends fieldifyType {
-
-
 }
 
 

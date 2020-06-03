@@ -2,7 +2,6 @@
 // to manage nested object
 import { types,  fieldifyType } from 'fieldify'
 
-
 class ArrayClass extends fieldifyType {
   configuration () {
     return ({
@@ -18,9 +17,7 @@ class ArrayClass extends fieldifyType {
       }
     })
   }
-
 }
-
 
 export default {
   code: "Array",

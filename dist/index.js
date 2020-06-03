@@ -222,6 +222,57 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   return FieldifyTypeForm;
 }(React.Component);
 
+var FieldifyTypeRender = /*#__PURE__*/function (_RecycledComponent) {
+  _inheritsLoose(FieldifyTypeRender, _RecycledComponent);
+
+  function FieldifyTypeRender() {
+    return _RecycledComponent.apply(this, arguments) || this;
+  }
+
+  var _proto = FieldifyTypeRender.prototype;
+
+  _proto.cycle = function cycle(props) {
+    var state = {
+      schema: props.schema,
+      value: props.value,
+      injected: props.injected
+    };
+    return state;
+  };
+
+  _proto.subRender = function subRender(children) {
+    if (this.state.injected === true) {
+      return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+        label: this.state.schema.$doc,
+        hasFeedback: true,
+        validateStatus: "success",
+        style: {
+          marginBottom: "0px"
+        },
+        wrapperCol: {
+          sm: 24
+        }
+      }, children);
+    }
+
+    return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+      label: this.state.schema.$doc,
+      hasFeedback: true,
+      validateStatus: "success"
+    }, children);
+  };
+
+  _proto.render = function render() {
+    return this.subRender( /*#__PURE__*/React__default.createElement("div", {
+      style: {
+        width: "100%"
+      }
+    }, this.state.value));
+  };
+
+  return FieldifyTypeRender;
+}(RecycledComponent);
+
 var SignderivaTypeInfo = /*#__PURE__*/function (_Component) {
   _inheritsLoose(SignderivaTypeInfo, _Component);
 
@@ -335,6 +386,16 @@ var StringForm = /*#__PURE__*/function (_TypeForm) {
   return StringForm;
 }(FieldifyTypeForm);
 
+var StringRender = /*#__PURE__*/function (_TypeRender) {
+  _inheritsLoose(StringRender, _TypeRender);
+
+  function StringRender() {
+    return _TypeRender.apply(this, arguments) || this;
+  }
+
+  return StringRender;
+}(FieldifyTypeRender);
+
 var StringInfo = /*#__PURE__*/function (_TypeInfo) {
   _inheritsLoose(StringInfo, _TypeInfo);
 
@@ -404,7 +465,8 @@ var String = {
   "class": fieldify.types.String["class"],
   Info: StringInfo,
   Builder: StringBuilder,
-  Form: StringForm
+  Form: StringForm,
+  Render: StringRender
 };
 
 var StringForm$1 = String.Form;
@@ -487,6 +549,27 @@ var NameInfo = /*#__PURE__*/function (_TypeInfo) {
   return NameInfo;
 }(SignderivaTypeInfo);
 
+var NameRender = /*#__PURE__*/function (_TypeRender) {
+  _inheritsLoose(NameRender, _TypeRender);
+
+  function NameRender() {
+    return _TypeRender.apply(this, arguments) || this;
+  }
+
+  NameRender.getDerivedStateFromProps = function getDerivedStateFromProps(props, state) {
+    if (state.value && typeof state.value === "object") {
+      var _final = "";
+      if (state.value.first) _final += state.value.first;
+      if (state.value.last) _final += " " + state.value.last;
+      state.value = _final.trim();
+    }
+
+    return state;
+  };
+
+  return NameRender;
+}(FieldifyTypeRender);
+
 var NameBuilder = /*#__PURE__*/function (_TypeBuilder) {
   _inheritsLoose(NameBuilder, _TypeBuilder);
 
@@ -536,6 +619,7 @@ var Name = {
   Info: NameInfo,
   Builder: NameBuilder,
   Form: NameForm,
+  Render: NameRender,
   noFormItem: true
 };
 
@@ -582,6 +666,16 @@ var EmailInfo = /*#__PURE__*/function (_TypeInfo) {
   return EmailInfo;
 }(SignderivaTypeInfo);
 
+var EmailRender = /*#__PURE__*/function (_TypeRender) {
+  _inheritsLoose(EmailRender, _TypeRender);
+
+  function EmailRender() {
+    return _TypeRender.apply(this, arguments) || this;
+  }
+
+  return EmailRender;
+}(FieldifyTypeRender);
+
 var EmailBuilder = /*#__PURE__*/function (_TypeBuilder) {
   _inheritsLoose(EmailBuilder, _TypeBuilder);
 
@@ -623,7 +717,8 @@ var Email = {
   "class": fieldify.types.Email["class"],
   Info: EmailInfo,
   Builder: EmailBuilder,
-  Form: EmailForm
+  Form: EmailForm,
+  Render: EmailRender
 };
 
 var NumberForm = /*#__PURE__*/function (_TypeForm) {
@@ -671,6 +766,16 @@ var NumberInfo = /*#__PURE__*/function (_TypeInfo) {
   return NumberInfo;
 }(SignderivaTypeInfo);
 
+var NumberRender = /*#__PURE__*/function (_TypeRender) {
+  _inheritsLoose(NumberRender, _TypeRender);
+
+  function NumberRender() {
+    return _TypeRender.apply(this, arguments) || this;
+  }
+
+  return NumberRender;
+}(FieldifyTypeRender);
+
 var NumberBuilder = /*#__PURE__*/function (_TypeBuilder) {
   _inheritsLoose(NumberBuilder, _TypeBuilder);
 
@@ -703,7 +808,8 @@ var Number = {
   "class": fieldify.types.Number["class"],
   Info: NumberInfo,
   Builder: NumberBuilder,
-  Form: NumberForm
+  Form: NumberForm,
+  Render: NumberRender
 };
 
 var CheckboxForm = /*#__PURE__*/function (_TypeForm) {
@@ -871,6 +977,27 @@ var SelectInfo = /*#__PURE__*/function (_TypeInfo) {
   return SelectInfo;
 }(SignderivaTypeInfo);
 
+var SelectRender = /*#__PURE__*/function (_TypeRender) {
+  _inheritsLoose(SelectRender, _TypeRender);
+
+  function SelectRender() {
+    return _TypeRender.apply(this, arguments) || this;
+  }
+
+  SelectRender.getDerivedStateFromProps = function getDerivedStateFromProps(props, state) {
+    if (typeof state.value === "string") {
+      if (props.schema.$options && props.schema.$options.items) {
+        var ptr = props.schema.$options.items;
+        if (ptr[state.value]) state.value = ptr[state.value];
+      }
+    }
+
+    return state;
+  };
+
+  return SelectRender;
+}(FieldifyTypeRender);
+
 var SelectBuilder = /*#__PURE__*/function (_TypeBuilder) {
   _inheritsLoose(SelectBuilder, _TypeBuilder);
 
@@ -919,7 +1046,8 @@ var Select = {
   "class": fieldify.types.Select["class"],
   Info: SelectInfo,
   Builder: SelectBuilder,
-  Form: SelectForm
+  Form: SelectForm,
+  Render: SelectRender
 };
 
 var ObjectClass = /*#__PURE__*/function (_fieldifyType) {
@@ -1274,6 +1402,63 @@ var KVInfo = /*#__PURE__*/function (_TypeInfo) {
   return KVInfo;
 }(SignderivaTypeInfo);
 
+var KVRender = /*#__PURE__*/function (_TypeRender) {
+  _inheritsLoose(KVRender, _TypeRender);
+
+  function KVRender() {
+    return _TypeRender.apply(this, arguments) || this;
+  }
+
+  var _proto3 = KVRender.prototype;
+
+  _proto3.cycle = function cycle(props) {
+    var ret = _TypeRender.prototype.cycle.call(this, props);
+
+    if (!ret.value) ret.value = {};
+    this.result = _extends({}, ret.value);
+    ret.dataTree = _extends({}, ret.value);
+    ret.dataSource = this.computeDataSource(ret.dataTree);
+    return ret;
+  };
+
+  _proto3.computeDataSource = function computeDataSource(tree) {
+    var ds = [];
+
+    for (var key in tree) {
+      var value = tree[key];
+      ds.push({
+        key: key,
+        value: value
+      });
+    }
+
+    return ds;
+  };
+
+  _proto3.render = function render() {
+    var columns = [{
+      dataIndex: 'key',
+      key: 'key'
+    }, {
+      dataIndex: 'value',
+      key: 'value'
+    }];
+    return _TypeRender.prototype.subRender.call(this, /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Table, {
+      showHeader: false,
+      size: "small",
+      dataSource: this.state.dataSource,
+      columns: columns,
+      pagination: {
+        total: this.state.dataSource.length,
+        pageSize: this.state.dataSource.length,
+        hideOnSinglePage: true
+      }
+    })));
+  };
+
+  return KVRender;
+}(FieldifyTypeRender);
+
 var KVBuilder = /*#__PURE__*/function (_TypeBuilder) {
   _inheritsLoose(KVBuilder, _TypeBuilder);
 
@@ -1291,9 +1476,9 @@ var KVBuilder = /*#__PURE__*/function (_TypeBuilder) {
     return _this4;
   }
 
-  var _proto3 = KVBuilder.prototype;
+  var _proto4 = KVBuilder.prototype;
 
-  _proto3.render = function render() {
+  _proto4.render = function render() {
     return /*#__PURE__*/React__default.createElement("div", null);
   };
 
@@ -1306,7 +1491,8 @@ var KV = {
   "class": fieldify.types.KV["class"],
   Info: KVInfo,
   Builder: KVBuilder,
-  Form: KVForm
+  Form: KVForm,
+  Render: KVRender
 };
 
 var types = {
@@ -2204,27 +2390,191 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
   return FieldifySchemaBuilder;
 }(RecycledComponent);
 
-var FieldifySchemaRender = /*#__PURE__*/function (_React$Component) {
-  _inheritsLoose(FieldifySchemaRender, _React$Component);
+var FieldifySchemaRender = /*#__PURE__*/function (_RecycledComponent) {
+  _inheritsLoose(FieldifySchemaRender, _RecycledComponent);
 
-  function FieldifySchemaRender() {
-    return _React$Component.apply(this, arguments) || this;
+  function FieldifySchemaRender(props) {
+    var _this;
+
+    _this = _RecycledComponent.call(this, props) || this;
+    _this.formRef = React__default.createRef();
+    return _this;
   }
 
   var _proto = FieldifySchemaRender.prototype;
 
+  _proto.cycle = function cycle(props, first) {
+    var state = {
+      input: props.input,
+      layout: props.layout ? props.layout : "horizontal"
+    };
+    this.schema = props.schema;
+    state.verify = props.verify || false;
+    state.reactive = this.update(state.input, state.verify);
+    this.references = {};
+    this.onChange = props.onChange ? props.onChange : function () {};
+    return state;
+  };
+
+  _proto.update = function update(input, verify) {
+    var follower = function follower(schema, input, ret, line) {
+      line = line || "";
+      fieldify.utils.orderedRead(schema, function (index, item) {
+        var source = _extends({}, Array.isArray(item) ? item[0] : item);
+
+        var inputPtr = input ? input[source.$_key] : null;
+        var lineKey = line + "." + source.$_key;
+
+        if (source.$_array === true) {
+          var columns = [{
+            dataIndex: 'form',
+            key: 'form',
+            width: "100%"
+          }];
+          var dataSource = [];
+          var inputPtr2 = inputPtr;
+          var options = source.$array || {};
+          var min = options.min ? options.min : source.$required === true ? 1 : 0;
+
+          if (source.$_nested === true) {
+            var inputPtr2 = input[source.$_key];
+            if (!Array.isArray(inputPtr)) inputPtr2 = input[source.$_key] = [];
+
+            if (min - inputPtr2.length > 0) {
+              for (var a = 0; a <= min - inputPtr2.length; a++) {
+                inputPtr2.push({});
+              }
+            }
+
+            for (var a = 0; a < inputPtr2.length; a++) {
+              var value = inputPtr2[a];
+              var key = lineKey + "." + a;
+              var child = [];
+              follower(source, value, child, key);
+              dataSource.push({
+                key: key,
+                form: child
+              });
+            }
+          } else {
+            delete source.$doc;
+            var TypeRender = source.$type.Render;
+
+            if (TypeRender) {
+              if (!Array.isArray(inputPtr)) {
+                input[item.$_key] = [];
+                inputPtr2 = input[item.$_key];
+              }
+
+              if (!inputPtr2) return ret;
+
+              if (min - inputPtr2.length > 0) {
+                for (var a = 0; a <= min - inputPtr2.length; a++) {
+                  inputPtr2.push(null);
+                }
+              }
+
+              for (var a = 0; a < inputPtr2.length; a++) {
+                var _value = inputPtr2[a];
+
+                var _key = lineKey + "." + a;
+
+                dataSource.push({
+                  key: _key,
+                  form: /*#__PURE__*/React__default.createElement(TypeRender, {
+                    schema: source,
+                    value: _value,
+                    injected: true,
+                    key: "render." + source.$_wire
+                  })
+                });
+              }
+            }
+          }
+
+          ret.push( /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+            key: source.$_wire,
+            noStyle: true
+          }, /*#__PURE__*/React__default.createElement("div", {
+            className: "ant-form-item"
+          }, /*#__PURE__*/React__default.createElement(antd.Card, {
+            size: "small",
+            title: source.$_access.$doc
+          }, /*#__PURE__*/React__default.createElement(antd.Table, {
+            size: "small",
+            dataSource: dataSource,
+            columns: columns,
+            showHeader: false,
+            pagination: {
+              total: dataSource.length,
+              pageSize: dataSource.length,
+              hideOnSinglePage: true
+            }
+          })))));
+        } else {
+          if (source.$_nested === true) {
+            var _child = [];
+            follower(source, inputPtr, _child, lineKey);
+            ret.push( /*#__PURE__*/React__default.createElement("div", {
+              key: "render." + source.$_wire,
+              className: "ant-form-item"
+            }, /*#__PURE__*/React__default.createElement(antd.Card, {
+              size: "small",
+              title: source.$doc
+            }, _child)));
+          } else {
+            var _TypeRender = item.$type.Render;
+
+            if (_TypeRender) {
+              ret.push( /*#__PURE__*/React__default.createElement(_TypeRender, {
+                schema: source,
+                value: inputPtr,
+                key: "render." + source.$_wire
+              }));
+            }
+          }
+        }
+      });
+      return ret;
+    };
+
+    var ret = [];
+    follower(this.schema.handler.schema, input, ret);
+    return ret;
+  };
+
   _proto.render = function render() {
-    return /*#__PURE__*/React__default.createElement("div", null, "test");
+    var layout = {};
+
+    if (this.state.layout === 'horizontal') {
+      layout = {
+        labelCol: {
+          span: 8
+        },
+        wrapperCol: {
+          span: 16
+        }
+      };
+    }
+
+    return /*#__PURE__*/React__default.createElement(antd.Form, _extends({
+      layout: this.state.layout,
+      key: this.formRef
+    }, layout, {
+      name: "basic"
+    }), this.state.reactive);
   };
 
   return FieldifySchemaRender;
-}(React__default.Component);
+}(RecycledComponent);
+
+
 
 var schema = {
   __proto__: null,
-  FieldifySchemaRender: FieldifySchemaRender,
   FieldifySchemaBuilder: FieldifySchemaBuilder,
   FieldifySchemaForm: FieldifySchemaForm,
+  FieldifySchemaRender: FieldifySchemaRender,
   FieldifySchema: FieldifySchema
 };
 

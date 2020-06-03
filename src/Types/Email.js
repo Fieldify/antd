@@ -14,6 +14,7 @@ import {
 import { MailOutlined } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
+import TypeRender from '../lib/TypeRender';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
 
@@ -45,6 +46,15 @@ class EmailInfo extends TypeInfo {
     )
   }
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *
+ * Rendering of the field
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+class EmailRender extends TypeRender {
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -81,5 +91,6 @@ export default {
 
   Info: EmailInfo,
   Builder: EmailBuilder,
-  Form: EmailForm
+  Form: EmailForm,
+  Render: EmailRender
 }

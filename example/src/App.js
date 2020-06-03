@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Schema, Types, Input } from '@fieldify/antd'
 
-import { Row, Col, Card, Tabs, Tag } from 'antd';
+import { Row, Col, Card, Tabs, Tag, Form, Radio, Divider } from 'antd';
 
 import '@fieldify/antd/dist/index.css'
 import "antd/dist/antd.css";
@@ -10,7 +10,8 @@ import "antd/dist/antd.css";
 const {
   FieldifySchemaBuilder,
   FieldifySchema,
-  FieldifySchemaForm
+  FieldifySchemaForm,
+  FieldifySchemaRender
 } = Schema
 
 const { TabPane } = Tabs
@@ -20,7 +21,11 @@ class App extends React.Component {
     super(props)
 
     const initial = {
-
+      company: {
+        $doc: "Your company name",
+        $type: "String",
+        $position: 0
+      },
       name: {
         $doc: "Civility",
         $type: "Name",
@@ -114,6 +119,7 @@ class App extends React.Component {
     this.state = this.cycle({
       schema: initial,
       input: {
+        company: "Test of the test",
         name: {
           first: "Michael",
           last: "Vergoz"
@@ -166,7 +172,7 @@ class App extends React.Component {
 
     state.form.json = JSON.stringify(this.input.getValue(), null, "  ")
 
-    return(state)
+    return (state)
   }
 
   builderChanged(schema) {
@@ -182,9 +188,10 @@ class App extends React.Component {
     // run the verifier on each change to 
     // get the status into the title
     this.input.verify((result) => {
+
       const state = {
         form: {
-          ...this.state.form,
+          data: { ...value },
           json: JSON.stringify(value, null, "  ")
         }
       }
@@ -248,7 +255,17 @@ class App extends React.Component {
 
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Verification Rendering" key="1">
-                  {/* <FieldifySchemaBuilder schema={this.schema} /> */}
+                  <Form>
+                    <Form.Item label="Form Layout" name="layout">
+                      <Radio.Group value="horizontal">
+                        <Radio.Button value="horizontal">Horizontal</Radio.Button>
+                        <Radio.Button value="vertical">Vertical</Radio.Button>
+                        <Radio.Button value="inline">Inline</Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
+                  </Form>
+                  <Divider />
+                  <FieldifySchemaRender schema={this.schema} input={this.state.form.data} />
                 </TabPane>
                 <TabPane tab="Simple Rendering" key="2">
                   Coming soon

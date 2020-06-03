@@ -84,6 +84,14 @@ class FieldifyTypeForm extends Component {
   }
 
   verify(value, cb) {
+    if (!this.handler) {
+      return cb({
+        status: "error",
+        feedback: true,
+        help: "No Handler on verifier"
+      });
+    }
+
     this.handler.verify(value, (error, message) => {
       if (error === false) {
         this.onError(false);

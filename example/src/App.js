@@ -111,54 +111,75 @@ class App extends React.Component {
       }]
     }
 
-    this.state = {
+    this.state = this.cycle({
       schema: initial,
+      input: {
+        name: {
+          first: "Michael",
+          last: "Vergoz"
+        },
+        email: "mvcdsa@cdas.com",
+        KV: {
+          "testcas": "Awesome"
+        },
+
+        nestedArray: [{
+          name: {
+            first: "Michael",
+            last: "Vergoz"
+          },
+          description: "This is a description"
+        }],
+        inlinedArray: [{ first: "Michael" }],
+
+        inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
+      }
+    }, true)
+  }
+
+  cycle(props, first) {
+    const state = {
+      schema: props.schema,
+      input: props.input,
 
       form: {
+        data: props.input,
         json: "",
         state: "Filling",
         color: "blue"
       },
       builder: {
+        data: {},
         json: ""
       }
     }
 
     // compile the schema
     this.schema = new FieldifySchema("test")
-    this.schema.compile(initial)
+    this.schema.compile(state.schema)
 
     // create an input instance
     this.input = new Input(this.schema)
-    this.input.setValue({
-      name: {
-        first: "Michael",
-        last: "Vergoz"
-      },
-      email: "mvcdsa@cdas.com",
-      KV: {
-        "testcas": "Awesome"
-      },
+    this.input.setValue(state.input)
 
-      nestedArray: [{
-        name: {
-          first: "Michael",
-          last: "Vergoz"
-        },
-        description: "This is a description"
-      }],
-      inlinedArray: [{ first: "Michael" }],
+    state.builder.json = JSON.stringify(this.schema.export(), null, "  ")
 
-      inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
-    })
-    this.state.builder.json = JSON.stringify(this.schema.export(), null, "  ")
-    this.state.form.json = JSON.stringify(this.input.getValue(), null, "  ")
+    state.form.json = JSON.stringify(this.input.getValue(), null, "  ")
+
+    return(state)
   }
 
   builderChanged(schema) {
+    // create an input instance
+    this.input = new Input(this.schema)
+    this.input.setValue(this.state.input)
+
     this.setState({
       builder: {
         json: JSON.stringify(schema, null, "  ")
+      },
+      form: {
+        json: JSON.stringify(this.input.getValue(), null, "  ")
       }
     })
   }

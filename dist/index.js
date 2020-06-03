@@ -125,6 +125,14 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _proto.verify = function verify(value, cb) {
     var _this4 = this;
 
+    if (!this.handler) {
+      return cb({
+        status: "error",
+        feedback: true,
+        help: "No Handler on verifier"
+      });
+    }
+
     this.handler.verify(value, function (error, message) {
       if (error === false) {
         _this4.onError(false);

@@ -3,6 +3,34 @@ import React, { Component } from 'react';
 import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
 import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, DeleteOutlined, EditOutlined, PlusOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
+class RecycledComponent extends React.Component {
+  constructor(props, context, updater) {
+    super(props, context, updater);
+    this.state = this.cycle(props, true);
+  }
+
+  componentDidUpdate(props, state) {
+    if (super.componentDidUpdate) super.componentDidUpdate(props, state);
+    var changed = false;
+
+    for (var a in props) {
+      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (changed === true) {
+      this.setState(this.cycle(this.props, false));
+    }
+  }
+
+  cycle(props, first) {
+    return {};
+  }
+
+}
+
 class FieldifyTypeForm extends Component {
   constructor(props) {
     super(props);
@@ -952,18 +980,10 @@ class FieldifySchema extends schema$1 {
 
 }
 
-class FieldifySchemaForm extends React.Component {
+class FieldifySchemaForm extends RecycledComponent {
   constructor(props) {
     super(props);
     this.formRef = React.createRef();
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props, state) {
-    if (props.schema !== this.schema || props.input !== this.input) {
-      const cycle = this.cycle(this.props);
-      this.setState(cycle);
-    }
   }
 
   cycle(props, first) {
@@ -1500,24 +1520,7 @@ class FieldifySchemaBuilderModal extends React.Component {
 
 }
 
-class FieldifySchemaBuilder extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props) {
-    var changed = false;
-    var state = {};
-
-    if (this.props.schema !== props.schema) {
-      state = this.cycle(this.props);
-      changed = true;
-    }
-
-    if (changed === true) this.setState(state);
-  }
-
+class FieldifySchemaBuilder extends RecycledComponent {
   cycle(props, first) {
     const state = {
       modal: false,

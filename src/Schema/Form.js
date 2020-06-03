@@ -1,24 +1,18 @@
 import { utils, input as FieldifyInput } from "fieldify";
 import React from 'react';
+import RecycledComponent from 'react-recycling';
+
 import { Form, Table, Button, Input, Card } from "antd";
 import {
   PlusOutlined as PlusIcon,
   DeleteOutlined as DeleteIcon
 } from '@ant-design/icons';
 
-export class FieldifySchemaForm extends React.Component {
+export class FieldifySchemaForm extends RecycledComponent {
   constructor(props) {
     super(props)
 
     this.formRef = React.createRef()
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props, state) {
-    if (props.schema !== this.schema || props.input !== this.input) {
-      const cycle = this.cycle(this.props);
-      this.setState(cycle)
-    }
   }
 
   cycle(props, first) {

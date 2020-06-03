@@ -1,4 +1,6 @@
 import React from 'react';
+import RecycledComponent from 'react-recycling';
+
 import {
   schema,
   iterator,
@@ -27,25 +29,7 @@ import { FieldifySchemaBuilderModal } from './BuilderModal';
 
 import String from "../Types/String";
 
-export class FieldifySchemaBuilder extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props) {
-    var changed = false
-    var state = { }
-
-    if (this.props.schema !== props.schema) {
-      state = this.cycle(this.props)
-      changed = true;
-    }
-
-    if (changed === true) this.setState(state)
-  }
-
+export class FieldifySchemaBuilder extends RecycledComponent {
 
   cycle(props, first) {
     const state = {

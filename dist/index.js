@@ -30,6 +30,42 @@ function _inheritsLoose(subClass, superClass) {
   subClass.__proto__ = superClass;
 }
 
+var RecycledComponent = /*#__PURE__*/function (_React$Component) {
+  _inheritsLoose(RecycledComponent, _React$Component);
+
+  function RecycledComponent(props, context, updater) {
+    var _this;
+
+    _this = _React$Component.call(this, props, context, updater) || this;
+    _this.state = _this.cycle(props, true);
+    return _this;
+  }
+
+  var _proto = RecycledComponent.prototype;
+
+  _proto.componentDidUpdate = function componentDidUpdate(props, state) {
+    if (_React$Component.prototype.componentDidUpdate) _React$Component.prototype.componentDidUpdate.call(this, props, state);
+    var changed = false;
+
+    for (var a in props) {
+      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (changed === true) {
+      this.setState(this.cycle(this.props, false));
+    }
+  };
+
+  _proto.cycle = function cycle(props, first) {
+    return {};
+  };
+
+  return RecycledComponent;
+}(React__default.Component);
+
 var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _inheritsLoose(FieldifyTypeForm, _Component);
 
@@ -1306,26 +1342,18 @@ var FieldifySchema = /*#__PURE__*/function (_schema) {
   return FieldifySchema;
 }(fieldify.schema);
 
-var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
-  _inheritsLoose(FieldifySchemaForm, _React$Component);
+var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
+  _inheritsLoose(FieldifySchemaForm, _RecycledComponent);
 
   function FieldifySchemaForm(props) {
     var _this;
 
-    _this = _React$Component.call(this, props) || this;
+    _this = _RecycledComponent.call(this, props) || this;
     _this.formRef = React__default.createRef();
-    _this.state = _this.cycle(props, true);
     return _this;
   }
 
   var _proto = FieldifySchemaForm.prototype;
-
-  _proto.componentDidUpdate = function componentDidUpdate(props, state) {
-    if (props.schema !== this.schema || props.input !== this.input) {
-      var cycle = this.cycle(this.props);
-      this.setState(cycle);
-    }
-  };
 
   _proto.cycle = function cycle(props, first) {
     var state = {};
@@ -1585,7 +1613,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
   };
 
   return FieldifySchemaForm;
-}(React__default.Component);
+}(RecycledComponent);
 
 var allTypes = {};
 var allTypesNoArray = {};
@@ -1898,33 +1926,17 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
   return FieldifySchemaBuilderModal;
 }(React__default.Component);
 
-var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
-  _inheritsLoose(FieldifySchemaBuilder, _React$Component);
+var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
+  _inheritsLoose(FieldifySchemaBuilder, _RecycledComponent);
 
-  function FieldifySchemaBuilder(props) {
-    var _this;
-
-    _this = _React$Component.call(this, props) || this;
-    _this.state = _this.cycle(props, true);
-    return _this;
+  function FieldifySchemaBuilder() {
+    return _RecycledComponent.apply(this, arguments) || this;
   }
 
   var _proto = FieldifySchemaBuilder.prototype;
 
-  _proto.componentDidUpdate = function componentDidUpdate(props) {
-    var changed = false;
-    var state = {};
-
-    if (this.props.schema !== props.schema) {
-      state = this.cycle(this.props);
-      changed = true;
-    }
-
-    if (changed === true) this.setState(state);
-  };
-
   _proto.cycle = function cycle(props, first) {
-    var _this2 = this;
+    var _this = this;
 
     var state = {
       modal: false,
@@ -1951,7 +1963,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
       }, /*#__PURE__*/React__default.createElement("span", {
         className: "ant-radio-button-wrapper",
         onClick: function onClick() {
-          return _this2.handlingAdd();
+          return _this.handlingAdd();
         }
       }, /*#__PURE__*/React__default.createElement("span", null, "Add ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
       dataIndex: 'actions',
@@ -2159,7 +2171,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
   };
 
   _proto.render = function render() {
-    var _this3 = this;
+    var _this2 = this;
 
     var sds = this.state.schemaDataSource;
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(FieldifySchemaBuilderModal, {
@@ -2167,7 +2179,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
       visible: this.state.modal,
       value: this.state.modalContent,
       onCancel: function onCancel() {
-        return _this3.setState({
+        return _this2.setState({
           modal: false
         });
       },
@@ -2188,7 +2200,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
   };
 
   return FieldifySchemaBuilder;
-}(React__default.Component);
+}(RecycledComponent);
 
 var FieldifySchemaRender = /*#__PURE__*/function (_React$Component) {
   _inheritsLoose(FieldifySchemaRender, _React$Component);

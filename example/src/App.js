@@ -73,16 +73,6 @@ class App extends React.Component {
           zip: { $doc: "ZIP", $type: Types.String },
           country: { $doc: "Country", $type: Types.String },
         },
-        inlinedArray: [{
-          $required: true,
-          $doc: "Array of User Defined types (non-nested)",
-          $type: Types.Name,
-          $options: { min: 2 },
-          $array: {
-            min: 2,
-            max: 100
-          }
-        }],
       },
 
       nestedArray: [{
@@ -226,7 +216,7 @@ class App extends React.Component {
             <Card size="small" title={<>Pass #2 - Filling Form <Tag color={this.state.form.color}>{this.state.form.state}</Tag></>}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Rendering" key="1">
-                  {/* <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)} /> */}
+                  <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="Sanatized JSON Input" key="2">
                   <pre>

@@ -7,18 +7,10 @@ class FieldifyTypeForm extends Component {
   constructor(props) {
     super(props);
     this.state = this.cycle(props);
-
-    if (props.verify === true) {
-      this.verify(props.value, ret => {
-        this.state = { ...this.state,
-          ...ret
-        };
-      });
-    }
   }
 
   componentDidUpdate(props, state) {
-    if (this.props !== props) {
+    if (this.props.schema !== props.schema) {
       const cycle = this.cycle(this.props);
       this.setState(cycle);
     }
@@ -31,12 +23,18 @@ class FieldifyTypeForm extends Component {
       verify: props.verify,
       feedback: false,
       status: null,
-      help: this.schema.$help
+      options: {}
     };
     this.isInjected = props.isInjected;
     this.onChange = props.onChange ? props.onChange : () => {};
     this.onError = props.onError ? props.onError : () => {};
-    if (!this.schema) return state;
+
+    if (!this.schema) {
+      this.schema = {};
+      return state;
+    }
+
+    state.help = this.schema.$help;
     state.options = this.schema.$options || {};
     this.handler = this.schema.$_type;
     return state;
@@ -106,7 +104,7 @@ class FieldifyTypeForm extends Component {
   }
 
   render(children) {
-    if (!this.schema || this.isInjected === true) return /*#__PURE__*/React.createElement(Form.Item, {
+    if (this.isInjected === true) return /*#__PURE__*/React.createElement(Form.Item, {
       label: this.schema.$doc,
       required: this.schema.$required,
       validateStatus: this.state.status,
@@ -1018,16 +1016,12 @@ class FieldifySchemaForm extends React.Component {
     const follower = (schema, input, ret, line) => {
       line = line || "";
       utils.orderedRead(schema, (index, item) => {
-        const inputPtr = input ? input[item.$_key] : null;
-        const lineKey = line + "." + item.$_key;
-        if (item.hidden === true) return;
+        const source = { ...(Array.isArray(item) ? item[0] : item)
+        };
+        const inputPtr = input ? input[source.$_key] : null;
+        const lineKey = line + "." + source.$_key;
 
-        if (Array.isArray(item)) {
-          const source = { ...item[0]
-          };
-          var inputPtr2 = inputPtr;
-          const options = source.$array || {};
-          const min = options.min ? options.min : source.$required === true ? 1 : 0;
+        if (source.$_array === true) {
           const columns = [{
             dataIndex: 'form',
             key: 'form',
@@ -1038,8 +1032,35 @@ class FieldifySchemaForm extends React.Component {
             align: "right"
           }];
           const dataSource = [];
+          var inputPtr2 = inputPtr;
+          const options = source.$array || {};
+          const min = options.min ? options.min : source.$required === true ? 1 : 0;
 
-          if (source.$_array === true && source.$_nested !== true) {
+          if (source.$_nested === true) {
+            var inputPtr2 = input[source.$_key];
+            if (!Array.isArray(inputPtr)) inputPtr2 = input[source.$_key] = [];
+
+            if (min - inputPtr2.length > 0) {
+              for (var a = 0; a <= min - inputPtr2.length; a++) {
+                inputPtr2.push({});
+              }
+            }
+
+            for (var a = 0; a < inputPtr2.length; a++) {
+              const value = inputPtr2[a];
+              const key = lineKey + "." + a;
+              const child = [];
+              follower(source, value, child, key);
+              dataSource.push({
+                key,
+                form: child,
+                actions: /*#__PURE__*/React.createElement(Button, {
+                  size: "small",
+                  onClick: () => this.clickRemoveArrayItem(key)
+                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
+              });
+            }
+          } else {
             delete source.$doc;
             const TypeForm = source.$type.Form;
 
@@ -1086,70 +1107,10 @@ class FieldifySchemaForm extends React.Component {
                 }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
               });
             }
-          } else if (source.$_array === true && source.$_nested === true) {
-              var inputPtr2 = input[item.$_key];
-              if (!Array.isArray(inputPtr)) inputPtr2 = input[item.$_key] = [];
-
-              if (min - inputPtr2.length > 0) {
-                for (var a = 0; a <= min - inputPtr2.length; a++) {
-                  inputPtr2.push({});
-                }
-              }
-
-              if (item[0].$_schematized === true) {
-                delete source.$doc;
-                const TypeForm = source.$type.Form;
-
-                for (var a = 0; a < inputPtr2.length; a++) {
-                  const value = inputPtr2[a];
-                  const key = lineKey + "." + a;
-                  dataSource.push({
-                    key,
-                    form: /*#__PURE__*/React.createElement(TypeForm, {
-                      schema: source,
-                      value: value,
-                      verify: verify,
-                      user: this.props.user,
-                      onChange: (schema, value) => this.setValue(key, value),
-                      isInjected: true,
-                      onError: (error, message) => {
-                        if (error === true) {
-                          this.references[key] = message;
-                        } else {
-                          const ref = this.references[key];
-
-                          if (ref) {
-                            delete this.references[key];
-                          }
-                        }
-                      }
-                    }),
-                    actions: /*#__PURE__*/React.createElement(Button, {
-                      size: "small",
-                      onClick: () => this.clickRemoveArrayItem(key)
-                    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
-                  });
-                }
-              } else {
-                for (var a = 0; a < inputPtr2.length; a++) {
-                  const value = inputPtr2[a];
-                  const key = lineKey + "." + a;
-                  const child = [];
-                  follower(item[0], value, child, key);
-                  dataSource.push({
-                    key,
-                    form: child,
-                    actions: /*#__PURE__*/React.createElement(Button, {
-                      size: "small",
-                      onClick: () => this.clickRemoveArrayItem(key)
-                    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
-                  });
-                }
-              }
-            }
+          }
 
           ret.push( /*#__PURE__*/React.createElement(Form.Item, {
-            key: item.$_wire,
+            key: source.$_wire,
             noStyle: true
           }, /*#__PURE__*/React.createElement("div", {
             className: "ant-form-item"
@@ -1175,38 +1136,40 @@ class FieldifySchemaForm extends React.Component {
             },
             bordered: true
           })))));
-        } else if (typeof item === "object" && !item.$type) {
+        } else {
+          if (source.$_nested === true) {
             const child = [];
-            follower(item, inputPtr, child, lineKey);
+            follower(source, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React.createElement("div", {
-              key: item.$_wire,
+              key: source.$_wire,
               className: "ant-form-item"
             }, /*#__PURE__*/React.createElement(Card, {
               size: "small",
-              title: item.$doc
+              title: source.$doc
             }, child)));
           } else {
-              const TypeForm = item.$type.Form;
-              ret.push( /*#__PURE__*/React.createElement(TypeForm, {
-                schema: item,
-                value: inputPtr,
-                key: item.$_wire,
-                verify: verify,
-                user: this.props.user,
-                onChange: (schema, value) => this.setValue(lineKey, value),
-                onError: (error, message) => {
-                  if (error === true) {
-                    this.references[item.$_key] = message;
-                  } else {
-                    const ref = this.references[item.$_key];
+            const TypeForm = item.$type.Form;
+            ret.push( /*#__PURE__*/React.createElement(TypeForm, {
+              schema: source,
+              value: inputPtr,
+              key: source.$_wire,
+              verify: verify,
+              user: this.props.user,
+              onChange: (schema, value) => this.setValue(lineKey, value),
+              onError: (error, message) => {
+                if (error === true) {
+                  this.references[source.$_wire] = message;
+                } else {
+                  const ref = this.references[source.$_wire];
 
-                    if (ref) {
-                      delete this.references[item.$_key];
-                    }
+                  if (ref) {
+                    delete this.references[source.$_wire];
                   }
                 }
-              }));
-            }
+              }
+            }));
+          }
+        }
       });
       return ret;
     };

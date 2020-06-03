@@ -9,17 +9,11 @@ export default class FieldifyTypeForm extends Component {
   constructor(props) {
     super(props)
     this.state = this.cycle(props)
-
-    if (props.verify === true) {
-      this.verify(props.value, (ret) => {
-        this.state = { ...this.state, ...ret }
-      })
-    }
   }
 
 
   componentDidUpdate(props, state) {
-    if (this.props !== props) {
+    if (this.props.schema !== props.schema) {
       const cycle = this.cycle(this.props);
       this.setState(cycle)
     }
@@ -27,13 +21,13 @@ export default class FieldifyTypeForm extends Component {
 
   cycle(props) {
     this.schema = props.schema;
-
+    
     const state = {
       value: props.value,
       verify: props.verify,
       feedback: false,
       status: null,
-      help: this.schema.$help
+      options: {}
     }
 
     this.isInjected = props.isInjected;
@@ -41,10 +35,21 @@ export default class FieldifyTypeForm extends Component {
     this.onChange = props.onChange ? props.onChange : () => { };
     this.onError = props.onError ? props.onError : () => { };
 
-    if (!this.schema) return (state)
+    if (!this.schema) {
+      this.schema = {}
+      return (state)
+    }
 
+    state.help = this.schema.$help;
     state.options = this.schema.$options || {};
     this.handler = this.schema.$_type;
+
+
+    // if (props.verify === true) {
+    //   this.verify(props.value, (ret) => {
+    //     this.state = { ...this.state, ...ret }
+    //   })
+    // }
 
     return (state)
   }
@@ -121,7 +126,7 @@ export default class FieldifyTypeForm extends Component {
   render(children) {
     // return(children)
 
-    if (!this.schema || this.isInjected === true) return (
+    if (this.isInjected === true) return (
       <Form.Item
         label={this.schema.$doc}
         required={this.schema.$required}

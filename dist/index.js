@@ -38,20 +38,13 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
 
     _this = _Component.call(this, props) || this;
     _this.state = _this.cycle(props);
-
-    if (props.verify === true) {
-      _this.verify(props.value, function (ret) {
-        _this.state = _extends({}, _this.state, ret);
-      });
-    }
-
     return _this;
   }
 
   var _proto = FieldifyTypeForm.prototype;
 
   _proto.componentDidUpdate = function componentDidUpdate(props, state) {
-    if (this.props !== props) {
+    if (this.props.schema !== props.schema) {
       var cycle = this.cycle(this.props);
       this.setState(cycle);
     }
@@ -64,12 +57,18 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
       verify: props.verify,
       feedback: false,
       status: null,
-      help: this.schema.$help
+      options: {}
     };
     this.isInjected = props.isInjected;
     this.onChange = props.onChange ? props.onChange : function () {};
     this.onError = props.onError ? props.onError : function () {};
-    if (!this.schema) return state;
+
+    if (!this.schema) {
+      this.schema = {};
+      return state;
+    }
+
+    state.help = this.schema.$help;
     state.options = this.schema.$options || {};
     this.handler = this.schema.$_type;
     return state;
@@ -148,7 +147,7 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   };
 
   _proto.render = function render(children) {
-    if (!this.schema || this.isInjected === true) return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    if (this.isInjected === true) return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
       label: this.schema.$doc,
       required: this.schema.$required,
       validateStatus: this.state.status,
@@ -1380,16 +1379,12 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
     var follower = function follower(schema, input, ret, line) {
       line = line || "";
       fieldify.utils.orderedRead(schema, function (index, item) {
-        var inputPtr = input ? input[item.$_key] : null;
-        var lineKey = line + "." + item.$_key;
-        if (item.hidden === true) return;
+        var source = _extends({}, Array.isArray(item) ? item[0] : item);
 
-        if (Array.isArray(item)) {
-          var source = _extends({}, item[0]);
+        var inputPtr = input ? input[source.$_key] : null;
+        var lineKey = line + "." + source.$_key;
 
-          var inputPtr2 = inputPtr;
-          var options = source.$array || {};
-          var min = options.min ? options.min : source.$required === true ? 1 : 0;
+        if (source.$_array === true) {
           var columns = [{
             dataIndex: 'form',
             key: 'form',
@@ -1400,8 +1395,41 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
             align: "right"
           }];
           var dataSource = [];
+          var inputPtr2 = inputPtr;
+          var options = source.$array || {};
+          var min = options.min ? options.min : source.$required === true ? 1 : 0;
 
-          if (source.$_array === true && source.$_nested !== true) {
+          if (source.$_nested === true) {
+            var inputPtr2 = input[source.$_key];
+            if (!Array.isArray(inputPtr)) inputPtr2 = input[source.$_key] = [];
+
+            if (min - inputPtr2.length > 0) {
+              for (var a = 0; a <= min - inputPtr2.length; a++) {
+                inputPtr2.push({});
+              }
+            }
+
+            var _loop = function _loop() {
+              var value = inputPtr2[a];
+              var key = lineKey + "." + a;
+              var child = [];
+              follower(source, value, child, key);
+              dataSource.push({
+                key: key,
+                form: child,
+                actions: /*#__PURE__*/React__default.createElement(antd.Button, {
+                  size: "small",
+                  onClick: function onClick() {
+                    return _this2.clickRemoveArrayItem(key);
+                  }
+                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))
+              });
+            };
+
+            for (var a = 0; a < inputPtr2.length; a++) {
+              _loop();
+            }
+          } else {
             delete source.$doc;
             var TypeForm = source.$type.Form;
 
@@ -1418,7 +1446,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
               }
             }
 
-            var _loop = function _loop() {
+            var _loop2 = function _loop2() {
               var value = inputPtr2[a];
               var key = lineKey + "." + a;
               dataSource.push({
@@ -1454,86 +1482,12 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
             };
 
             for (var a = 0; a < inputPtr2.length; a++) {
-              _loop();
+              _loop2();
             }
-          } else if (source.$_array === true && source.$_nested === true) {
-              var inputPtr2 = input[item.$_key];
-              if (!Array.isArray(inputPtr)) inputPtr2 = input[item.$_key] = [];
-
-              if (min - inputPtr2.length > 0) {
-                for (var a = 0; a <= min - inputPtr2.length; a++) {
-                  inputPtr2.push({});
-                }
-              }
-
-              if (item[0].$_schematized === true) {
-                delete source.$doc;
-                var _TypeForm = source.$type.Form;
-
-                var _loop2 = function _loop2() {
-                  var value = inputPtr2[a];
-                  var key = lineKey + "." + a;
-                  dataSource.push({
-                    key: key,
-                    form: /*#__PURE__*/React__default.createElement(_TypeForm, {
-                      schema: source,
-                      value: value,
-                      verify: verify,
-                      user: _this2.props.user,
-                      onChange: function onChange(schema, value) {
-                        return _this2.setValue(key, value);
-                      },
-                      isInjected: true,
-                      onError: function onError(error, message) {
-                        if (error === true) {
-                          _this2.references[key] = message;
-                        } else {
-                          var ref = _this2.references[key];
-
-                          if (ref) {
-                            delete _this2.references[key];
-                          }
-                        }
-                      }
-                    }),
-                    actions: /*#__PURE__*/React__default.createElement(antd.Button, {
-                      size: "small",
-                      onClick: function onClick() {
-                        return _this2.clickRemoveArrayItem(key);
-                      }
-                    }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))
-                  });
-                };
-
-                for (var a = 0; a < inputPtr2.length; a++) {
-                  _loop2();
-                }
-              } else {
-                var _loop3 = function _loop3() {
-                  var value = inputPtr2[a];
-                  var key = lineKey + "." + a;
-                  var child = [];
-                  follower(item[0], value, child, key);
-                  dataSource.push({
-                    key: key,
-                    form: child,
-                    actions: /*#__PURE__*/React__default.createElement(antd.Button, {
-                      size: "small",
-                      onClick: function onClick() {
-                        return _this2.clickRemoveArrayItem(key);
-                      }
-                    }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))
-                  });
-                };
-
-                for (var a = 0; a < inputPtr2.length; a++) {
-                  _loop3();
-                }
-              }
-            }
+          }
 
           ret.push( /*#__PURE__*/React__default.createElement(antd.Form.Item, {
-            key: item.$_wire,
+            key: source.$_wire,
             noStyle: true
           }, /*#__PURE__*/React__default.createElement("div", {
             className: "ant-form-item"
@@ -1561,40 +1515,42 @@ var FieldifySchemaForm = /*#__PURE__*/function (_React$Component) {
             },
             bordered: true
           })))));
-        } else if (typeof item === "object" && !item.$type) {
+        } else {
+          if (source.$_nested === true) {
             var child = [];
-            follower(item, inputPtr, child, lineKey);
+            follower(source, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React__default.createElement("div", {
-              key: item.$_wire,
+              key: source.$_wire,
               className: "ant-form-item"
             }, /*#__PURE__*/React__default.createElement(antd.Card, {
               size: "small",
-              title: item.$doc
+              title: source.$doc
             }, child)));
           } else {
-              var _TypeForm2 = item.$type.Form;
-              ret.push( /*#__PURE__*/React__default.createElement(_TypeForm2, {
-                schema: item,
-                value: inputPtr,
-                key: item.$_wire,
-                verify: verify,
-                user: _this2.props.user,
-                onChange: function onChange(schema, value) {
-                  return _this2.setValue(lineKey, value);
-                },
-                onError: function onError(error, message) {
-                  if (error === true) {
-                    _this2.references[item.$_key] = message;
-                  } else {
-                    var ref = _this2.references[item.$_key];
+            var _TypeForm = item.$type.Form;
+            ret.push( /*#__PURE__*/React__default.createElement(_TypeForm, {
+              schema: source,
+              value: inputPtr,
+              key: source.$_wire,
+              verify: verify,
+              user: _this2.props.user,
+              onChange: function onChange(schema, value) {
+                return _this2.setValue(lineKey, value);
+              },
+              onError: function onError(error, message) {
+                if (error === true) {
+                  _this2.references[source.$_wire] = message;
+                } else {
+                  var ref = _this2.references[source.$_wire];
 
-                    if (ref) {
-                      delete _this2.references[item.$_key];
-                    }
+                  if (ref) {
+                    delete _this2.references[source.$_wire];
                   }
                 }
-              }));
-            }
+              }
+            }));
+          }
+        }
       });
       return ret;
     };

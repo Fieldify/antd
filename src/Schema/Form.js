@@ -15,7 +15,7 @@ export class FieldifySchemaForm extends React.Component {
   }
 
   componentDidUpdate(props, state) {
-    if(props.schema !== this.schema || props.input !== this.input) {
+    if (props.schema !== this.schema || props.input !== this.input) {
       const cycle = this.cycle(this.props);
       this.setState(cycle)
     }
@@ -32,7 +32,7 @@ export class FieldifySchemaForm extends React.Component {
     }
 
     state.input = this.input.getValue()
-    state.verify = props.verify||false
+    state.verify = props.verify || false
 
     state.reactive = this.update(state.input, state.verify);
 
@@ -86,20 +86,11 @@ export class FieldifySchemaForm extends React.Component {
       line = line || ""
 
       utils.orderedRead(schema, (index, item) => {
-        const inputPtr = input ? input[item.$_key] : null;
-        const lineKey = line + "." + item.$_key;
+        const source = { ...Array.isArray(item) ? item[0] : item };
+        const inputPtr = input ? input[source.$_key] : null;
+        const lineKey = line + "." + source.$_key;
 
-        // check if the item is hidden
-        if (item.hidden === true)
-          return;
-
-        // ARRAY
-        if (Array.isArray(item)) {
-          const source = { ...item[0] };
-          var inputPtr2 = inputPtr;
-          const options = source.$array || {};
-          const min = options.min ? options.min : (source.$required === true ? 1 : 0)
-
+        if (source.$_array === true) {
           const columns = [
             {
               dataIndex: 'form',
@@ -114,11 +105,39 @@ export class FieldifySchemaForm extends React.Component {
           ];
           const dataSource = []
 
-          /*
-           * Is an array with non nested schema inside
-           */
-          if (source.$_array === true && source.$_nested !== true) {
+          var inputPtr2 = inputPtr;
+          const options = source.$array || {};
+          const min = options.min ? options.min : (source.$required === true ? 1 : 0)
 
+          if (source.$_nested === true) {
+            var inputPtr2 = input[source.$_key]
+
+            if (!Array.isArray(inputPtr)) inputPtr2 = input[source.$_key] = [];
+
+            // force to create min form
+            if (min - inputPtr2.length > 0) {
+              for (var a = 0; a <= min - inputPtr2.length; a++) {
+                inputPtr2.push({})
+              }
+            }
+
+            for (var a = 0; a < inputPtr2.length; a++) {
+              const value = inputPtr2[a];
+              const key = lineKey + "." + a
+
+              const child = [];
+              follower(source, value, child, key);
+
+              dataSource.push({
+                key,
+                form: child,
+                actions: <Button size="small" onClick={() => this.clickRemoveArrayItem(key)}>
+                  <span><DeleteIcon /></span>
+                </Button>
+              })
+            }
+          }
+          else {
             delete source.$doc; // source is cloned
             const TypeForm = source.$type.Form;
 
@@ -144,7 +163,7 @@ export class FieldifySchemaForm extends React.Component {
             for (var a = 0; a < inputPtr2.length; a++) {
               const value = inputPtr2[a];
               const key = lineKey + "." + a
-
+   
               dataSource.push({
                 key,
                 form: <TypeForm
@@ -154,6 +173,7 @@ export class FieldifySchemaForm extends React.Component {
                   user={this.props.user}
                   onChange={(schema, value) => this.setValue(key, value)}
                   isInjected={true}
+
                   // reference errors
                   onError={(error, message) => {
                     if (error === true) {
@@ -172,85 +192,9 @@ export class FieldifySchemaForm extends React.Component {
                 </Button>
               })
             }
-
-          }
-          /*
-           * Is an array with nested schema inside
-           */
-          else if (source.$_array === true && source.$_nested === true) {
-            var inputPtr2 = input[item.$_key]
-
-            // console.log("Schema has nested array", item.$_wire, item.$_key, verify, source, input[item.$_key], input)
-
-            if (!Array.isArray(inputPtr)) inputPtr2 = input[item.$_key] = [];
-
-            // console.log("Array nested", min, min - inputPtr2.length, inputPtr2)
-
-            // force to create min form
-            if (min - inputPtr2.length > 0) {
-              for (var a = 0; a <= min - inputPtr2.length; a++) {
-                inputPtr2.push({})
-              }
-            }
-
-            // very special case for field where there is subfield
-            if (item[0].$_schematized === true) {
-              delete source.$doc; // source is cloned
-              const TypeForm = source.$type.Form;
-
-              for (var a = 0; a < inputPtr2.length; a++) {
-                const value = inputPtr2[a];
-                const key = lineKey + "." + a
-
-                dataSource.push({
-                  key,
-                  form: <TypeForm
-                    schema={source}
-                    value={value}
-                    verify={verify}
-                    user={this.props.user}
-                    onChange={(schema, value) => this.setValue(key, value)}
-                    isInjected={true}
-                    // reference errors
-                    onError={(error, message) => {
-                      if (error === true) {
-                        this.references[key] = message;
-                      }
-                      else {
-                        const ref = this.references[key];
-                        if (ref) {
-                          delete this.references[key];
-                        }
-                      }
-                    }}
-                  />,
-                  actions: <Button size="small" onClick={() => this.clickRemoveArrayItem(key)}>
-                    <span><DeleteIcon /></span>
-                  </Button>
-                })
-              }
-            }
-            else {
-              for (var a = 0; a < inputPtr2.length; a++) {
-                const value = inputPtr2[a];
-                const key = lineKey + "." + a
-
-                const child = [];
-                follower(item[0], value, child, key);
-
-                dataSource.push({
-                  key,
-                  form: child,
-                  actions: <Button size="small" onClick={() => this.clickRemoveArrayItem(key)}>
-                    <span><DeleteIcon /></span>
-                  </Button>
-                })
-              }
-            }
-
           }
 
-          ret.push(<Form.Item key={item.$_wire} noStyle={true}>
+          ret.push(<Form.Item key={source.$_wire} noStyle={true}>
             <div className="ant-form-item">
               <Card size="small" title={source.$_access.$doc} extra={<div className="ant-radio-group ant-radio-group-outline ant-radio-group-small">
                 <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(lineKey + "." + inputPtr2.length)}>
@@ -273,47 +217,48 @@ export class FieldifySchemaForm extends React.Component {
               </Card>
             </div>
           </Form.Item>);
+
         }
-        // OBJECT
-        else if (typeof item === "object" && !item.$type) {
-          const child = [];
-          follower(item, inputPtr, child, lineKey);
-          ret.push(<div key={item.$_wire} className="ant-form-item">
-            <Card size="small" title={item.$doc}>
-              {child}
-            </Card>
-          </div>);
-        }
-        // LEAF
         else {
-          const TypeForm = item.$type.Form;
+          if (source.$_nested === true) {
+            const child = [];
+            follower(source, inputPtr, child, lineKey);
 
-          ret.push(<TypeForm
-            schema={item}
-            value={inputPtr}
-            key={item.$_wire}
-            verify={verify}
-            user={this.props.user}
-            onChange={(schema, value) => this.setValue(lineKey, value)}
+            ret.push(<div key={source.$_wire} className="ant-form-item">
+              <Card size="small" title={source.$doc}>
+                {child}
+              </Card>
+            </div>);
+          }
+          else {
+            const TypeForm = item.$type.Form;
 
-            // reference errors
-            onError={(error, message) => {
-              if (error === true) {
-                this.references[item.$_key] = message;
-              }
-              else {
-                const ref = this.references[item.$_key];
-                if (ref) {
-                  delete this.references[item.$_key];
+            ret.push(<TypeForm
+              schema={source}
+              value={inputPtr}
+              key={source.$_wire}
+              verify={verify}
+              user={this.props.user}
+              onChange={(schema, value) => this.setValue(lineKey, value)}
+
+              // reference errors
+              onError={(error, message) => {
+                if (error === true) {
+                  this.references[source.$_wire] = message;
                 }
-              }
-            }}
-          />);
+                else {
+                  const ref = this.references[source.$_wire];
+                  if (ref) {
+                    delete this.references[source.$_wire];
+                  }
+                }
+              }}
+            />);
+          }
         }
       });
       return (ret);
     };
-
 
     const ret = [];
     follower(this.schema.handler.schema, input, ret);

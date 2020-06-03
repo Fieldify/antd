@@ -30,42 +30,6 @@ function _inheritsLoose(subClass, superClass) {
   subClass.__proto__ = superClass;
 }
 
-var RecycledComponent = /*#__PURE__*/function (_React$Component) {
-  _inheritsLoose(RecycledComponent, _React$Component);
-
-  function RecycledComponent(props, context, updater) {
-    var _this;
-
-    _this = _React$Component.call(this, props, context, updater) || this;
-    _this.state = _this.cycle(props, true);
-    return _this;
-  }
-
-  var _proto = RecycledComponent.prototype;
-
-  _proto.componentDidUpdate = function componentDidUpdate(props, state) {
-    if (_React$Component.prototype.componentDidUpdate) _React$Component.prototype.componentDidUpdate.call(this, props, state);
-    var changed = false;
-
-    for (var a in props) {
-      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
-        changed = true;
-        break;
-      }
-    }
-
-    if (changed === true) {
-      this.setState(this.cycle(this.props, false));
-    }
-  };
-
-  _proto.cycle = function cycle(props, first) {
-    return {};
-  };
-
-  return RecycledComponent;
-}(React__default.Component);
-
 var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _inheritsLoose(FieldifyTypeForm, _Component);
 
@@ -221,6 +185,42 @@ var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
 
   return FieldifyTypeForm;
 }(React.Component);
+
+var RecycledComponent = /*#__PURE__*/function (_React$Component) {
+  _inheritsLoose(RecycledComponent, _React$Component);
+
+  function RecycledComponent(props, context, updater) {
+    var _this;
+
+    _this = _React$Component.call(this, props, context, updater) || this;
+    _this.state = _this.cycle(props, true);
+    return _this;
+  }
+
+  var _proto = RecycledComponent.prototype;
+
+  _proto.componentDidUpdate = function componentDidUpdate(props, state) {
+    if (_React$Component.prototype.componentDidUpdate) _React$Component.prototype.componentDidUpdate.call(this, props, state);
+    var changed = false;
+
+    for (var a in props) {
+      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (changed === true) {
+      this.setState(this.cycle(this.props, false));
+    }
+  };
+
+  _proto.cycle = function cycle(props, first) {
+    return {};
+  };
+
+  return RecycledComponent;
+}(React__default.Component);
 
 var FieldifyTypeRender = /*#__PURE__*/function (_RecycledComponent) {
   _inheritsLoose(FieldifyTypeRender, _RecycledComponent);
@@ -481,6 +481,8 @@ var NameForm = /*#__PURE__*/function (_TypeForm) {
   var _proto = NameForm.prototype;
 
   _proto.cycle = function cycle(props) {
+    console.log("NameForm", props);
+
     var ret = _TypeForm.prototype.cycle.call(this, props);
 
     if (!ret.value) ret.value = {};
@@ -1598,10 +1600,16 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
   _proto.update = function update(input, verify) {
     var _this2 = this;
 
-    var follower = function follower(schema, input, ret, line) {
+    console.log("rebuild", input);
+
+    var follower = function follower(schema, schematized, input, ret, line) {
       line = line || "";
       fieldify.utils.orderedRead(schema, function (index, item) {
         var source = _extends({}, Array.isArray(item) ? item[0] : item);
+
+        var schematizedSrc = schematized[source.$_key];
+
+        var sourceSchematized = _extends({}, Array.isArray(schematizedSrc) ? schematizedSrc[0] : schematizedSrc);
 
         var inputPtr = input ? input[source.$_key] : null;
         var lineKey = line + "." + source.$_key;
@@ -1635,7 +1643,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
               var value = inputPtr2[a];
               var key = lineKey + "." + a;
               var child = [];
-              follower(source, value, child, key);
+              follower(source, sourceSchematized, value, child, key);
               dataSource.push({
                 key: key,
                 form: child,
@@ -1652,7 +1660,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
               _loop();
             }
           } else {
-            delete source.$doc;
+            delete sourceSchematized.$doc;
             var TypeForm = source.$type.Form;
 
             if (!Array.isArray(inputPtr)) {
@@ -1674,7 +1682,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
               dataSource.push({
                 key: key,
                 form: /*#__PURE__*/React__default.createElement(TypeForm, {
-                  schema: source,
+                  schema: sourceSchematized,
                   value: value,
                   verify: verify,
                   user: _this2.props.user,
@@ -1740,7 +1748,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
         } else {
           if (source.$_nested === true) {
             var child = [];
-            follower(source, inputPtr, child, lineKey);
+            follower(source, sourceSchematized, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React__default.createElement("div", {
               key: source.$_wire,
               className: "ant-form-item"
@@ -1751,7 +1759,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
           } else {
             var _TypeForm = item.$type.Form;
             ret.push( /*#__PURE__*/React__default.createElement(_TypeForm, {
-              schema: source,
+              schema: sourceSchematized,
               value: inputPtr,
               key: source.$_wire,
               verify: verify,
@@ -1778,7 +1786,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     };
 
     var ret = [];
-    follower(this.schema.handler.schema, input, ret);
+    follower(this.schema.handler.schema, this.schema.handlerSchematized.schema, input, ret);
     return ret;
   };
 
@@ -2053,6 +2061,15 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
         delete nvalue.$key;
 
         if (nvalue.$type === "Array" && nvalue.$content === "Object") {
+          if (_this3.props.user.$_wire) {
+            var no = fieldify.utils.getNO(_this3.props.user);
+
+            for (var a in no.nestedObject) {
+              var p = no.nestedObject[a];
+              nvalue[p[0]] = p[1];
+            }
+          }
+
           delete nvalue.$type;
           delete nvalue.$content;
           nvalue = [nvalue];
@@ -2061,6 +2078,17 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
             delete nvalue.$content;
             nvalue = [nvalue];
           } else if (nvalue.$type === "Object") {
+              console.log("obj", _this3.props.user);
+
+              if (_this3.props.user.$_wire) {
+                var _no = fieldify.utils.getNO(_this3.props.user);
+
+                for (var a in _no.nestedObject) {
+                  var _p = _no.nestedObject[a];
+                  nvalue[_p[0]] = _p[1];
+                }
+              }
+
               delete nvalue.$type;
             }
 
@@ -2112,17 +2140,33 @@ var FieldifySchemaBuilderModal = /*#__PURE__*/function (_React$Component) {
   return FieldifySchemaBuilderModal;
 }(React__default.Component);
 
-var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
-  _inheritsLoose(FieldifySchemaBuilder, _RecycledComponent);
+var FieldifySchemaBuilder = /*#__PURE__*/function (_React$Component) {
+  _inheritsLoose(FieldifySchemaBuilder, _React$Component);
 
-  function FieldifySchemaBuilder() {
-    return _RecycledComponent.apply(this, arguments) || this;
+  function FieldifySchemaBuilder(props) {
+    var _this;
+
+    _this = _React$Component.call(this, props) || this;
+    _this.state = _this.cycle(props, true);
+    return _this;
   }
 
   var _proto = FieldifySchemaBuilder.prototype;
 
+  _proto.componentDidUpdate = function componentDidUpdate(props) {
+    var changed = false;
+    var state = {};
+
+    if (this.props.schema !== props.schema) {
+      state = this.cycle(this.props);
+      changed = true;
+    }
+
+    if (changed === true) this.setState(state);
+  };
+
   _proto.cycle = function cycle(props, first) {
-    var _this = this;
+    var _this2 = this;
 
     var state = {
       modal: false,
@@ -2149,7 +2193,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
       }, /*#__PURE__*/React__default.createElement("span", {
         className: "ant-radio-button-wrapper",
         onClick: function onClick() {
-          return _this.handlingAdd();
+          return _this2.handlingAdd();
         }
       }, /*#__PURE__*/React__default.createElement("span", null, "Add ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
       dataIndex: 'actions',
@@ -2175,6 +2219,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
         description: "Field at " + arg.oldPath + " has been successfully updated"
       });
     } else {
+        console.log("ADDD", arg.newPath, arg.value);
         this.props.schema.setLineup(arg.newPath, arg.value);
         antd.notification.success({
           message: "Field added",
@@ -2232,12 +2277,10 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
       if (!wire) wire = "";
       var current = [];
       fieldify.utils.orderedRead(schema, function (index, item) {
-        var source = _extends({}, Array.isArray(item) ? item[0] : item);
-
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
-        if (source.$_array === true) {
+        if (Array.isArray(item)) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
           var composite = /*#__PURE__*/React__default.createElement(antd.Tooltip, {
@@ -2284,7 +2327,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
               }
             }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))) : null)
           });
-        } else if (source.$_array !== true && source.$_nested === true) {
+        } else if (typeof item === "object" && !item.$type) {
             current.push({
               ptr: item,
               key: path,
@@ -2318,7 +2361,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
                 }
               }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))))
             });
-          } else if (source.$_array !== true && source.$_nested !== true) {
+          } else if (item.$type) {
             var _TypeInfo = item.$type.Info;
             current.push({
               ptr: item,
@@ -2359,7 +2402,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
   };
 
   _proto.render = function render() {
-    var _this2 = this;
+    var _this3 = this;
 
     var sds = this.state.schemaDataSource;
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(FieldifySchemaBuilderModal, {
@@ -2367,7 +2410,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
       visible: this.state.modal,
       value: this.state.modalContent,
       onCancel: function onCancel() {
-        return _this2.setState({
+        return _this3.setState({
           modal: false
         });
       },
@@ -2388,7 +2431,7 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
   };
 
   return FieldifySchemaBuilder;
-}(RecycledComponent);
+}(React__default.Component);
 
 var FieldifySchemaRender = /*#__PURE__*/function (_RecycledComponent) {
   _inheritsLoose(FieldifySchemaRender, _RecycledComponent);

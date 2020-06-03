@@ -1,4 +1,4 @@
-import { input as FieldifyInput } from "fieldify";
+import { utils, input as FieldifyInput } from "fieldify";
 
 import React from 'react';
 import Types from '../Types';
@@ -280,18 +280,29 @@ export class FieldifySchemaBuilderModal extends React.Component {
 
         // rename all root value with $
         for (var key in value) nvalue['$' + key] = value[key]
-        
+
         // we will save the last path in order to reconstruct the field name
         const source = this.state.initialPath.split('.')
         source.pop()
         source.push(value.key)
         const npath = source.join('.')
         delete nvalue.$key;
-        
+
         // because object and array are virtualized in the builder 
         // then we need to remap the item with the correct schema underlining
-        
+
         if (nvalue.$type === "Array" && nvalue.$content === "Object") {
+
+          // recopy nestedObjects if exists
+          // avoid root copy
+          if (this.props.user.$_wire) {
+            const no = utils.getNO(this.props.user)
+            for (var a in no.nestedObject) {
+              const p = no.nestedObject[a]
+              nvalue[p[0]] = p[1]
+            }
+          }
+
           delete nvalue.$type;
           delete nvalue.$content;
           nvalue = [nvalue]
@@ -304,11 +315,24 @@ export class FieldifySchemaBuilderModal extends React.Component {
         }
         // special handle for objects
         else if (nvalue.$type === "Object") {
+          console.log("obj", this.props.user)
+
+          // recopy nestedObjects if exists
+          // avoid root copy
+          if (this.props.user.$_wire) {
+            const no = utils.getNO(this.props.user)
+            for (var a in no.nestedObject) {
+              const p = no.nestedObject[a]
+              nvalue[p[0]] = p[1]
+            }
+          }
+
           delete nvalue.$type;
         }
-        
-        if(this.state.edition === true) {
+
+        if (this.state.edition === true) {
           this.props.onOk(({
+          // console.log(({
             edition: true,
             oldPath: this.state.initialPath,
             newPath: npath,
@@ -319,7 +343,7 @@ export class FieldifySchemaBuilderModal extends React.Component {
         else {
           this.props.onOk(({
             edition: false,
-            newPath: this.state.initialPath+"."+value.key,
+            newPath: this.state.initialPath + "." + value.key,
             key: value.key,
             value: nvalue
           }))

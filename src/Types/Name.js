@@ -35,6 +35,7 @@ class NameForm extends TypeForm {
   }
 
   cycle(props) {
+    console.log("NameForm", props)
     const ret = super.cycle(props)
     if (!ret.value) ret.value = {}
     

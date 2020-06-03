@@ -76,11 +76,17 @@ export class FieldifySchemaForm extends RecycledComponent {
   }
 
   update(input, verify) {
-    const follower = (schema, input, ret, line) => {
+
+    console.log("rebuild", input)
+    const follower = (schema, schematized, input, ret, line) => {
       line = line || ""
 
       utils.orderedRead(schema, (index, item) => {
+
         const source = { ...Array.isArray(item) ? item[0] : item };
+        const schematizedSrc = schematized[source.$_key];
+        const sourceSchematized = { ...Array.isArray(schematizedSrc) ? schematizedSrc[0] : schematizedSrc };
+
         const inputPtr = input ? input[source.$_key] : null;
         const lineKey = line + "." + source.$_key;
 
@@ -120,7 +126,7 @@ export class FieldifySchemaForm extends RecycledComponent {
               const key = lineKey + "." + a
 
               const child = [];
-              follower(source, value, child, key);
+              follower(source, sourceSchematized, value, child, key);
 
               dataSource.push({
                 key,
@@ -132,7 +138,7 @@ export class FieldifySchemaForm extends RecycledComponent {
             }
           }
           else {
-            delete source.$doc; // source is cloned
+            delete sourceSchematized.$doc; // source is cloned
             const TypeForm = source.$type.Form;
 
             // console.log("Array non nested", min, inputPtr2)
@@ -157,11 +163,11 @@ export class FieldifySchemaForm extends RecycledComponent {
             for (var a = 0; a < inputPtr2.length; a++) {
               const value = inputPtr2[a];
               const key = lineKey + "." + a
-   
+
               dataSource.push({
                 key,
                 form: <TypeForm
-                  schema={source}
+                  schema={sourceSchematized}
                   value={value}
                   verify={verify}
                   user={this.props.user}
@@ -216,7 +222,7 @@ export class FieldifySchemaForm extends RecycledComponent {
         else {
           if (source.$_nested === true) {
             const child = [];
-            follower(source, inputPtr, child, lineKey);
+            follower(source, sourceSchematized, inputPtr, child, lineKey);
 
             ret.push(<div key={source.$_wire} className="ant-form-item">
               <Card size="small" title={source.$doc}>
@@ -228,7 +234,7 @@ export class FieldifySchemaForm extends RecycledComponent {
             const TypeForm = item.$type.Form;
 
             ret.push(<TypeForm
-              schema={source}
+              schema={sourceSchematized}
               value={inputPtr}
               key={source.$_wire}
               verify={verify}
@@ -255,7 +261,12 @@ export class FieldifySchemaForm extends RecycledComponent {
     };
 
     const ret = [];
-    follower(this.schema.handler.schema, input, ret);
+    follower(
+      this.schema.handler.schema,
+      this.schema.handlerSchematized.schema,
+      input,
+      ret
+    );
     return (ret);
   }
 

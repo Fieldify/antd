@@ -3,34 +3,6 @@ import React, { Component } from 'react';
 import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
 import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, DeleteOutlined, EditOutlined, PlusOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
-class RecycledComponent extends React.Component {
-  constructor(props, context, updater) {
-    super(props, context, updater);
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props, state) {
-    if (super.componentDidUpdate) super.componentDidUpdate(props, state);
-    var changed = false;
-
-    for (var a in props) {
-      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
-        changed = true;
-        break;
-      }
-    }
-
-    if (changed === true) {
-      this.setState(this.cycle(this.props, false));
-    }
-  }
-
-  cycle(props, first) {
-    return {};
-  }
-
-}
-
 class FieldifyTypeForm extends Component {
   constructor(props) {
     super(props);
@@ -166,6 +138,34 @@ class FieldifyTypeForm extends Component {
         sm: 24
       }
     }, children);
+  }
+
+}
+
+class RecycledComponent extends React.Component {
+  constructor(props, context, updater) {
+    super(props, context, updater);
+    this.state = this.cycle(props, true);
+  }
+
+  componentDidUpdate(props, state) {
+    if (super.componentDidUpdate) super.componentDidUpdate(props, state);
+    var changed = false;
+
+    for (var a in props) {
+      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (changed === true) {
+      this.setState(this.cycle(this.props, false));
+    }
+  }
+
+  cycle(props, first) {
+    return {};
   }
 
 }
@@ -360,6 +360,7 @@ class NameForm extends FieldifyTypeForm {
   }
 
   cycle(props) {
+    console.log("NameForm", props);
     const ret = super.cycle(props);
     if (!ret.value) ret.value = {};
     this.result = { ...ret.value
@@ -1172,10 +1173,15 @@ class FieldifySchemaForm extends RecycledComponent {
   input(input, verify) {}
 
   update(input, verify) {
-    const follower = (schema, input, ret, line) => {
+    console.log("rebuild", input);
+
+    const follower = (schema, schematized, input, ret, line) => {
       line = line || "";
       utils.orderedRead(schema, (index, item) => {
         const source = { ...(Array.isArray(item) ? item[0] : item)
+        };
+        const schematizedSrc = schematized[source.$_key];
+        const sourceSchematized = { ...(Array.isArray(schematizedSrc) ? schematizedSrc[0] : schematizedSrc)
         };
         const inputPtr = input ? input[source.$_key] : null;
         const lineKey = line + "." + source.$_key;
@@ -1209,7 +1215,7 @@ class FieldifySchemaForm extends RecycledComponent {
               const value = inputPtr2[a];
               const key = lineKey + "." + a;
               const child = [];
-              follower(source, value, child, key);
+              follower(source, sourceSchematized, value, child, key);
               dataSource.push({
                 key,
                 form: child,
@@ -1220,7 +1226,7 @@ class FieldifySchemaForm extends RecycledComponent {
               });
             }
           } else {
-            delete source.$doc;
+            delete sourceSchematized.$doc;
             const TypeForm = source.$type.Form;
 
             if (!Array.isArray(inputPtr)) {
@@ -1242,7 +1248,7 @@ class FieldifySchemaForm extends RecycledComponent {
               dataSource.push({
                 key,
                 form: /*#__PURE__*/React.createElement(TypeForm, {
-                  schema: source,
+                  schema: sourceSchematized,
                   value: value,
                   verify: verify,
                   user: this.props.user,
@@ -1298,7 +1304,7 @@ class FieldifySchemaForm extends RecycledComponent {
         } else {
           if (source.$_nested === true) {
             const child = [];
-            follower(source, inputPtr, child, lineKey);
+            follower(source, sourceSchematized, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React.createElement("div", {
               key: source.$_wire,
               className: "ant-form-item"
@@ -1309,7 +1315,7 @@ class FieldifySchemaForm extends RecycledComponent {
           } else {
             const TypeForm = item.$type.Form;
             ret.push( /*#__PURE__*/React.createElement(TypeForm, {
-              schema: source,
+              schema: sourceSchematized,
               value: inputPtr,
               key: source.$_wire,
               verify: verify,
@@ -1334,7 +1340,7 @@ class FieldifySchemaForm extends RecycledComponent {
     };
 
     const ret = [];
-    follower(this.schema.handler.schema, input, ret);
+    follower(this.schema.handler.schema, this.schema.handlerSchematized.schema, input, ret);
     return ret;
   }
 
@@ -1594,6 +1600,15 @@ class FieldifySchemaBuilderModal extends React.Component {
         delete nvalue.$key;
 
         if (nvalue.$type === "Array" && nvalue.$content === "Object") {
+          if (this.props.user.$_wire) {
+            const no = utils.getNO(this.props.user);
+
+            for (var a in no.nestedObject) {
+              const p = no.nestedObject[a];
+              nvalue[p[0]] = p[1];
+            }
+          }
+
           delete nvalue.$type;
           delete nvalue.$content;
           nvalue = [nvalue];
@@ -1602,6 +1617,17 @@ class FieldifySchemaBuilderModal extends React.Component {
             delete nvalue.$content;
             nvalue = [nvalue];
           } else if (nvalue.$type === "Object") {
+              console.log("obj", this.props.user);
+
+              if (this.props.user.$_wire) {
+                const no = utils.getNO(this.props.user);
+
+                for (var a in no.nestedObject) {
+                  const p = no.nestedObject[a];
+                  nvalue[p[0]] = p[1];
+                }
+              }
+
               delete nvalue.$type;
             }
 
@@ -1651,7 +1677,24 @@ class FieldifySchemaBuilderModal extends React.Component {
 
 }
 
-class FieldifySchemaBuilder extends RecycledComponent {
+class FieldifySchemaBuilder extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = this.cycle(props, true);
+  }
+
+  componentDidUpdate(props) {
+    var changed = false;
+    var state = {};
+
+    if (this.props.schema !== props.schema) {
+      state = this.cycle(this.props);
+      changed = true;
+    }
+
+    if (changed === true) this.setState(state);
+  }
+
   cycle(props, first) {
     const state = {
       modal: false,
@@ -1702,6 +1745,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
         description: `Field at ${arg.oldPath} has been successfully updated`
       });
     } else {
+        console.log("ADDD", arg.newPath, arg.value);
         this.props.schema.setLineup(arg.newPath, arg.value);
         notification.success({
           message: "Field added",
@@ -1759,12 +1803,10 @@ class FieldifySchemaBuilder extends RecycledComponent {
       if (!wire) wire = "";
       const current = [];
       utils.orderedRead(schema, (index, item) => {
-        const source = { ...(Array.isArray(item) ? item[0] : item)
-        };
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
-        if (source.$_array === true) {
+        if (Array.isArray(item)) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
           var composite = /*#__PURE__*/React.createElement(Tooltip, {
@@ -1805,7 +1847,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
               onClick: () => self.handlingAdd(path)
             }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))) : null)
           });
-        } else if (source.$_array !== true && source.$_nested === true) {
+        } else if (typeof item === "object" && !item.$type) {
             current.push({
               ptr: item,
               key: path,
@@ -1833,7 +1875,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
                 onClick: () => self.handlingAdd(path)
               }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))))
             });
-          } else if (source.$_array !== true && source.$_nested !== true) {
+          } else if (item.$type) {
             const TypeInfo = item.$type.Info;
             current.push({
               ptr: item,

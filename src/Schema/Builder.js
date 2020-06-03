@@ -1,6 +1,4 @@
 import React from 'react';
-import RecycledComponent from 'react-recycling';
-
 import {
   schema,
   iterator,
@@ -29,7 +27,25 @@ import { FieldifySchemaBuilderModal } from './BuilderModal';
 
 import String from "../Types/String";
 
-export class FieldifySchemaBuilder extends RecycledComponent {
+export class FieldifySchemaBuilder extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = this.cycle(props, true);
+  }
+
+  componentDidUpdate(props) {
+    var changed = false
+    var state = { }
+
+    if (this.props.schema !== props.schema) {
+      state = this.cycle(this.props)
+      changed = true;
+    }
+
+    if (changed === true) this.setState(state)
+  }
+
 
   cycle(props, first) {
     const state = {
@@ -98,6 +114,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
     // manage addition
     else {
       // just put the new one
+      console.log("ADDD", arg.newPath, arg.value)
       this.props.schema.setLineup(arg.newPath, arg.value)
 
       notification.success({
@@ -166,12 +183,11 @@ export class FieldifySchemaBuilder extends RecycledComponent {
         wire = "";
       const current = [];
       utils.orderedRead(schema, (index, item) => {
-        const source = { ...Array.isArray(item) ? item[0] : item };
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
         // Is array
-        if(source.$_array === true) {
+        if (Array.isArray(item)) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
 
@@ -215,7 +231,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
           });
         }
         // is object
-        else if(source.$_array !== true && source.$_nested === true) {
+        else if (typeof item === "object" && !item.$type) {
           current.push({
             ptr: item,
             key: path,
@@ -244,7 +260,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
             </div>
           });
         }
-        else if (source.$_array !== true && source.$_nested !== true) {
+        else if (item.$type) {
           const TypeInfo = item.$type.Info;
           current.push({
             ptr: item,

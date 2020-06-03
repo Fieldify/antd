@@ -157,37 +157,53 @@ class App extends React.Component {
       builder: {
         data: {},
         json: ""
+      },
+      render: {
+        layout: "horizontal"
       }
     }
 
     // compile the schema
-    this.schema = new FieldifySchema("test")
-    this.schema.compile(state.schema)
+    state.schemaHandler = new FieldifySchema("test")
+    state.schemaHandler.compile(state.schema)
 
     // create an input instance
-    this.input = new Input(this.schema)
-    this.input.setValue(state.input)
+    state.inputHandler = new Input(state.schemaHandler)
+    state.inputHandler.setValue(state.input)
 
-    state.builder.json = JSON.stringify(this.schema.export(), null, "  ")
-
-    state.form.json = JSON.stringify(this.input.getValue(), null, "  ")
+    state.builder.json = JSON.stringify(state.schemaHandler.export(), null, "  ")
+    state.form.json = JSON.stringify(state.inputHandler.getValue(), null, "  ")
 
     return (state)
   }
 
-  builderChanged(schema) {
-    const state = this.cycle({
-      schema: this.schema.export(),
-      input: this.input.getValue()
-    })
 
+  builderChanged(schema) {
+    const state = {
+      schema: this.state.schemaHandler.export(),
+      builder: {},
+      form: {
+        data: this.state.inputHandler.getValue(),
+        json: "",
+        state: "Filling",
+        color: "blue"
+      },
+    }
+
+    // create an input instance
+    state.inputHandler = new Input(this.state.schemaHandler)
+    state.inputHandler.setValue(this.state.input)
+
+    state.builder.json = JSON.stringify(this.state.schemaHandler.export(), null, "  ")
+    state.form.json = JSON.stringify(this.state.inputHandler.getValue(), null, "  ")
+    
     this.setState(state)
   }
 
   formChanged(value) {
     // run the verifier on each change to 
     // get the status into the title
-    this.input.verify((result) => {
+    this.state.inputHandler.verify((result) => {
 
       const state = {
         form: {
@@ -222,7 +238,7 @@ class App extends React.Component {
             <Card size="small" title="Pass #1 - Building">
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Editor" key="1">
-                  <FieldifySchemaBuilder schema={this.schema} onChange={this.builderChanged.bind(this)} />
+                  <FieldifySchemaBuilder schema={this.state.schemaHandler} onChange={this.builderChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="JSON Schema" key="2">
                   <pre>
@@ -238,7 +254,7 @@ class App extends React.Component {
             <Card size="small" title={<>Pass #2 - Filling Form <Tag color={this.state.form.color}>{this.state.form.state}</Tag></>}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Rendering" key="1">
-                  <FieldifySchemaForm schema={this.schema} input={this.input} onChange={this.formChanged.bind(this)} />
+                  {/* <FieldifySchemaForm schema={this.state.schemaHandler} input={this.state.inputHandler} onChange={this.formChanged.bind(this)} /> */}
                 </TabPane>
                 <TabPane tab="Sanatized JSON Input" key="2">
                   <pre>
@@ -252,27 +268,20 @@ class App extends React.Component {
         <Col sm={12} xxl={8}>
           <div style={style}>
             <Card size="small" title="Pass #3 - Final Result">
-
-              <Tabs defaultActiveKey="1">
-                <TabPane tab="Verification Rendering" key="1">
-                  <Form>
-                    <Form.Item label="Form Layout" name="layout">
-                      <Radio.Group value="horizontal">
-                        <Radio.Button value="horizontal">Horizontal</Radio.Button>
-                        <Radio.Button value="vertical">Vertical</Radio.Button>
-                        <Radio.Button value="inline">Inline</Radio.Button>
-                      </Radio.Group>
-                    </Form.Item>
-                  </Form>
-                  <Divider />
-                  <FieldifySchemaRender schema={this.schema} input={this.state.form.data} />
-                </TabPane>
-                <TabPane tab="Simple Rendering" key="2">
-                  Coming soon
-                </TabPane>
-              </Tabs>
-
-
+              <Form>
+                <Form.Item label="Form Layout" name="layout">
+                  <Radio.Group
+                    value={this.state.render.layout}
+                    onChange={({target}) => this.setState({ render: { layout: target.value } })}
+                  >
+                    <Radio.Button value="horizontal">Horizontal</Radio.Button>
+                    <Radio.Button value="vertical">Vertical</Radio.Button>
+                    <Radio.Button value="inline">Inline</Radio.Button>
+                  </Radio.Group>
+                </Form.Item>
+              </Form>
+              <Divider />
+              {/* <FieldifySchemaRender schema={this.state.schemaHandler} input={this.state.form.data} layout={this.state.render.layout} /> */}
             </Card>
           </div>
         </Col>

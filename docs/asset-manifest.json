@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/@fieldify/antd/static/css/main.7d72bca5.chunk.css",
+    "main.js": "/@fieldify/antd/static/js/main.6fa8b55b.chunk.js",
+    "main.js.map": "/@fieldify/antd/static/js/main.6fa8b55b.chunk.js.map",
+    "runtime-main.js": "/@fieldify/antd/static/js/runtime-main.c1e5f7f2.js",
+    "runtime-main.js.map": "/@fieldify/antd/static/js/runtime-main.c1e5f7f2.js.map",
+    "static/css/2.4deadad5.chunk.css": "/@fieldify/antd/static/css/2.4deadad5.chunk.css",
+    "static/js/2.29b05b3c.chunk.js": "/@fieldify/antd/static/js/2.29b05b3c.chunk.js",
+    "static/js/2.29b05b3c.chunk.js.map": "/@fieldify/antd/static/js/2.29b05b3c.chunk.js.map",
+    "index.html": "/@fieldify/antd/index.html",
+    "precache-manifest.a5ac6c402bb58700c5509ff17274603c.js": "/@fieldify/antd/precache-manifest.a5ac6c402bb58700c5509ff17274603c.js",
+    "service-worker.js": "/@fieldify/antd/service-worker.js",
+    "static/css/2.4deadad5.chunk.css.map": "/@fieldify/antd/static/css/2.4deadad5.chunk.css.map",
+    "static/css/main.7d72bca5.chunk.css.map": "/@fieldify/antd/static/css/main.7d72bca5.chunk.css.map",
+    "static/js/2.29b05b3c.chunk.js.LICENSE.txt": "/@fieldify/antd/static/js/2.29b05b3c.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c1e5f7f2.js",
+    "static/css/2.4deadad5.chunk.css",
+    "static/js/2.29b05b3c.chunk.js",
+    "static/css/main.7d72bca5.chunk.css",
+    "static/js/main.6fa8b55b.chunk.js"
+  ]
+}

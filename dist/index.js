@@ -3,6 +3,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var fieldify = require('fieldify');
 var React = require('react');
 var React__default = _interopDefault(React);
+var RecycledComponent = _interopDefault(require('react-recycling'));
 var antd = require('antd');
 var icons = require('@ant-design/icons');
 
@@ -29,43 +30,6 @@ function _inheritsLoose(subClass, superClass) {
   subClass.prototype.constructor = subClass;
   subClass.__proto__ = superClass;
 }
-
-var RecycledComponent = /*#__PURE__*/function (_React$Component) {
-  _inheritsLoose(RecycledComponent, _React$Component);
-
-  function RecycledComponent(props, context, updater) {
-    var _this;
-
-    _this = _React$Component.call(this, props, context, updater) || this;
-    _this.state = _this.cycle(props, true);
-    return _this;
-  }
-
-  var _proto = RecycledComponent.prototype;
-
-  _proto.componentDidUpdate = function componentDidUpdate(props, state) {
-    if (_React$Component.prototype.componentDidUpdate) _React$Component.prototype.componentDidUpdate.call(this, props, state);
-    var changed = false;
-
-    for (var a in props) {
-      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
-        changed = true;
-        break;
-      }
-    }
-
-    if (changed === true) {
-      var ret = this.cycle(this.props, false);
-      if (ret && typeof ret === "object") this.setState(ret);
-    }
-  };
-
-  _proto.cycle = function cycle(props, first) {
-    return {};
-  };
-
-  return RecycledComponent;
-}(React__default.Component);
 
 var FieldifyTypeForm = /*#__PURE__*/function (_Component) {
   _inheritsLoose(FieldifyTypeForm, _Component);
@@ -1552,9 +1516,9 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     state.input.setValue(props.input);
     state.inputValue = state.input.getValue();
     state.verify = props.verify || false;
-    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     this.references = {};
     this.onChange = props.onChange ? props.onChange : function () {};
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     return state;
   };
 
@@ -2435,18 +2399,23 @@ var FieldifySchemaRender = /*#__PURE__*/function (_RecycledComponent) {
 
   _proto.cycle = function cycle(props, first) {
     var state = {
-      input: props.input,
       layout: props.layout ? props.layout : "horizontal"
     };
-    this.schema = props.schema;
+    state.rawSchema = props.schema;
+    state.schema = new FieldifySchema("form");
+    state.schema.compile(state.rawSchema);
+    state.rawInput = props.input;
+    state.input = new fieldify.input(state.schema);
+    state.input.setValue(props.input);
+    state.inputValue = state.input.getValue();
     state.verify = props.verify || false;
-    state.reactive = this.update(state.input, state.verify);
     this.references = {};
     this.onChange = props.onChange ? props.onChange : function () {};
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     return state;
   };
 
-  _proto.update = function update(input, verify) {
+  _proto.update = function update(root, input, verify) {
     var follower = function follower(schema, input, ret, line) {
       line = line || "";
       fieldify.utils.orderedRead(schema, function (index, item) {
@@ -2486,7 +2455,7 @@ var FieldifySchemaRender = /*#__PURE__*/function (_RecycledComponent) {
                 form: child
               });
             }
-          } else {
+          } else if (source.$type) {
             delete source.$doc;
             var TypeRender = source.$type.Render;
 
@@ -2569,7 +2538,7 @@ var FieldifySchemaRender = /*#__PURE__*/function (_RecycledComponent) {
     };
 
     var ret = [];
-    follower(this.schema.handler.schema, input, ret);
+    follower(root.handler.schema, input, ret);
     return ret;
   };
 

@@ -1,36 +1,8 @@
 import { types as types$1, fieldifyType, schema as schema$1, input, utils } from 'fieldify';
 import React, { Component } from 'react';
+import RecycledComponent from 'react-recycling';
 import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
 import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, DeleteOutlined, EditOutlined, PlusOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
-
-class RecycledComponent extends React.Component {
-  constructor(props, context, updater) {
-    super(props, context, updater);
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props, state) {
-    if (super.componentDidUpdate) super.componentDidUpdate(props, state);
-    var changed = false;
-
-    for (var a in props) {
-      if (typeof props[a] !== "function" && props[a] !== this.props[a]) {
-        changed = true;
-        break;
-      }
-    }
-
-    if (changed === true) {
-      const ret = this.cycle(this.props, false);
-      if (ret && typeof ret === "object") this.setState(ret);
-    }
-  }
-
-  cycle(props, first) {
-    return {};
-  }
-
-}
 
 class FieldifyTypeForm extends Component {
   constructor(props) {
@@ -1128,9 +1100,9 @@ class FieldifySchemaForm extends RecycledComponent {
     state.input.setValue(props.input);
     state.inputValue = state.input.getValue();
     state.verify = props.verify || false;
-    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     this.references = {};
     this.onChange = props.onChange ? props.onChange : () => {};
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     return state;
   }
 
@@ -1934,18 +1906,23 @@ class FieldifySchemaRender extends RecycledComponent {
 
   cycle(props, first) {
     const state = {
-      input: props.input,
       layout: props.layout ? props.layout : "horizontal"
     };
-    this.schema = props.schema;
+    state.rawSchema = props.schema;
+    state.schema = new FieldifySchema("form");
+    state.schema.compile(state.rawSchema);
+    state.rawInput = props.input;
+    state.input = new input(state.schema);
+    state.input.setValue(props.input);
+    state.inputValue = state.input.getValue();
     state.verify = props.verify || false;
-    state.reactive = this.update(state.input, state.verify);
     this.references = {};
     this.onChange = props.onChange ? props.onChange : () => {};
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     return state;
   }
 
-  update(input, verify) {
+  update(root, input, verify) {
     const follower = (schema, input, ret, line) => {
       line = line || "";
       utils.orderedRead(schema, (index, item) => {
@@ -1985,7 +1962,7 @@ class FieldifySchemaRender extends RecycledComponent {
                 form: child
               });
             }
-          } else {
+          } else if (source.$type) {
             delete source.$doc;
             const TypeRender = source.$type.Render;
 
@@ -2066,7 +2043,7 @@ class FieldifySchemaRender extends RecycledComponent {
     };
 
     const ret = [];
-    follower(this.schema.handler.schema, input, ret);
+    follower(root.handler.schema, input, ret);
     return ret;
   }
 

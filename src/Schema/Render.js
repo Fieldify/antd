@@ -8,6 +8,8 @@ import {
   DeleteOutlined as DeleteIcon
 } from '@ant-design/icons';
 
+import { FieldifySchema } from "../Schema/Schema";
+
 export class FieldifySchemaRender extends RecycledComponent {
   constructor(props) {
     super(props)
@@ -18,24 +20,33 @@ export class FieldifySchemaRender extends RecycledComponent {
   cycle(props, first) {
 
     const state = {
-      input: props.input,
       layout: props.layout ? props.layout : "horizontal"
     }
 
-    this.schema = props.schema;
+    // compile the schema
+    state.rawSchema = props.schema
+    state.schema = new FieldifySchema("form")
+    state.schema.compile(state.rawSchema)
+
+    // create an input instance
+    // console.log("rawInput", state.rawInput === props.rawInput)
+    state.rawInput = props.input
+    state.input = new FieldifyInput(state.schema)
+    state.input.setValue(props.input)
+    state.inputValue = state.input.getValue()
 
     state.verify = props.verify || false
-
-    state.reactive = this.update(state.input, state.verify);
 
     this.references = {};
 
     this.onChange = props.onChange ? props.onChange : () => { };
 
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
+
     return (state)
   }
 
-  update(input, verify) {
+  update(root, input, verify) {
     const follower = (schema, input, ret, line) => {
       line = line || ""
 
@@ -84,7 +95,7 @@ export class FieldifySchemaRender extends RecycledComponent {
               })
             }
           }
-          else {
+          else if(source.$type) {
             delete source.$doc; // source is cloned
             const TypeRender = source.$type.Render;
 
@@ -173,7 +184,7 @@ export class FieldifySchemaRender extends RecycledComponent {
     };
 
     const ret = [];
-    follower(this.schema.handler.schema, input, ret);
+    follower(root.handler.schema, input, ret);
     return (ret);
   }
 

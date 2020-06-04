@@ -37,11 +37,11 @@ export class FieldifySchemaForm extends RecycledComponent {
     state.inputValue = state.input.getValue()
     state.verify = props.verify || false
 
-    state.reactive = this.update(state.schema, state.inputValue, state.verify);
-
     this.references = {};
 
     this.onChange = props.onChange ? props.onChange : () => { };
+
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
 
     return (state)
   }

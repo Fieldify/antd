@@ -148,9 +148,9 @@ class App extends React.Component {
     const state = {
       schema: props.schema,
       input: props.input,
+      inputRender: {...props.input},
 
       form: {
-        data: props.input,
         json: JSON.stringify(props.input, null, "  "),
         state: "Filling",
         color: "blue"
@@ -185,8 +185,9 @@ class App extends React.Component {
     input.verify((result) => {
 
       const state = {
+        inputRender: {...result.result},
         form: {
-          data: { ...result.result },
+          data: result.result,
           json: JSON.stringify(result.result, null, "  ")
         }
       }
@@ -260,7 +261,7 @@ class App extends React.Component {
                 </Form.Item>
               </Form>
               <Divider />
-              {/* <FieldifySchemaRender schema={this.state.schemaHandler} input={this.state.form.data} layout={this.state.render.layout} /> */}
+              <FieldifySchemaRender schema={this.state.schema} input={this.state.inputRender} layout={this.state.render.layout} />
             </Card>
           </div>
         </Col>

@@ -1,4 +1,7 @@
 import React from 'react';
+
+import RecycledComponent from 'react-recycling';
+
 import {
   schema,
   iterator,
@@ -23,29 +26,13 @@ import {
   CopyOutlined as ArrayIcon
 } from '@ant-design/icons';
 
+import { FieldifySchema } from "../Schema/Schema";
+
 import { FieldifySchemaBuilderModal } from './BuilderModal';
 
 import String from "../Types/String";
 
-export class FieldifySchemaBuilder extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = this.cycle(props, true);
-  }
-
-  componentDidUpdate(props) {
-    var changed = false
-    var state = { }
-
-    if (this.props.schema !== props.schema) {
-      state = this.cycle(this.props)
-      changed = true;
-    }
-
-    if (changed === true) this.setState(state)
-  }
-
+export class FieldifySchemaBuilder extends RecycledComponent {
 
   cycle(props, first) {
     const state = {
@@ -57,9 +44,11 @@ export class FieldifySchemaBuilder extends React.Component {
     this.onChange = ()=>{}
     if(props.onChange) this.onChange = props.onChange
 
-    this.schema = props.schema;
+    // compile the schema
+    state.schema = new FieldifySchema("form")
+    state.schema.compile(props.schema)
 
-    state.schemaDataSource = this.updateDataSource()
+    state.schemaDataSource = this.updateDataSource(state.schema)
 
     this.columns = [
       {
@@ -88,22 +77,23 @@ export class FieldifySchemaBuilder extends React.Component {
   }
 
   fireOnChange() {
-    const ex = this.schema.export()
-    this.schema.compile(ex)
+    const ex = this.state.schema.export()
+    // this.state.schema.compile(ex)
 
     // fire on change for exporting the new schema
     this.onChange(ex)
   }
 
   itemChanged(arg) {
+
     if (arg.edition === true) {
-      const lineup = this.props.schema.getLineup(arg.oldPath);
+      const lineup = this.state.schema.getLineup(arg.oldPath);
 
       // delete org
-      this.props.schema.removeLineup(arg.oldPath)
+      this.state.schema.removeLineup(arg.oldPath)
 
       // put new
-      this.props.schema.setLineup(arg.newPath, arg.value)
+      this.state.schema.setLineup(arg.newPath, arg.value)
 
       notification.success({
         message: "Field updated",
@@ -114,8 +104,7 @@ export class FieldifySchemaBuilder extends React.Component {
     // manage addition
     else {
       // just put the new one
-      console.log("ADDD", arg.newPath, arg.value)
-      this.props.schema.setLineup(arg.newPath, arg.value)
+      this.state.schema.setLineup(arg.newPath, arg.value)
 
       notification.success({
         message: "Field added",
@@ -129,17 +118,17 @@ export class FieldifySchemaBuilder extends React.Component {
       modal: false,
       modalContent: null,
       modalUser: null,
-      schemaDataSource: this.updateDataSource()
+      schemaDataSource: this.updateDataSource(this.state.schema)
     });
   }
 
   itemRemove(item) {
-    this.props.schema.removeLineup(item.$_wire);
+    this.state.schema.removeLineup(item.$_wire);
 
     this.fireOnChange();
 
     this.setState({
-      schemaDataSource: this.updateDataSource()
+      schemaDataSource: this.updateDataSource(this.state.schema)
     });
 
     notification.success({
@@ -151,7 +140,7 @@ export class FieldifySchemaBuilder extends React.Component {
   handlingAdd(path) {
     path = path || ".";
 
-    const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
+    const lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
 
     const state = {
       modal: true, 
@@ -165,7 +154,7 @@ export class FieldifySchemaBuilder extends React.Component {
   handlingEdit(item) {
     const path = item.$_wire || ".";
 
-    const lineup = this.props.schema.getLineup(path) || this.schema.handler.schema;
+    const lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
 
     const state = {
       modal: true, 
@@ -176,7 +165,7 @@ export class FieldifySchemaBuilder extends React.Component {
     this.setState(state);
   }
 
-  updateDataSource() {
+  updateDataSource(root) {
     const self = this;
     function fieldify2antDataTable(schema, wire) {
       if (!wire)
@@ -190,6 +179,7 @@ export class FieldifySchemaBuilder extends React.Component {
         if (Array.isArray(item)) {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
+          item[0].$_array = true;
 
           var composite = <Tooltip title="... of objects">
             <Tag color="#722ed1"><ObjectIcon /></Tag>
@@ -199,6 +189,10 @@ export class FieldifySchemaBuilder extends React.Component {
             const TypeInfo = item[0].$type.Info;
             composite = <TypeInfo />;
           }
+          else {
+            item[0].$_nested = true;
+          }
+
           current.push({
             ptr: item[0],
             key: path,
@@ -232,6 +226,7 @@ export class FieldifySchemaBuilder extends React.Component {
         }
         // is object
         else if (typeof item === "object" && !item.$type) {
+          item.$_nested = true;
           current.push({
             ptr: item,
             key: path,
@@ -260,7 +255,7 @@ export class FieldifySchemaBuilder extends React.Component {
             </div>
           });
         }
-        else if (item.$type) {
+        else {
           const TypeInfo = item.$type.Info;
           current.push({
             ptr: item,
@@ -289,8 +284,8 @@ export class FieldifySchemaBuilder extends React.Component {
     }
 
     var data = null;
-    if (this.schema) {
-      data = fieldify2antDataTable(this.schema.handler.schema);
+    if (root) {
+      data = fieldify2antDataTable(root.handler.schema);
       return (data)
     }
 

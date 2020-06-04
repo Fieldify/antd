@@ -83,6 +83,7 @@ export class FieldifySchemaBuilderModal extends React.Component {
   }
 
   cycle(props, first) {
+
     // here we have 3 cases
     // normal case = $_array !== true && $_nested !== true
     // nested in array = $_array === true && $_nested === true
@@ -101,7 +102,7 @@ export class FieldifySchemaBuilderModal extends React.Component {
       user: props.user,
       verify: false
     };
-
+   
     if (state.user && state.user.$_wire) {
       state.initialPath = state.user.$_wire;
     }
@@ -217,7 +218,7 @@ export class FieldifySchemaBuilderModal extends React.Component {
       state.input = new FieldifyInput(state.schema)
 
     }
-    else if (!state.schema || force === true) {
+    else {
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
       state.input = new FieldifyInput(state.schema)
@@ -275,7 +276,8 @@ export class FieldifySchemaBuilderModal extends React.Component {
         this.setState(state)
 
         // get the current input values 
-        const value = this.state.input.getValue()
+        const value = result.result
+        // const value = this.state.input.getValue()
         var nvalue = {}
 
         // rename all root value with $
@@ -293,15 +295,18 @@ export class FieldifySchemaBuilderModal extends React.Component {
 
         if (nvalue.$type === "Array" && nvalue.$content === "Object") {
 
-          // recopy nestedObjects if exists
-          // avoid root copy
-          if (this.props.user.$_wire) {
-            const no = utils.getNO(this.props.user)
-            for (var a in no.nestedObject) {
-              const p = no.nestedObject[a]
-              nvalue[p[0]] = p[1]
+          if (this.state.edition === true) {
+            // recopy nestedObjects if exists
+            // avoid root copy
+            if (this.props.user.$_wire) {
+              const no = utils.getNO(this.props.user)
+              for (var a in no.nestedObject) {
+                const p = no.nestedObject[a]
+                nvalue[p[0]] = p[1]
+              }
             }
           }
+          else if(!nvalue.$doc) nvalue.$doc = ""
 
           delete nvalue.$type;
           delete nvalue.$content;
@@ -315,24 +320,25 @@ export class FieldifySchemaBuilderModal extends React.Component {
         }
         // special handle for objects
         else if (nvalue.$type === "Object") {
-          console.log("obj", this.props.user)
 
-          // recopy nestedObjects if exists
-          // avoid root copy
-          if (this.props.user.$_wire) {
-            const no = utils.getNO(this.props.user)
-            for (var a in no.nestedObject) {
-              const p = no.nestedObject[a]
-              nvalue[p[0]] = p[1]
+          if (this.state.edition === true) {
+            // recopy nestedObjects if exists
+            // avoid root copy
+            if (this.props.user.$_wire) {
+              const no = utils.getNO(this.props.user)
+              for (var a in no.nestedObject) {
+                const p = no.nestedObject[a]
+                nvalue[p[0]] = p[1]
+              }
             }
           }
+          else if(!nvalue.$doc) nvalue.$doc = ""
 
           delete nvalue.$type;
         }
 
         if (this.state.edition === true) {
           this.props.onOk(({
-          // console.log(({
             edition: true,
             oldPath: this.state.initialPath,
             newPath: npath,
@@ -376,8 +382,8 @@ export class FieldifySchemaBuilderModal extends React.Component {
     >
       <FieldifySchemaForm
         ref={this.formRef}
-        schema={this.state.schema}
-        input={this.state.input}
+        schema={this.currentSchema}
+        input={this.state.value}
         user={this.props.user}
         verify={this.state.verify}
         onChange={this.formChanged.bind(this)}

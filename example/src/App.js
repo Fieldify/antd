@@ -82,13 +82,13 @@ class App extends React.Component {
 
       nestedArray: [{
         $doc: "Array of Objects (nested)",
-        name: {
-          $doc: "Civility",
-          $type: Types.Name,
-          $position: 1
-        },
-        description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
-        price: { $doc: "Price", $type: Types.String },
+        // name: {
+        //   $doc: "Civility",
+        //   $type: Types.Name,
+        //   $position: 1
+        // },
+        // description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
+        // price: { $doc: "Price", $type: Types.String },
         $array: {
           min: 2
         }
@@ -144,35 +144,24 @@ class App extends React.Component {
   }
 
   cycle(props, first) {
+
     const state = {
       schema: props.schema,
       input: props.input,
 
       form: {
         data: props.input,
-        json: "",
+        json: JSON.stringify(props.input, null, "  "),
         state: "Filling",
         color: "blue"
       },
       builder: {
-        data: {},
-        json: ""
+        json: JSON.stringify(props.schema, null, "  ")
       },
       render: {
         layout: "horizontal"
       }
     }
-
-    // compile the schema
-    state.schemaHandler = new FieldifySchema("test")
-    state.schemaHandler.compile(state.schema)
-
-    // create an input instance
-    state.inputHandler = new Input(state.schemaHandler)
-    state.inputHandler.setValue(state.input)
-
-    state.builder.json = JSON.stringify(state.schemaHandler.export(), null, "  ")
-    state.form.json = JSON.stringify(state.inputHandler.getValue(), null, "  ")
 
     return (state)
   }
@@ -180,35 +169,25 @@ class App extends React.Component {
 
   builderChanged(schema) {
     const state = {
-      schema: this.state.schemaHandler.export(),
-      builder: {},
-      form: {
-        data: this.state.inputHandler.getValue(),
-        json: "",
-        state: "Filling",
-        color: "blue"
-      },
+      schema: schema,
+      builder: {
+        json: JSON.stringify(schema, null, "  ")
+      }
     }
 
-    // create an input instance
-    state.inputHandler = new Input(this.state.schemaHandler)
-    state.inputHandler.setValue(this.state.input)
-
-    state.builder.json = JSON.stringify(this.state.schemaHandler.export(), null, "  ")
-    state.form.json = JSON.stringify(this.state.inputHandler.getValue(), null, "  ")
-    
     this.setState(state)
   }
 
-  formChanged(value) {
+  formChanged(input, value) {
     // run the verifier on each change to 
     // get the status into the title
-    this.state.inputHandler.verify((result) => {
+
+    input.verify((result) => {
 
       const state = {
         form: {
-          data: { ...value },
-          json: JSON.stringify(value, null, "  ")
+          data: { ...result.result },
+          json: JSON.stringify(result.result, null, "  ")
         }
       }
 
@@ -238,7 +217,7 @@ class App extends React.Component {
             <Card size="small" title="Pass #1 - Building">
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Editor" key="1">
-                  <FieldifySchemaBuilder schema={this.state.schemaHandler} onChange={this.builderChanged.bind(this)} />
+                  <FieldifySchemaBuilder schema={this.state.schema} onChange={this.builderChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="JSON Schema" key="2">
                   <pre>
@@ -254,7 +233,7 @@ class App extends React.Component {
             <Card size="small" title={<>Pass #2 - Filling Form <Tag color={this.state.form.color}>{this.state.form.state}</Tag></>}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Rendering" key="1">
-                  {/* <FieldifySchemaForm schema={this.state.schemaHandler} input={this.state.inputHandler} onChange={this.formChanged.bind(this)} /> */}
+                  <FieldifySchemaForm schema={this.state.schema} input={this.state.input} onChange={this.formChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="Sanatized JSON Input" key="2">
                   <pre>
@@ -272,7 +251,7 @@ class App extends React.Component {
                 <Form.Item label="Form Layout" name="layout">
                   <Radio.Group
                     value={this.state.render.layout}
-                    onChange={({target}) => this.setState({ render: { layout: target.value } })}
+                    onChange={({ target }) => this.setState({ render: { layout: target.value } })}
                   >
                     <Radio.Button value="horizontal">Horizontal</Radio.Button>
                     <Radio.Button value="vertical">Vertical</Radio.Button>

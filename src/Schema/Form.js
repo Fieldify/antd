@@ -8,27 +8,36 @@ import {
   DeleteOutlined as DeleteIcon
 } from '@ant-design/icons';
 
+import { FieldifySchema } from "../Schema/Schema";
+
+
 export class FieldifySchemaForm extends RecycledComponent {
   constructor(props) {
     super(props)
 
     this.formRef = React.createRef()
+
   }
 
   cycle(props, first) {
+
     const state = {}
 
-    this.schema = props.schema;
-    this.input = props.input;
+    // compile the schema
+    state.rawSchema = props.schema
+    state.schema = new FieldifySchema("form")
+    state.schema.compile(state.rawSchema)
 
-    if (!this.input || !(typeof props.input === "object")) {
-      this.input = new FieldifyInput(this.schema)
-    }
+    // create an input instance
+    // console.log("rawInput", state.rawInput === props.rawInput)
+    state.rawInput = props.input
+    state.input = new FieldifyInput(state.schema)
+    state.input.setValue(props.input)
 
-    state.input = this.input.getValue()
+    state.inputValue = state.input.getValue()
     state.verify = props.verify || false
 
-    state.reactive = this.update(state.input, state.verify);
+    state.reactive = this.update(state.schema, state.inputValue, state.verify);
 
     this.references = {};
 
@@ -37,47 +46,42 @@ export class FieldifySchemaForm extends RecycledComponent {
     return (state)
   }
 
+  getValue() {
+    return (this.state.input.getValue())
+  }
+
   clickAddArray(line) {
-    this.input.set(line)
-    const _value = this.input.getValue();
-    this.onChange(_value)
+    this.state.input.set(line)
+    const _value = this.state.input.getValue();
+    this.onChange(this.state.input, _value)
     this.setState({
-      input: _value,
-      reactive: this.update(_value, false)
+      inputValue: _value,
+      reactive: this.update(this.state.schema, _value, false)
     })
   }
 
   clickRemoveArrayItem(line) {
-    this.input.remove(line)
-    const _value = this.input.getValue();
-    this.onChange(_value)
+    this.state.input.remove(line)
+    const _value = this.state.input.getValue();
+    this.onChange(this.state.input, _value)
     this.setState({
-      input: _value,
-      reactive: this.update(_value, false)
+      inputValue: _value,
+      reactive: this.update(this.state.schema, _value, false)
     })
   }
 
   setValue(line, value) {
-    this.input.set(line, value)
-    const _value = this.input.getValue();
-    this.onChange(_value)
+    if (!this.state.input) return;
+
+    this.state.input.set(line, value)
+    const _value = this.state.input.getValue();
+    this.onChange(this.state.input, _value)
     this.setState({
-      input: _value
+      inputValue: _value
     })
   }
 
-  input(input, verify) {
-    // const state = {
-    //   verify,
-    //   input
-    // }    
-    // state.reactive = this.update(input, verify)
-    // this.setState(state)
-  }
-
-  update(input, verify) {
-
-    console.log("rebuild", input)
+  update(root, input, verify) {
     const follower = (schema, schematized, input, ret, line) => {
       line = line || ""
 
@@ -137,7 +141,7 @@ export class FieldifySchemaForm extends RecycledComponent {
               })
             }
           }
-          else {
+          else if (source.$type) {
             delete sourceSchematized.$doc; // source is cloned
             const TypeForm = source.$type.Form;
 
@@ -197,9 +201,11 @@ export class FieldifySchemaForm extends RecycledComponent {
           ret.push(<Form.Item key={source.$_wire} noStyle={true}>
             <div className="ant-form-item">
               <Card size="small" title={source.$_access.$doc} extra={<div className="ant-radio-group ant-radio-group-outline ant-radio-group-small">
-                <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(lineKey + "." + inputPtr2.length)}>
-                  <span><PlusIcon /></span>
-                </span>
+                {inputPtr2 ?
+                  <span className="ant-radio-button-wrapper" onClick={() => this.clickAddArray(lineKey + "." + inputPtr2.length)}>
+                    <span><PlusIcon /></span>
+                  </span>
+                  : null}
               </div>}>
                 <Table
                   size="small"
@@ -230,7 +236,7 @@ export class FieldifySchemaForm extends RecycledComponent {
               </Card>
             </div>);
           }
-          else {
+          else if (item.$type) {
             const TypeForm = item.$type.Form;
 
             ret.push(<TypeForm
@@ -262,8 +268,8 @@ export class FieldifySchemaForm extends RecycledComponent {
 
     const ret = [];
     follower(
-      this.schema.handler.schema,
-      this.schema.handlerSchematized.schema,
+      root.handler.schema,
+      root.handlerSchematized.schema,
       input,
       ret
     );

@@ -1,6 +1,6 @@
 {
   "name": "@fieldify/antd-example",
-  "homepage": "https://.github.io/@fieldify/antd",
+  "homepage": "https://fieldify.github.io/antd/",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

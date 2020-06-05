@@ -21,80 +21,73 @@ class App extends React.Component {
     super(props)
 
     const initial = {
-     
 
-      // company: {
-      //   $doc: "Your company name",
-      //   $type: "String",
-      //   $position: 0
-      // },
-      // name: {
-      //   $doc: "Civility",
-      //   $type: "Name",
-      //   $position: 1
-      // },
+      company: {
+        $doc: "Your company name",
+        $type: "String",
+        $position: 0
+      },
+      name: {
+        $doc: "Civility",
+        $type: "Name",
+        $position: 1
+      },
 
-      // email: {
-      //   $doc: "Votre e-mail",
-      //   $type: Types.Email,
-      //   $position: 2
-      // },
+      email: {
+        $doc: "Votre e-mail",
+        $type: Types.Email,
+        $position: 2
+      },
 
-      // age: {
-      //   $doc: "Age",
-      //   $type: Types.Number,
-      //   $position: 3
-      // },
+      age: {
+        $doc: "Age",
+        $type: Types.Number,
+        $position: 3
+      },
 
-      // KV: {
-      //   $doc: "Key and Value",
-      //   $type: Types.KV,
-      //   $position: 4
-      // },
+      KV: {
+        $doc: "Key and Value",
+        $type: Types.KV,
+        $position: 4
+      },
 
-      // types: {
-      //   $doc: 'What kind of number to accept',
-      //   $required: true,
-      //   $type: 'Select',
-      //   $options: {
-      //     default: 'both',
-      //     items: {
-      //       both: 'Both Integer & Float',
-      //       integer: 'Only Integer',
-      //       float: 'Only Float'
-      //     }
-      //   }
-      // },
+      types: {
+        $doc: 'What kind of number to accept',
+        $required: true,
+        $type: 'Select',
+        $options: {
+          default: 'both',
+          items: {
+            both: 'Both Integer & Float',
+            integer: 'Only Integer',
+            float: 'Only Float'
+          }
+        }
+      },
 
-      // address: {
-      //   $doc: "Address",
-      //   home: {
-      //     $doc: "Home",
-      //     street: { $doc: "Street", $type: Types.String, $options: { min: 2, placeholder: "Your street" } },
-      //     zip: { $doc: "ZIP", $type: Types.String },
-      //     country: { $doc: "Country", $type: Types.String },
-      //   },
-      //   work: {
-      //     $doc: "Work",
-      //     street: { $doc: "Street", $type: Types.String },
-      //     zip: { $doc: "ZIP", $type: Types.String },
-      //     country: { $doc: "Country", $type: Types.String },
-      //   },
-      // },
+      address: {
+        $doc: "Address",
+        home: {
+          $doc: "Home",
+          street: { $doc: "Street", $type: Types.String, $options: { min: 2, placeholder: "Your street" } },
+          zip: { $doc: "ZIP", $type: Types.String },
+          country: { $doc: "Country", $type: Types.String },
+        },
+      },
 
-      // nestedArray: [{
-      //   $doc: "Array of Objects (nested)",
-      //   // name: {
-      //   //   $doc: "Civility",
-      //   //   $type: Types.Name,
-      //   //   $position: 1
-      //   // },
-      //   // description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
-      //   // price: { $doc: "Price", $type: Types.String },
-      //   $array: {
-      //     min: 2
-      //   }
-      // }],
+      nestedArray: [{
+        $doc: "Array of Objects (nested)",
+        // name: {
+        //   $doc: "Civility",
+        //   $type: Types.Name,
+        //   $position: 1
+        // },
+        // description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
+        // price: { $doc: "Price", $type: Types.String },
+        $array: {
+          min: 2
+        }
+      }],
 
       // inlinedArray: [{
       //   $required: true,

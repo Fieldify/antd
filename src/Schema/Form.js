@@ -85,6 +85,8 @@ export class FieldifySchemaForm extends RecycledComponent {
     const follower = (schema, schematized, input, ret, line) => {
       line = line || ""
 
+      if(!input) input = {}
+
       utils.orderedRead(schema, (index, item) => {
 
         const source = { ...Array.isArray(item) ? item[0] : item };
@@ -152,8 +154,8 @@ export class FieldifySchemaForm extends RecycledComponent {
             }
 
             if (!Array.isArray(inputPtr)) {
-              input[item.$_key] = [];
-              inputPtr2 = input[item.$_key];
+              input[source.$_key] = [];
+              inputPtr2 = input[source.$_key];
             }
 
             if (!inputPtr2) return (ret);
@@ -228,6 +230,7 @@ export class FieldifySchemaForm extends RecycledComponent {
         else {
           if (source.$_nested === true) {
             const child = [];
+
             follower(source, sourceSchematized, inputPtr, child, lineKey);
 
             ret.push(<div key={source.$_wire} className="ant-form-item">

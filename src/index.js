@@ -15,4 +15,4 @@ export const Schema = schema;
 // export types
 export const Types = types;
 
-
+import "antd/dist/antd.css";

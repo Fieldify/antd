@@ -6,6 +6,7 @@ var React__default = _interopDefault(React);
 var RecycledComponent = _interopDefault(require('react-recycling'));
 var antd = require('antd');
 var icons = require('@ant-design/icons');
+require('antd/dist/antd.css');
 
 function _extends() {
   _extends = Object.assign || function (target) {

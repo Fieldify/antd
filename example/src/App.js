@@ -21,124 +21,128 @@ class App extends React.Component {
     super(props)
 
     const initial = {
-      company: {
-        $doc: "Your company name",
-        $type: "String",
-        $position: 0
-      },
-      name: {
-        $doc: "Civility",
-        $type: "Name",
-        $position: 1
-      },
+     
 
-      email: {
-        $doc: "Votre e-mail",
-        $type: Types.Email,
-        $position: 2
-      },
+      // company: {
+      //   $doc: "Your company name",
+      //   $type: "String",
+      //   $position: 0
+      // },
+      // name: {
+      //   $doc: "Civility",
+      //   $type: "Name",
+      //   $position: 1
+      // },
 
-      age: {
-        $doc: "Age",
-        $type: Types.Number,
-        $position: 3
-      },
+      // email: {
+      //   $doc: "Votre e-mail",
+      //   $type: Types.Email,
+      //   $position: 2
+      // },
 
-      KV: {
-        $doc: "Key and Value",
-        $type: Types.KV,
-        $position: 4
-      },
+      // age: {
+      //   $doc: "Age",
+      //   $type: Types.Number,
+      //   $position: 3
+      // },
 
-      types: {
-        $doc: 'What kind of number to accept',
-        $required: true,
-        $type: 'Select',
-        $options: {
-          default: 'both',
-          items: {
-            both: 'Both Integer & Float',
-            integer: 'Only Integer',
-            float: 'Only Float'
-          }
-        }
-      },
+      // KV: {
+      //   $doc: "Key and Value",
+      //   $type: Types.KV,
+      //   $position: 4
+      // },
 
-      address: {
-        $doc: "Address",
-        home: {
-          $doc: "Home",
-          street: { $doc: "Street", $type: Types.String, $options: { min: 2, placeholder: "Your street" } },
-          zip: { $doc: "ZIP", $type: Types.String },
-          country: { $doc: "Country", $type: Types.String },
-        },
-        work: {
-          $doc: "Work",
-          street: { $doc: "Street", $type: Types.String },
-          zip: { $doc: "ZIP", $type: Types.String },
-          country: { $doc: "Country", $type: Types.String },
-        },
-      },
+      // types: {
+      //   $doc: 'What kind of number to accept',
+      //   $required: true,
+      //   $type: 'Select',
+      //   $options: {
+      //     default: 'both',
+      //     items: {
+      //       both: 'Both Integer & Float',
+      //       integer: 'Only Integer',
+      //       float: 'Only Float'
+      //     }
+      //   }
+      // },
 
-      nestedArray: [{
-        $doc: "Array of Objects (nested)",
-        // name: {
-        //   $doc: "Civility",
-        //   $type: Types.Name,
-        //   $position: 1
-        // },
-        // description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
-        // price: { $doc: "Price", $type: Types.String },
-        $array: {
-          min: 2
-        }
-      }],
+      // address: {
+      //   $doc: "Address",
+      //   home: {
+      //     $doc: "Home",
+      //     street: { $doc: "Street", $type: Types.String, $options: { min: 2, placeholder: "Your street" } },
+      //     zip: { $doc: "ZIP", $type: Types.String },
+      //     country: { $doc: "Country", $type: Types.String },
+      //   },
+      //   work: {
+      //     $doc: "Work",
+      //     street: { $doc: "Street", $type: Types.String },
+      //     zip: { $doc: "ZIP", $type: Types.String },
+      //     country: { $doc: "Country", $type: Types.String },
+      //   },
+      // },
 
-      inlinedArray: [{
-        $required: true,
-        $doc: "Array of User Defined types (non-nested)",
-        $type: Types.Name,
-        $options: { min: 2 },
-        $array: {
-          min: 2,
-          max: 100
-        }
-      }],
+      // nestedArray: [{
+      //   $doc: "Array of Objects (nested)",
+      //   // name: {
+      //   //   $doc: "Civility",
+      //   //   $type: Types.Name,
+      //   //   $position: 1
+      //   // },
+      //   // description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
+      //   // price: { $doc: "Price", $type: Types.String },
+      //   $array: {
+      //     min: 2
+      //   }
+      // }],
 
-      inlinedArrayString: [{
-        $required: true,
-        $doc: "Array of String type (non-nested)",
-        $type: "String",
-        $array: {
-          min: 1,
-          max: 100
-        }
-      }]
+      // inlinedArray: [{
+      //   $required: true,
+      //   $doc: "Array of User Defined types (non-nested)",
+      //   $type: Types.Name,
+      //   $options: { min: 2 },
+      //   $array: {
+      //     min: 2,
+      //     max: 100
+      //   }
+      // }],
+
+      // inlinedArrayString: [{
+      //   $required: true,
+      //   $doc: "Array of String type (non-nested)",
+      //   $type: "String",
+      //   $array: {
+      //     min: 1,
+      //     max: 100
+      //   }
+      // }]
     }
 
     this.state = this.cycle({
       schema: initial,
       input: {
-        company: "Test of the test",
-        name: {
-          first: "Michael",
-          last: "Vergoz"
-        },
-        email: "mvcdsa@cdas.com",
-        KV: {
-          "testcas": "Awesome"
-        },
+        // V: {},
+        // surface: ["cds"]
+        // company: "Test of the test",
+        // name: {
+        //   first: "Michael",
+        //   last: "Vergoz"
+        // },
+        // email: "mvcdsa@cdas.com",
+        // KV: {
+        //   "testcas": "Awesome"
+        // },
 
-        nestedArray: [{
-          name: {
-            first: "Michael",
-            last: "Vergoz"
-          },
-          description: "This is a description"
-        }],
-        inlinedArray: [{ first: "Michael" }],
+        // nestedArray: [{
+        //   name: {
+        //     first: "Michael",
+        //     last: "Vergoz"
+        //   },
+        //   description: "This is a description"
+        // }],
+        // inlinedArray: [{ first: "Michael" }],
 
-        inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
+        // inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
       }
     }, true)
   }
@@ -148,9 +152,10 @@ class App extends React.Component {
     const state = {
       schema: props.schema,
       input: props.input,
-      inputRender: {...props.input},
+      inputRender: { ...props.input },
 
       form: {
+        layout: "horizontal",
         json: JSON.stringify(props.input, null, "  "),
         state: "Filling",
         color: "blue"
@@ -185,10 +190,11 @@ class App extends React.Component {
     input.verify((result) => {
 
       const state = {
-        inputRender: {...result.result},
+        inputRender: { ...result.result },
         form: {
+          layout: this.state.form.layout,
           data: result.result,
-          json: JSON.stringify(result.result, null, "  ")
+          json: JSON.stringify(value, null, "  ")
         }
       }
 
@@ -234,7 +240,21 @@ class App extends React.Component {
             <Card size="small" title={<>Pass #2 - Filling Form <Tag color={this.state.form.color}>{this.state.form.state}</Tag></>}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab="Visual Rendering" key="1">
-                  <FieldifySchemaForm schema={this.state.schema} input={this.state.input} onChange={this.formChanged.bind(this)} />
+                  <Form>
+                    <Form.Item label="Form Layout" name="layout">
+                      <Radio.Group
+                        value={this.state.form.layout}
+                        onChange={({ target }) => this.setState({ form: { ...this.state.form, layout: target.value } })}
+                      >
+                        <Radio.Button value="horizontal">Horizontal</Radio.Button>
+                        <Radio.Button value="vertical">Vertical</Radio.Button>
+                        <Radio.Button value="inline">Inline</Radio.Button>
+                      </Radio.Group>
+                    </Form.Item>
+                  </Form>
+                  <Divider />
+
+                  <FieldifySchemaForm schema={this.state.schema} input={this.state.input} layout={this.state.form.layout} onChange={this.formChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="Sanatized JSON Input" key="2">
                   <pre>

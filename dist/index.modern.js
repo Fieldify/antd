@@ -1490,10 +1490,10 @@ var FieldifySchema = /*#__PURE__*/function (_schema) {
   return FieldifySchema;
 }(schema$1);
 
-var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
-  _inheritsLoose(FieldifySchemaForm, _RecycledComponent);
+var TypeDataset = /*#__PURE__*/function (_RecycledComponent) {
+  _inheritsLoose(TypeDataset, _RecycledComponent);
 
-  function FieldifySchemaForm(props) {
+  function TypeDataset(props) {
     var _this;
 
     _this = _RecycledComponent.call(this, props) || this;
@@ -1501,10 +1501,12 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     return _this;
   }
 
-  var _proto = FieldifySchemaForm.prototype;
+  var _proto = TypeDataset.prototype;
 
   _proto.cycle = function cycle(props, first) {
-    var state = {};
+    var state = {
+      layout: props.layout ? props.layout : "horizontal"
+    };
     state.rawSchema = props.schema;
     state.schema = new FieldifySchema("form");
     state.schema.compile(state.rawSchema);
@@ -1513,9 +1515,16 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     state.input.setValue(props.input);
     state.inputValue = state.input.getValue();
     state.verify = props.verify || false;
+    state.actions = props.actions;
+    state.generator = props.generator;
     this.references = {};
     this.onChange = props.onChange ? props.onChange : function () {};
-    state.reactive = this.update(state.schema, state.inputValue, state.verify);
+    state.reactive = this.update({
+      state: state,
+      root: state.schema,
+      input: state.inputValue,
+      verify: state.verify
+    });
     return state;
   };
 
@@ -1531,7 +1540,12 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     this.onChange(this.state.input, _value);
     this.setState({
       inputValue: _value,
-      reactive: this.update(this.state.schema, _value, false)
+      reactive: this.update({
+        state: this.state,
+        root: this.state.schema,
+        input: _value,
+        verify: false
+      })
     });
   };
 
@@ -1543,7 +1557,12 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     this.onChange(this.state.input, _value);
     this.setState({
       inputValue: _value,
-      reactive: this.update(this.state.schema, _value, false)
+      reactive: this.update({
+        state: this.state,
+        root: this.state.schema,
+        input: _value,
+        verify: false
+      })
     });
   };
 
@@ -1559,11 +1578,17 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
     });
   };
 
-  _proto.update = function update(root, input, verify) {
+  _proto.update = function update(up) {
     var _this2 = this;
+
+    var root = up.root,
+        input = up.input,
+        verify = up.verify,
+        state = up.state;
 
     var follower = function follower(schema, schematized, input, ret, line) {
       line = line || "";
+      if (!input) input = {};
       utils.orderedRead(schema, function (index, item) {
         var source = _extends({}, Array.isArray(item) ? item[0] : item);
 
@@ -1579,11 +1604,16 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
             dataIndex: 'form',
             key: 'form',
             width: "100%"
-          }, {
-            dataIndex: 'actions',
-            key: 'actions',
-            align: "right"
           }];
+
+          if (state.actions === true) {
+            columns.push({
+              dataIndex: 'actions',
+              key: 'actions',
+              align: "right"
+            });
+          }
+
           var dataSource = [];
           var inputPtr2 = inputPtr;
           var options = source.$array || {};
@@ -1604,16 +1634,21 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
               var key = lineKey + "." + a;
               var child = [];
               follower(source, sourceSchematized, value, child, key);
-              dataSource.push({
+              var toPush = {
                 key: key,
-                form: child,
-                actions: /*#__PURE__*/React.createElement(Button, {
+                form: child
+              };
+
+              if (state.actions === true) {
+                toPush.actions = /*#__PURE__*/React.createElement(Button, {
                   size: "small",
                   onClick: function onClick() {
                     return _this2.clickRemoveArrayItem(key);
                   }
-                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
-              });
+                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)));
+              }
+
+              dataSource.push(toPush);
             };
 
             for (var a = 0; a < inputPtr2.length; a++) {
@@ -1621,11 +1656,11 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
             }
           } else if (source.$type) {
             delete sourceSchematized.$doc;
-            var TypeForm = source.$type.Form;
+            var TypeForm = source.$type[state.generator];
 
             if (!Array.isArray(inputPtr)) {
-              input[item.$_key] = [];
-              inputPtr2 = input[item.$_key];
+              input[source.$_key] = [];
+              inputPtr2 = input[source.$_key];
             }
 
             if (!inputPtr2) return ret;
@@ -1639,7 +1674,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
             var _loop2 = function _loop2() {
               var value = inputPtr2[a];
               var key = lineKey + "." + a;
-              dataSource.push({
+              var toPush = {
                 key: key,
                 form: /*#__PURE__*/React.createElement(TypeForm, {
                   schema: sourceSchematized,
@@ -1661,14 +1696,19 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
                       }
                     }
                   }
-                }),
-                actions: /*#__PURE__*/React.createElement(Button, {
+                })
+              };
+
+              if (state.actions === true) {
+                toPush.actions = /*#__PURE__*/React.createElement(Button, {
                   size: "small",
                   onClick: function onClick() {
                     return _this2.clickRemoveArrayItem(key);
                   }
-                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))
-              });
+                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)));
+              }
+
+              dataSource.push(toPush);
             };
 
             for (var a = 0; a < inputPtr2.length; a++) {
@@ -1686,7 +1726,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
             title: source.$_access.$doc,
             extra: /*#__PURE__*/React.createElement("div", {
               className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-            }, inputPtr2 ? /*#__PURE__*/React.createElement("span", {
+            }, inputPtr2 && state.actions === true ? /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: function onClick() {
                 return _this2.clickAddArray(lineKey + "." + inputPtr2.length);
@@ -1717,7 +1757,7 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
               title: source.$doc
             }, child)));
           } else if (item.$type) {
-            var _TypeForm = item.$type.Form;
+            var _TypeForm = item.$type[state.generator];
             ret.push( /*#__PURE__*/React.createElement(_TypeForm, {
               schema: sourceSchematized,
               value: inputPtr,
@@ -1751,19 +1791,58 @@ var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
   };
 
   _proto.render = function render() {
-    var layout = {
-      labelCol: {
-        span: 8
-      },
-      wrapperCol: {
-        span: 16
-      }
-    };
+    var layout = {};
+
+    if (this.state.layout === 'horizontal') {
+      layout = {
+        labelCol: {
+          span: 8
+        },
+        wrapperCol: {
+          span: 16
+        }
+      };
+    }
+
     return /*#__PURE__*/React.createElement(Form, _extends({
+      layout: this.state.layout,
       key: this.formRef
     }, layout, {
       name: "basic"
     }), this.state.reactive);
+  };
+
+  return TypeDataset;
+}(RecycledComponent);
+
+var FieldifySchemaForm = /*#__PURE__*/function (_RecycledComponent) {
+  _inheritsLoose(FieldifySchemaForm, _RecycledComponent);
+
+  function FieldifySchemaForm() {
+    return _RecycledComponent.apply(this, arguments) || this;
+  }
+
+  var _proto = FieldifySchemaForm.prototype;
+
+  _proto.cycle = function cycle(props) {
+    var state = {
+      layout: props.layout,
+      schema: props.schema,
+      input: props.input,
+      onChange: props.onChange
+    };
+    return state;
+  };
+
+  _proto.render = function render() {
+    return /*#__PURE__*/React.createElement(TypeDataset, {
+      schema: this.state.schema,
+      input: this.state.input,
+      onChange: this.state.onChange,
+      actions: true,
+      layout: this.state.layout,
+      generator: "Form"
+    });
   };
 
   return FieldifySchemaForm;
@@ -2384,181 +2463,29 @@ var FieldifySchemaBuilder = /*#__PURE__*/function (_RecycledComponent) {
 var FieldifySchemaRender = /*#__PURE__*/function (_RecycledComponent) {
   _inheritsLoose(FieldifySchemaRender, _RecycledComponent);
 
-  function FieldifySchemaRender(props) {
-    var _this;
-
-    _this = _RecycledComponent.call(this, props) || this;
-    _this.formRef = React.createRef();
-    return _this;
+  function FieldifySchemaRender() {
+    return _RecycledComponent.apply(this, arguments) || this;
   }
 
   var _proto = FieldifySchemaRender.prototype;
 
-  _proto.cycle = function cycle(props, first) {
+  _proto.cycle = function cycle(props) {
     var state = {
-      layout: props.layout ? props.layout : "horizontal"
+      layout: props.layout,
+      schema: props.schema,
+      input: props.input
     };
-    state.rawSchema = props.schema;
-    state.schema = new FieldifySchema("form");
-    state.schema.compile(state.rawSchema);
-    state.rawInput = props.input;
-    state.input = new input(state.schema);
-    state.input.setValue(props.input);
-    state.inputValue = state.input.getValue();
-    state.verify = props.verify || false;
-    this.references = {};
-    this.onChange = props.onChange ? props.onChange : function () {};
-    state.reactive = this.update(state.schema, state.inputValue, state.verify);
     return state;
   };
 
-  _proto.update = function update(root, input, verify) {
-    var follower = function follower(schema, input, ret, line) {
-      line = line || "";
-      utils.orderedRead(schema, function (index, item) {
-        var source = _extends({}, Array.isArray(item) ? item[0] : item);
-
-        var inputPtr = input ? input[source.$_key] : null;
-        var lineKey = line + "." + source.$_key;
-
-        if (source.$_array === true) {
-          var columns = [{
-            dataIndex: 'form',
-            key: 'form',
-            width: "100%"
-          }];
-          var dataSource = [];
-          var inputPtr2 = inputPtr;
-          var options = source.$array || {};
-          var min = options.min ? options.min : source.$required === true ? 1 : 0;
-
-          if (source.$_nested === true) {
-            var inputPtr2 = input[source.$_key];
-            if (!Array.isArray(inputPtr)) inputPtr2 = input[source.$_key] = [];
-
-            if (min - inputPtr2.length > 0) {
-              for (var a = 0; a <= min - inputPtr2.length; a++) {
-                inputPtr2.push({});
-              }
-            }
-
-            for (var a = 0; a < inputPtr2.length; a++) {
-              var value = inputPtr2[a];
-              var key = lineKey + "." + a;
-              var child = [];
-              follower(source, value, child, key);
-              dataSource.push({
-                key: key,
-                form: child
-              });
-            }
-          } else if (source.$type) {
-            delete source.$doc;
-            var TypeRender = source.$type.Render;
-
-            if (TypeRender) {
-              if (!Array.isArray(inputPtr)) {
-                input[item.$_key] = [];
-                inputPtr2 = input[item.$_key];
-              }
-
-              if (!inputPtr2) return ret;
-
-              if (min - inputPtr2.length > 0) {
-                for (var a = 0; a <= min - inputPtr2.length; a++) {
-                  inputPtr2.push(null);
-                }
-              }
-
-              for (var a = 0; a < inputPtr2.length; a++) {
-                var _value = inputPtr2[a];
-
-                var _key = lineKey + "." + a;
-
-                dataSource.push({
-                  key: _key,
-                  form: /*#__PURE__*/React.createElement(TypeRender, {
-                    schema: source,
-                    value: _value,
-                    injected: true,
-                    key: "render." + source.$_wire
-                  })
-                });
-              }
-            }
-          }
-
-          ret.push( /*#__PURE__*/React.createElement(Form.Item, {
-            key: source.$_wire,
-            noStyle: true
-          }, /*#__PURE__*/React.createElement("div", {
-            className: "ant-form-item"
-          }, /*#__PURE__*/React.createElement(Card, {
-            size: "small",
-            title: source.$_access.$doc
-          }, /*#__PURE__*/React.createElement(Table, {
-            size: "small",
-            dataSource: dataSource,
-            columns: columns,
-            showHeader: false,
-            pagination: {
-              total: dataSource.length,
-              pageSize: dataSource.length,
-              hideOnSinglePage: true
-            }
-          })))));
-        } else {
-          if (source.$_nested === true) {
-            var _child = [];
-            follower(source, inputPtr, _child, lineKey);
-            ret.push( /*#__PURE__*/React.createElement("div", {
-              key: "render." + source.$_wire,
-              className: "ant-form-item"
-            }, /*#__PURE__*/React.createElement(Card, {
-              size: "small",
-              title: source.$doc
-            }, _child)));
-          } else {
-            var _TypeRender = item.$type.Render;
-
-            if (_TypeRender) {
-              ret.push( /*#__PURE__*/React.createElement(_TypeRender, {
-                schema: source,
-                value: inputPtr,
-                key: "render." + source.$_wire
-              }));
-            }
-          }
-        }
-      });
-      return ret;
-    };
-
-    var ret = [];
-    follower(root.handler.schema, input, ret);
-    return ret;
-  };
-
   _proto.render = function render() {
-    var layout = {};
-
-    if (this.state.layout === 'horizontal') {
-      layout = {
-        labelCol: {
-          span: 8
-        },
-        wrapperCol: {
-          span: 16
-        }
-      };
-    }
-
-    return /*#__PURE__*/React.createElement(Form, _extends({
+    return /*#__PURE__*/React.createElement(TypeDataset, {
+      schema: this.state.schema,
+      input: this.state.input,
+      actions: false,
       layout: this.state.layout,
-      key: this.formRef
-    }, layout, {
-      name: "basic"
-    }), this.state.reactive);
+      generator: "Render"
+    });
   };
 
   return FieldifySchemaRender;

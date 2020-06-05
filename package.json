@@ -54,7 +54,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.1.0",
     "antd": "^4.2.4",
-    "fieldify": "^1.1.0",
-    "react-recycling": "^1.0.0"
+    "fieldify": "^1.1.2",
+    "react-recycling": "^1.0.2"
   }
 }

@@ -175,13 +175,23 @@ export default class App extends React.Component {
 
 ## Support
 
+![Signderiva](data/logo-signderiva.png)
+
 This package is actually mainly maintain by Michael Vergoz, but the project is a base of Signderiva, a swiss based company specialized in Digital Proof.
 
-![Design of the Schema](data/logo-pulse.png =100x)
+Website: https://www.signderiva.com/
 
-Thanks to Pulse.digital, a swiss based company, for helping us 
+<hr size="1">
 
-Of course, thanks to all contributors
+![Pulse.digital](data/logo-pulse.png)
+
+Thanks to Pulse.digital a swiss based company specialized in Web Marketing and Nearshore for helping us.
+
+Website: https://pulse.digital/
+
+<hr size="1">
+
+Of course, thanks to all contributors!
 
 ## License
 

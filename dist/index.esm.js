@@ -1,12 +1,9 @@
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var fieldify = require('fieldify');
-var React = require('react');
-var React__default = _interopDefault(React);
-var RecycledComponent = _interopDefault(require('react-recycling'));
-var antd = require('antd');
-var icons = require('@ant-design/icons');
-require('antd/dist/antd.css');
+import { types as types$1, fieldifyType, schema as schema$1, input, utils } from 'fieldify';
+import React, { Component } from 'react';
+import RecycledComponent from 'react-recycling';
+import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
+import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import 'antd/dist/antd.css';
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -26,7 +23,7 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
-class FieldifyTypeForm extends React.Component {
+class FieldifyTypeForm extends Component {
   constructor(props) {
     super(props);
     this.state = this.cycle(props);
@@ -135,7 +132,7 @@ class FieldifyTypeForm extends React.Component {
   }
 
   render(children) {
-    if (this.isInjected === true) return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    if (this.isInjected === true) return /*#__PURE__*/React.createElement(Form.Item, {
       label: this.schema.$doc,
       required: this.schema.$required,
       validateStatus: this.state.status,
@@ -148,7 +145,7 @@ class FieldifyTypeForm extends React.Component {
         sm: 24
       }
     }, children);
-    return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement(Form.Item, {
       label: this.schema.$doc,
       required: this.schema.$required,
       validateStatus: this.state.status,
@@ -177,7 +174,7 @@ class FieldifyTypeRender extends RecycledComponent {
 
   subRender(children) {
     if (this.state.injected === true) {
-      return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+      return /*#__PURE__*/React.createElement(Form.Item, {
         label: this.state.schema.$doc,
         hasFeedback: true,
         validateStatus: "success",
@@ -190,7 +187,7 @@ class FieldifyTypeRender extends RecycledComponent {
       }, children);
     }
 
-    return /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement(Form.Item, {
       label: this.state.schema.$doc,
       hasFeedback: true,
       validateStatus: "success"
@@ -198,7 +195,7 @@ class FieldifyTypeRender extends RecycledComponent {
   }
 
   render() {
-    return this.subRender( /*#__PURE__*/React__default.createElement("div", {
+    return this.subRender( /*#__PURE__*/React.createElement("div", {
       style: {
         width: "100%"
       }
@@ -207,7 +204,7 @@ class FieldifyTypeRender extends RecycledComponent {
 
 }
 
-class SignderivaTypeInfo extends React.Component {
+class SignderivaTypeInfo extends Component {
   constructor(props) {
     super(props);
     this.props = props;
@@ -220,7 +217,7 @@ class SignderivaTypeInfo extends React.Component {
 
 }
 
-class SignderivaTypeBuilder extends React.Component {
+class SignderivaTypeBuilder extends Component {
   constructor(props) {
     super(props);
     this.props = props;
@@ -278,7 +275,7 @@ class SignderivaTypeBuilder extends React.Component {
 
 class StringForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
+    return super.render( /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.value,
       placeholder: this.state.options.placeholder,
       onChange: (_ref) => {
@@ -299,12 +296,12 @@ class StringRender extends FieldifyTypeRender {}
 
 class StringInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#fadb14",
       style: {
         color: "#555555"
       }
-    }, /*#__PURE__*/React__default.createElement(icons.FieldStringOutlined, null)));
+    }, /*#__PURE__*/React.createElement(FieldStringOutlined, null)));
   }
 
 }
@@ -320,13 +317,13 @@ class StringBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
       label: "String min/max size"
-    }, /*#__PURE__*/React__default.createElement(antd.Space, null, /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.minSize,
       onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }), /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.maxSize,
       onChange: value => this.changeIt("maxSize", value)
@@ -336,9 +333,9 @@ class StringBuilder extends SignderivaTypeBuilder {
 }
 
 var String = {
-  code: fieldify.types.String.code,
-  description: fieldify.types.String.description,
-  class: fieldify.types.String.class,
+  code: types$1.String.code,
+  description: types$1.String.description,
+  class: types$1.String.class,
   Info: StringInfo,
   Builder: StringBuilder,
   Form: StringForm,
@@ -367,21 +364,21 @@ class NameForm extends FieldifyTypeForm {
   }
 
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.Row, {
+    return super.render( /*#__PURE__*/React.createElement(Row, {
       gutter: 16
-    }, /*#__PURE__*/React__default.createElement(antd.Col, {
+    }, /*#__PURE__*/React.createElement(Col, {
       className: "gutter-row",
       span: 12
-    }, /*#__PURE__*/React__default.createElement(StringForm$1, {
+    }, /*#__PURE__*/React.createElement(StringForm$1, {
       schema: this.schema.first,
       verify: this.state.verify,
       value: this.state.value.first,
       onChange: (schema, value) => this.setField("first", schema, value),
       isInjected: true
-    })), /*#__PURE__*/React__default.createElement(antd.Col, {
+    })), /*#__PURE__*/React.createElement(Col, {
       className: "gutter-row",
       span: 12
-    }, /*#__PURE__*/React__default.createElement(StringForm$1, {
+    }, /*#__PURE__*/React.createElement(StringForm$1, {
       schema: this.schema.last,
       verify: this.state.verify,
       value: this.state.value.last,
@@ -394,12 +391,12 @@ class NameForm extends FieldifyTypeForm {
 
 class NameInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#36cfc9",
       style: {
         color: "#555555"
       }
-    }, /*#__PURE__*/React__default.createElement(icons.UserSwitchOutlined, null)));
+    }, /*#__PURE__*/React.createElement(UserSwitchOutlined, null)));
   }
 
 }
@@ -429,13 +426,13 @@ class NameBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
       label: "Name min/max size"
-    }, /*#__PURE__*/React__default.createElement(antd.Space, null, /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.minSize,
       onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }), /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.maxSize,
       onChange: value => this.changeIt("maxSize", value)
@@ -445,9 +442,9 @@ class NameBuilder extends SignderivaTypeBuilder {
 }
 
 var Name = {
-  code: fieldify.types.Name.code,
-  description: fieldify.types.Name.description,
-  class: fieldify.types.Name.class,
+  code: types$1.Name.code,
+  description: types$1.Name.description,
+  class: types$1.Name.class,
   Info: NameInfo,
   Builder: NameBuilder,
   Form: NameForm,
@@ -457,7 +454,7 @@ var Name = {
 
 class EmailForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
+    return super.render( /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.value,
       placeholder: this.state.options.placeholder,
       onChange: (_ref) => {
@@ -473,9 +470,9 @@ class EmailForm extends FieldifyTypeForm {
 
 class EmailInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#1890ff"
-    }, /*#__PURE__*/React__default.createElement(icons.MailOutlined, null)));
+    }, /*#__PURE__*/React.createElement(MailOutlined, null)));
   }
 
 }
@@ -492,9 +489,9 @@ class EmailBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
       label: "Sub-addressing"
-    }, /*#__PURE__*/React__default.createElement(antd.Checkbox, {
+    }, /*#__PURE__*/React.createElement(Checkbox$1, {
       checked: this.state.subAddressing,
       onChange: (_ref2) => {
         var {
@@ -508,9 +505,9 @@ class EmailBuilder extends SignderivaTypeBuilder {
 }
 
 var Email = {
-  code: fieldify.types.Email.code,
-  description: fieldify.types.Email.description,
-  class: fieldify.types.Email.class,
+  code: types$1.Email.code,
+  description: types$1.Email.description,
+  class: types$1.Email.class,
   Info: EmailInfo,
   Builder: EmailBuilder,
   Form: EmailForm,
@@ -519,7 +516,7 @@ var Email = {
 
 class NumberForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    return super.render( /*#__PURE__*/React.createElement(InputNumber, {
       value: this.state.value,
       placeholder: this.state.options.placeholder,
       onChange: value => this.changeValue(value),
@@ -533,9 +530,9 @@ class NumberForm extends FieldifyTypeForm {
 
 class NumberInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#ff7a45"
-    }, /*#__PURE__*/React__default.createElement(icons.NumberOutlined, null)));
+    }, /*#__PURE__*/React.createElement(NumberOutlined, null)));
   }
 
 }
@@ -553,15 +550,15 @@ class NumberBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null);
+    return /*#__PURE__*/React.createElement("div", null);
   }
 
 }
 
 var Number = {
-  code: fieldify.types.Number.code,
-  description: fieldify.types.Number.description,
-  class: fieldify.types.Number.class,
+  code: types$1.Number.code,
+  description: types$1.Number.description,
+  class: types$1.Number.class,
   Info: NumberInfo,
   Builder: NumberBuilder,
   Form: NumberForm,
@@ -570,7 +567,7 @@ var Number = {
 
 class CheckboxForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
+    return super.render( /*#__PURE__*/React.createElement(Input$1, {
       placeholder: "Checkbox of characters"
     }));
   }
@@ -579,12 +576,12 @@ class CheckboxForm extends FieldifyTypeForm {
 
 class CheckboxInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#fadb14",
       style: {
         color: "#555555"
       }
-    }, /*#__PURE__*/React__default.createElement(icons.FieldStringOutlined, null)));
+    }, /*#__PURE__*/React.createElement(FieldStringOutlined, null)));
   }
 
 }
@@ -600,13 +597,13 @@ class CheckboxBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
       label: "Checkbox min/max size"
-    }, /*#__PURE__*/React__default.createElement(antd.Space, null, /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.minSize,
       onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }), /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.maxSize,
       onChange: value => this.changeIt("maxSize", value)
@@ -616,9 +613,9 @@ class CheckboxBuilder extends SignderivaTypeBuilder {
 }
 
 var Checkbox = {
-  code: fieldify.types.Checkbox.code,
-  description: fieldify.types.Checkbox.description,
-  class: fieldify.types.Checkbox.class,
+  code: types$1.Checkbox.code,
+  description: types$1.Checkbox.description,
+  class: types$1.Checkbox.class,
   Info: CheckboxInfo,
   Builder: CheckboxBuilder,
   Form: CheckboxForm
@@ -647,7 +644,7 @@ class SelectForm extends FieldifyTypeForm {
 
     for (var key in this.state.options.items) {
       var value = this.state.options.items[key];
-      options.push( /*#__PURE__*/React__default.createElement(antd.Select.Option, {
+      options.push( /*#__PURE__*/React.createElement(Select$1.Option, {
         value: key,
         key: key
       }, value));
@@ -657,7 +654,7 @@ class SelectForm extends FieldifyTypeForm {
   }
 
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.Select, {
+    return super.render( /*#__PURE__*/React.createElement(Select$1, {
       value: this.state.value,
       onChange: value => this.changeValue(value)
     }, this.state.items));
@@ -667,12 +664,12 @@ class SelectForm extends FieldifyTypeForm {
 
 class SelectInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#52c41a",
       style: {
         color: "white"
       }
-    }, /*#__PURE__*/React__default.createElement(icons.SelectOutlined, null)));
+    }, /*#__PURE__*/React.createElement(SelectOutlined, null)));
   }
 
 }
@@ -702,13 +699,13 @@ class SelectBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
       label: "Select min/max size"
-    }, /*#__PURE__*/React__default.createElement(antd.Space, null, /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.minSize,
       onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React__default.createElement(antd.InputNumber, {
+    }), /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.maxSize,
       onChange: value => this.changeIt("maxSize", value)
@@ -718,16 +715,16 @@ class SelectBuilder extends SignderivaTypeBuilder {
 }
 
 var Select = {
-  code: fieldify.types.Select.code,
-  description: fieldify.types.Select.description,
-  class: fieldify.types.Select.class,
+  code: types$1.Select.code,
+  description: types$1.Select.description,
+  class: types$1.Select.class,
   Info: SelectInfo,
   Builder: SelectBuilder,
   Form: SelectForm,
   Render: SelectRender
 };
 
-class ObjectClass extends fieldify.fieldifyType {}
+class ObjectClass extends fieldifyType {}
 
 var Object$1 = {
   code: "Object",
@@ -735,7 +732,7 @@ var Object$1 = {
   class: ObjectClass
 };
 
-class ArrayClass extends fieldify.fieldifyType {
+class ArrayClass extends fieldifyType {
   configuration() {
     return {
       min: {
@@ -798,7 +795,7 @@ class FieldNameBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
       label: "FieldName min/max size"
     }));
   }
@@ -806,9 +803,9 @@ class FieldNameBuilder extends SignderivaTypeBuilder {
 }
 
 var FieldName = {
-  code: fieldify.types.FieldName.code,
-  description: fieldify.types.FieldName.description,
-  class: fieldify.types.FieldName.class,
+  code: types$1.FieldName.code,
+  description: types$1.FieldName.description,
+  class: types$1.FieldName.class,
   Info: FieldNameInfo,
   Builder: FieldNameBuilder,
   Form: FieldNameForm
@@ -843,18 +840,18 @@ class KVForm extends FieldifyTypeForm {
       ds.push({
         key: key,
         value: value,
-        actions: /*#__PURE__*/React__default.createElement("div", {
+        actions: /*#__PURE__*/React.createElement("div", {
           className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-        }, /*#__PURE__*/React__default.createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", {
           className: "ant-radio-button-wrapper",
           onClick: () => _this.removeKey(key)
-        }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null))), /*#__PURE__*/React__default.createElement("span", {
+        }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null))), /*#__PURE__*/React.createElement("span", {
           className: "ant-radio-button-wrapper",
           onClick: () => _this.openModal({
             key,
             value
           })
-        }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))))
+        }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))))
       });
     };
 
@@ -939,12 +936,12 @@ class KVForm extends FieldifyTypeForm {
       dataIndex: 'value',
       key: 'value'
     }, {
-      title: /*#__PURE__*/React__default.createElement("div", {
+      title: /*#__PURE__*/React.createElement("div", {
         className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-      }, /*#__PURE__*/React__default.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "ant-radio-button-wrapper",
         onClick: () => this.openModal()
-      }, /*#__PURE__*/React__default.createElement("span", null, "Add ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
+      }, /*#__PURE__*/React.createElement("span", null, "Add ", /*#__PURE__*/React.createElement(PlusOutlined, null)))),
       dataIndex: 'actions',
       key: 'actions',
       align: "right"
@@ -957,24 +954,24 @@ class KVForm extends FieldifyTypeForm {
         span: 16
       }
     };
-    return super.render( /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Modal, {
+    return super.render( /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Modal, {
       centered: true,
       closable: false,
       visible: this.state.modal,
       width: 300,
       onOk: this.editedButton.bind(this),
       onCancel: onCancel
-    }, this.state.modalError === true ? /*#__PURE__*/React__default.createElement("div", {
+    }, this.state.modalError === true ? /*#__PURE__*/React.createElement("div", {
       style: {
         marginBottom: 8
       }
-    }, /*#__PURE__*/React__default.createElement(antd.Alert, {
+    }, /*#__PURE__*/React.createElement(Alert, {
       size: "small",
       message: this.state.modalErrorMessage,
       type: "error"
-    })) : null, /*#__PURE__*/React__default.createElement(antd.Form, layout, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    })) : null, /*#__PURE__*/React.createElement(Form, layout, /*#__PURE__*/React.createElement(Form.Item, {
       label: "Key"
-    }, /*#__PURE__*/React__default.createElement(antd.Input, {
+    }, /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.modalCurrent.key,
       onChange: (_ref) => {
         var {
@@ -982,9 +979,9 @@ class KVForm extends FieldifyTypeForm {
         } = _ref;
         return this.handleModalChange("key", target.value);
       }
-    })), /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+    })), /*#__PURE__*/React.createElement(Form.Item, {
       label: "Value"
-    }, /*#__PURE__*/React__default.createElement(antd.Input, {
+    }, /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.modalCurrent.value,
       onChange: (_ref2) => {
         var {
@@ -992,7 +989,7 @@ class KVForm extends FieldifyTypeForm {
         } = _ref2;
         return this.handleModalChange("value", target.value);
       }
-    })))), /*#__PURE__*/React__default.createElement(antd.Table, {
+    })))), /*#__PURE__*/React.createElement(Table, {
       size: "small",
       dataSource: this.state.dataSource,
       columns: columns,
@@ -1008,9 +1005,9 @@ class KVForm extends FieldifyTypeForm {
 
 class KVInfo extends SignderivaTypeInfo {
   render() {
-    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
       color: "#22075e"
-    }, /*#__PURE__*/React__default.createElement(icons.SmallDashOutlined, null)));
+    }, /*#__PURE__*/React.createElement(SmallDashOutlined, null)));
   }
 
 }
@@ -1047,7 +1044,7 @@ class KVRender extends FieldifyTypeRender {
       dataIndex: 'value',
       key: 'value'
     }];
-    return super.subRender( /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Table, {
+    return super.subRender( /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Table, {
       showHeader: false,
       size: "small",
       dataSource: this.state.dataSource,
@@ -1073,15 +1070,15 @@ class KVBuilder extends SignderivaTypeBuilder {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement("div", null);
+    return /*#__PURE__*/React.createElement("div", null);
   }
 
 }
 
 var KV = {
-  code: fieldify.types.KV.code,
-  description: fieldify.types.KV.description,
-  class: fieldify.types.KV.class,
+  code: types$1.KV.code,
+  description: types$1.KV.description,
+  class: types$1.KV.class,
   Info: KVInfo,
   Builder: KVBuilder,
   Form: KVForm,
@@ -1101,7 +1098,7 @@ var types = {
   KV
 };
 
-class FieldifySchema extends fieldify.schema {
+class FieldifySchema extends schema$1 {
   constructor(name, options) {
     super(name, options);
   }
@@ -1119,7 +1116,7 @@ class FieldifySchema extends fieldify.schema {
 class TypeDataset extends RecycledComponent {
   constructor(props) {
     super(props);
-    this.formRef = React__default.createRef();
+    this.formRef = React.createRef();
   }
 
   cycle(props, first) {
@@ -1130,7 +1127,7 @@ class TypeDataset extends RecycledComponent {
     state.schema = new FieldifySchema("form");
     state.schema.compile(state.rawSchema);
     state.rawInput = props.input;
-    state.input = new fieldify.input(state.schema);
+    state.input = new input(state.schema);
     state.input.setValue(props.input);
     state.inputValue = state.input.getValue();
     state.verify = props.verify || false;
@@ -1210,7 +1207,7 @@ class TypeDataset extends RecycledComponent {
     var follower = (schema, schematized, input, ret, line) => {
       line = line || "";
       if (!input) input = {};
-      fieldify.utils.orderedRead(schema, (index, item) => {
+      utils.orderedRead(schema, (index, item) => {
         var source = _extends({}, Array.isArray(item) ? item[0] : item);
 
         var schematizedSrc = schematized[source.$_key];
@@ -1261,10 +1258,10 @@ class TypeDataset extends RecycledComponent {
               };
 
               if (state.actions === true) {
-                toPush.actions = /*#__PURE__*/React__default.createElement(antd.Button, {
+                toPush.actions = /*#__PURE__*/React.createElement(Button, {
                   size: "small",
                   onClick: () => _this.clickRemoveArrayItem(key)
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)));
+                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)));
               }
 
               dataSource.push(toPush);
@@ -1295,7 +1292,7 @@ class TypeDataset extends RecycledComponent {
               var key = lineKey + "." + a;
               var toPush = {
                 key,
-                form: /*#__PURE__*/React__default.createElement(TypeForm, {
+                form: /*#__PURE__*/React.createElement(TypeForm, {
                   schema: sourceSchematized,
                   value: value,
                   verify: verify,
@@ -1317,10 +1314,10 @@ class TypeDataset extends RecycledComponent {
               };
 
               if (state.actions === true) {
-                toPush.actions = /*#__PURE__*/React__default.createElement(antd.Button, {
+                toPush.actions = /*#__PURE__*/React.createElement(Button, {
                   size: "small",
                   onClick: () => _this.clickRemoveArrayItem(key)
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)));
+                }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)));
               }
 
               dataSource.push(toPush);
@@ -1331,21 +1328,21 @@ class TypeDataset extends RecycledComponent {
             }
           }
 
-          ret.push( /*#__PURE__*/React__default.createElement(antd.Form.Item, {
+          ret.push( /*#__PURE__*/React.createElement(Form.Item, {
             key: source.$_wire,
             noStyle: true
-          }, /*#__PURE__*/React__default.createElement("div", {
+          }, /*#__PURE__*/React.createElement("div", {
             className: "ant-form-item"
-          }, /*#__PURE__*/React__default.createElement(antd.Card, {
+          }, /*#__PURE__*/React.createElement(Card, {
             size: "small",
             title: source.$_access.$doc,
-            extra: /*#__PURE__*/React__default.createElement("div", {
+            extra: /*#__PURE__*/React.createElement("div", {
               className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-            }, inputPtr2 && state.actions === true ? /*#__PURE__*/React__default.createElement("span", {
+            }, inputPtr2 && state.actions === true ? /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: () => this.clickAddArray(lineKey + "." + inputPtr2.length)
-            }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))) : null)
-          }, /*#__PURE__*/React__default.createElement(antd.Table, {
+            }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))) : null)
+          }, /*#__PURE__*/React.createElement(Table, {
             size: "small",
             dataSource: dataSource,
             columns: columns,
@@ -1362,16 +1359,16 @@ class TypeDataset extends RecycledComponent {
           if (source.$_nested === true) {
             var child = [];
             follower(source, sourceSchematized, inputPtr, child, lineKey);
-            ret.push( /*#__PURE__*/React__default.createElement("div", {
+            ret.push( /*#__PURE__*/React.createElement("div", {
               key: source.$_wire,
               className: "ant-form-item"
-            }, /*#__PURE__*/React__default.createElement(antd.Card, {
+            }, /*#__PURE__*/React.createElement(Card, {
               size: "small",
               title: source.$doc
             }, child)));
           } else if (item.$type) {
             var _TypeForm = item.$type[state.generator];
-            ret.push( /*#__PURE__*/React__default.createElement(_TypeForm, {
+            ret.push( /*#__PURE__*/React.createElement(_TypeForm, {
               schema: sourceSchematized,
               value: inputPtr,
               key: source.$_wire,
@@ -1415,7 +1412,7 @@ class TypeDataset extends RecycledComponent {
       };
     }
 
-    return /*#__PURE__*/React__default.createElement(antd.Form, _extends({
+    return /*#__PURE__*/React.createElement(Form, _extends({
       layout: this.state.layout,
       key: this.formRef
     }, layout, {
@@ -1437,7 +1434,7 @@ class FieldifySchemaForm extends RecycledComponent {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement(TypeDataset, {
+    return /*#__PURE__*/React.createElement(TypeDataset, {
       schema: this.state.schema,
       input: this.state.input,
       onChange: this.state.onChange,
@@ -1493,10 +1490,10 @@ var baseSchema = {
     $position: 23
   }
 };
-class FieldifySchemaBuilderModal extends React__default.Component {
+class FieldifySchemaBuilderModal extends React.Component {
   constructor(props) {
     super(props);
-    this.formRef = React__default.createRef();
+    this.formRef = React.createRef();
     this.state = this.cycle(props, true);
     this.currentSchema = baseSchema;
   }
@@ -1621,11 +1618,11 @@ class FieldifySchemaBuilderModal extends React__default.Component {
       state.currentType = Type;
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
-      state.input = new fieldify.input(state.schema);
+      state.input = new input(state.schema);
     } else {
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
-      state.input = new fieldify.input(state.schema);
+      state.input = new input(state.schema);
     }
   }
 
@@ -1688,7 +1685,7 @@ class FieldifySchemaBuilderModal extends React__default.Component {
         if (nvalue.$type === "Array" && nvalue.$content === "Object") {
           if (this.state.edition === true) {
             if (this.props.user.$_wire) {
-              var no = fieldify.utils.getNO(this.props.user);
+              var no = utils.getNO(this.props.user);
 
               for (var a in no.nestedObject) {
                 var p = no.nestedObject[a];
@@ -1707,7 +1704,7 @@ class FieldifySchemaBuilderModal extends React__default.Component {
           } else if (nvalue.$type === "Object") {
               if (this.state.edition === true) {
                 if (this.props.user.$_wire) {
-                  var _no = fieldify.utils.getNO(this.props.user);
+                  var _no = utils.getNO(this.props.user);
 
                   for (var a in _no.nestedObject) {
                     var _p = _no.nestedObject[a];
@@ -1744,8 +1741,8 @@ class FieldifySchemaBuilderModal extends React__default.Component {
     var onCancel = () => {
       this.props.onCancel(this.state);
     };
-    return /*#__PURE__*/React__default.createElement(antd.Modal, {
-      title: /*#__PURE__*/React__default.createElement("span", null, "Add New Field To Your Schema ", /*#__PURE__*/React__default.createElement(antd.Tag, {
+    return /*#__PURE__*/React.createElement(Modal, {
+      title: /*#__PURE__*/React.createElement("span", null, "Add New Field To Your Schema ", /*#__PURE__*/React.createElement(Tag, {
         color: this.state.form.color
       }, this.state.form.state)),
       centered: true,
@@ -1753,7 +1750,7 @@ class FieldifySchemaBuilderModal extends React__default.Component {
       width: 600,
       onOk: this.handleOK.bind(this),
       onCancel: onCancel
-    }, /*#__PURE__*/React__default.createElement(FieldifySchemaForm, {
+    }, /*#__PURE__*/React.createElement(FieldifySchemaForm, {
       ref: this.formRef,
       schema: this.currentSchema,
       input: this.state.value,
@@ -1788,12 +1785,12 @@ class FieldifySchemaBuilder extends RecycledComponent {
       dataIndex: 'doc',
       key: 'doc'
     }, {
-      title: /*#__PURE__*/React__default.createElement("div", {
+      title: /*#__PURE__*/React.createElement("div", {
         className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-      }, /*#__PURE__*/React__default.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "ant-radio-button-wrapper",
         onClick: () => this.handlingAdd()
-      }, /*#__PURE__*/React__default.createElement("span", null, "Add ", /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null)))),
+      }, /*#__PURE__*/React.createElement("span", null, "Add ", /*#__PURE__*/React.createElement(PlusOutlined, null)))),
       dataIndex: 'actions',
       key: 'actions',
       align: "right"
@@ -1811,13 +1808,13 @@ class FieldifySchemaBuilder extends RecycledComponent {
       var lineup = this.state.schema.getLineup(arg.oldPath);
       this.state.schema.removeLineup(arg.oldPath);
       this.state.schema.setLineup(arg.newPath, arg.value);
-      antd.notification.success({
+      notification.success({
         message: "Field updated",
         description: "Field at " + arg.oldPath + " has been successfully updated"
       });
     } else {
         this.state.schema.setLineup(arg.newPath, arg.value);
-        antd.notification.success({
+        notification.success({
           message: "Field added",
           description: "Field at " + arg.newPath + " has been successfully added"
         });
@@ -1838,7 +1835,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
     this.setState({
       schemaDataSource: this.updateDataSource(this.state.schema)
     });
-    antd.notification.success({
+    notification.success({
       message: "Field removed",
       description: "Field at " + item.$_wire + " has been successfully removed"
     });
@@ -1872,7 +1869,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
     function fieldify2antDataTable(schema, wire) {
       if (!wire) wire = "";
       var current = [];
-      fieldify.utils.orderedRead(schema, (index, item) => {
+      utils.orderedRead(schema, (index, item) => {
         var path = wire + "." + item.$_key;
         item.$_path = path;
 
@@ -1880,15 +1877,15 @@ class FieldifySchemaBuilder extends RecycledComponent {
           path = wire + "." + item[0].$_key;
           item[0].$_path = path;
           item[0].$_array = true;
-          var composite = /*#__PURE__*/React__default.createElement(antd.Tooltip, {
+          var composite = /*#__PURE__*/React.createElement(Tooltip, {
             title: "... of objects"
-          }, /*#__PURE__*/React__default.createElement(antd.Tag, {
+          }, /*#__PURE__*/React.createElement(Tag, {
             color: "#722ed1"
-          }, /*#__PURE__*/React__default.createElement(icons.UnorderedListOutlined, null)));
+          }, /*#__PURE__*/React.createElement(UnorderedListOutlined, null)));
 
           if ("$type" in item[0]) {
             var TypeInfo = item[0].$type.Info;
-            composite = /*#__PURE__*/React__default.createElement(TypeInfo, null);
+            composite = /*#__PURE__*/React.createElement(TypeInfo, null);
           } else {
             item[0].$_nested = true;
           }
@@ -1896,79 +1893,79 @@ class FieldifySchemaBuilder extends RecycledComponent {
           current.push({
             ptr: item[0],
             key: path,
-            name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Tooltip, {
+            name: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Tooltip, {
               title: "This field is an array ..."
-            }, /*#__PURE__*/React__default.createElement(antd.Tag, {
+            }, /*#__PURE__*/React.createElement(Tag, {
               color: "#eb2f96"
-            }, /*#__PURE__*/React__default.createElement(icons.CopyOutlined, null))), composite, /*#__PURE__*/React__default.createElement("strong", null, item[0].$_key)),
+            }, /*#__PURE__*/React.createElement(CopyOutlined, null))), composite, /*#__PURE__*/React.createElement("strong", null, item[0].$_key)),
             doc: item[0].$doc,
             children: !("$type" in item[0]) ? fieldify2antDataTable(item[0], path) : null,
-            actions: /*#__PURE__*/React__default.createElement("div", {
+            actions: /*#__PURE__*/React.createElement("div", {
               className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-            }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
-              title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete the Array ", /*#__PURE__*/React__default.createElement("strong", null, path)),
+            }, /*#__PURE__*/React.createElement(Popconfirm, {
+              title: /*#__PURE__*/React.createElement("span", null, "Are you sure to delete the Array ", /*#__PURE__*/React.createElement("strong", null, path)),
               onConfirm: () => self.itemRemove(item[0]),
               okText: "Yes",
               cancelText: "No"
-            }, /*#__PURE__*/React__default.createElement("span", {
+            }, /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper"
-            }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
+            }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))), /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: () => self.handlingEdit(item[0])
-            }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))), !("$type" in item[0]) ? /*#__PURE__*/React__default.createElement("span", {
+            }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))), !("$type" in item[0]) ? /*#__PURE__*/React.createElement("span", {
               className: "ant-radio-button-wrapper",
               onClick: () => self.handlingAdd(path)
-            }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))) : null)
+            }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))) : null)
           });
         } else if (typeof item === "object" && !item.$type) {
             item.$_nested = true;
             current.push({
               ptr: item,
               key: path,
-              name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Tooltip, {
+              name: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Tooltip, {
                 title: "This field is an object"
-              }, /*#__PURE__*/React__default.createElement(antd.Tag, {
+              }, /*#__PURE__*/React.createElement(Tag, {
                 color: "#722ed1"
-              }, /*#__PURE__*/React__default.createElement(icons.UnorderedListOutlined, null))), /*#__PURE__*/React__default.createElement("strong", null, item.$_key)),
+              }, /*#__PURE__*/React.createElement(UnorderedListOutlined, null))), /*#__PURE__*/React.createElement("strong", null, item.$_key)),
               doc: item.$doc,
               children: fieldify2antDataTable(item, path),
-              actions: /*#__PURE__*/React__default.createElement("div", {
+              actions: /*#__PURE__*/React.createElement("div", {
                 className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-              }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
-                title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete Object ", /*#__PURE__*/React__default.createElement("strong", null, path)),
+              }, /*#__PURE__*/React.createElement(Popconfirm, {
+                title: /*#__PURE__*/React.createElement("span", null, "Are you sure to delete Object ", /*#__PURE__*/React.createElement("strong", null, path)),
                 onConfirm: () => self.itemRemove(item),
                 okText: "Yes",
                 cancelText: "No"
-              }, /*#__PURE__*/React__default.createElement("span", {
+              }, /*#__PURE__*/React.createElement("span", {
                 className: "ant-radio-button-wrapper"
-              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
+              }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))), /*#__PURE__*/React.createElement("span", {
                 className: "ant-radio-button-wrapper",
                 onClick: () => self.handlingEdit(item)
-              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))), /*#__PURE__*/React__default.createElement("span", {
+              }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))), /*#__PURE__*/React.createElement("span", {
                 className: "ant-radio-button-wrapper",
                 onClick: () => self.handlingAdd(path)
-              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))))
+              }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))))
             });
           } else {
             var _TypeInfo = item.$type.Info;
             current.push({
               ptr: item,
               key: path,
-              name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(_TypeInfo, null), " ", item.$_key),
+              name: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(_TypeInfo, null), " ", item.$_key),
               doc: item.$doc,
-              actions: /*#__PURE__*/React__default.createElement("div", {
+              actions: /*#__PURE__*/React.createElement("div", {
                 className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-              }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
-                title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete ", /*#__PURE__*/React__default.createElement("strong", null, path)),
+              }, /*#__PURE__*/React.createElement(Popconfirm, {
+                title: /*#__PURE__*/React.createElement("span", null, "Are you sure to delete ", /*#__PURE__*/React.createElement("strong", null, path)),
                 onConfirm: () => self.itemRemove(item),
                 okText: "Yes",
                 cancelText: "No"
-              }, /*#__PURE__*/React__default.createElement("span", {
+              }, /*#__PURE__*/React.createElement("span", {
                 className: "ant-radio-button-wrapper"
-              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
+              }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)))), /*#__PURE__*/React.createElement("span", {
                 className: "ant-radio-button-wrapper",
                 onClick: () => self.handlingEdit(item)
-              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))))
+              }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))))
             });
           }
       });
@@ -1987,7 +1984,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
 
   render() {
     var sds = this.state.schemaDataSource;
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(FieldifySchemaBuilderModal, {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FieldifySchemaBuilderModal, {
       user: this.state.modalUser,
       visible: this.state.modal,
       value: this.state.modalContent,
@@ -1995,7 +1992,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
         modal: false
       }),
       onOk: this.itemChanged.bind(this)
-    }), /*#__PURE__*/React__default.createElement(antd.Table, {
+    }), /*#__PURE__*/React.createElement(Table, {
       columns: this.columns,
       dataSource: sds,
       size: "small",
@@ -2023,7 +2020,7 @@ class FieldifySchemaRender extends RecycledComponent {
   }
 
   render() {
-    return /*#__PURE__*/React__default.createElement(TypeDataset, {
+    return /*#__PURE__*/React.createElement(TypeDataset, {
       schema: this.state.schema,
       input: this.state.input,
       actions: false,
@@ -2044,11 +2041,9 @@ var schema = {
   FieldifySchema: FieldifySchema
 };
 
-class Input extends fieldify.input {}
+class Input extends input {}
 var Schema = schema;
 var Types = types;
 
-exports.Input = Input;
-exports.Schema = Schema;
-exports.Types = Types;
-//# sourceMappingURL=index.js.map
+export { Input, Schema, Types };
+//# sourceMappingURL=index.esm.js.map

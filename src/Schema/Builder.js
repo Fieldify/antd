@@ -26,7 +26,7 @@ import {
   CopyOutlined as ArrayIcon
 } from '@ant-design/icons';
 
-import { FieldifySchema } from "../Schema/Schema";
+import { FieldifySchema } from "./Schema";
 
 import { FieldifySchemaBuilderModal } from './BuilderModal';
 
@@ -211,6 +211,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
                   <span><DeleteIcon /></span>
                 </span>
               </Popconfirm>
+
 
               <span className="ant-radio-button-wrapper" onClick={() => self.handlingEdit(item[0])}>
                 <span><EditIcon /></span>

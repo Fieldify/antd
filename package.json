@@ -6,14 +6,13 @@
   "license": "GPL-3.0",
   "repository": "https://github.com/Fieldify/ant-design",
   "main": "dist/index.js",
-  "module": "dist/index.modern.js",
   "source": "src/index.js",
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
+    "build": "microbundle-crl build --no-compress",
+    "start": "microbundle-crl watch --no-compress",
     "prepublish": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
@@ -25,10 +24,22 @@
     "docs": "cd example; yarn build; rm -rf ../docs; cp -a ./build ../docs"
   },
   "peerDependencies": {
-    "react": "^16.0.0"
+    "@ant-design/icons": "^4.1.0",
+    "antd": "^4.2.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-recycling": "^1.0.2",
+    "react-scripts": "^3.4.1"
   },
   "devDependencies": {
+    "@ant-design/icons": "^4.1.0",
+    "antd": "^4.2.4",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
@@ -46,15 +57,13 @@
     "prettier": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-recycling": "^1.0.2",
     "react-scripts": "^3.4.1"
   },
   "files": [
     "dist"
   ],
   "dependencies": {
-    "@ant-design/icons": "^4.1.0",
-    "antd": "^4.2.4",
-    "fieldify": "^1.1.2",
-    "react-recycling": "^1.0.2"
+    "fieldify": "^1.1.2"
   }
 }

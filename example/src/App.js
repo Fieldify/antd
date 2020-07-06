@@ -1,10 +1,10 @@
 import React from 'react'
 
+
 import { Schema, Types, Input } from '@fieldify/antd'
 
 import { Row, Col, Card, Tabs, Tag, Form, Radio, Divider } from 'antd';
 
-import '@fieldify/antd/dist/index.css'
 import "antd/dist/antd.css";
 
 const {
@@ -20,130 +20,10 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    const initial = {
-      
-
-      company: {
-        $doc: "Your company name",
-        $type: "String",
-        $position: 0
-      },
-      name: {
-        $doc: "Civility",
-        $type: "Name",
-        $position: 1
-      },
-
-      email: {
-        $doc: "Votre e-mail",
-        $type: Types.Email,
-        $position: 2
-      },
-
-      age: {
-        $doc: "Age",
-        $type: Types.Number,
-        $position: 3
-      },
-
-      KV: {
-        $doc: "Key and Value",
-        $type: Types.KV,
-        $position: 4
-      },
-
-      types: {
-        $doc: 'What kind of number to accept',
-        $required: true,
-        $type: 'Select',
-        $options: {
-          default: 'both',
-          items: {
-            both: 'Both Integer & Float',
-            integer: 'Only Integer',
-            float: 'Only Float'
-          }
-        }
-      },
-
-      address: {
-        $doc: "Address",
-        home: {
-          $doc: "Home",
-          street: { $doc: "Street", $type: Types.String, $options: { min: 2, placeholder: "Your street" } },
-          zip: { $doc: "ZIP", $type: Types.String },
-          country: { $doc: "Country", $type: Types.String },
-        },
-        work: {
-          $doc: "Work",
-          street: { $doc: "Street", $type: Types.String },
-          zip: { $doc: "ZIP", $type: Types.String },
-          country: { $doc: "Country", $type: Types.String },
-        },
-      },
-
-      nestedArray: [{
-        $doc: "Array of Objects (nested)",
-        // name: {
-        //   $doc: "Civility",
-        //   $type: Types.Name,
-        //   $position: 1
-        // },
-        // description: { $doc: "Description", $type: Types.String, $options: { strict: true } },
-        // price: { $doc: "Price", $type: Types.String },
-        $array: {
-          min: 2
-        }
-      }],
-
-      inlinedArray: [{
-        $required: true,
-        $doc: "Array of User Defined types (non-nested)",
-        $type: Types.Name,
-        $options: { min: 2 },
-        $array: {
-          min: 2,
-          max: 100
-        }
-      }],
-
-      inlinedArrayString: [{
-        $required: true,
-        $doc: "Array of String type (non-nested)",
-        $type: "String",
-        $array: {
-          min: 1,
-          max: 100
-        }
-      }]
-    }
-
+    const initial = { }
     this.state = this.cycle({
       schema: initial,
-      input: {
-        // V: {},
-        // surface: ["cds"]
-        // company: "Test of the test",
-        // name: {
-        //   first: "Michael",
-        //   last: "Vergoz"
-        // },
-        // email: "mvcdsa@cdas.com",
-        // KV: {
-        //   "testcas": "Awesome"
-        // },
-
-        // nestedArray: [{
-        //   name: {
-        //     first: "Michael",
-        //     last: "Vergoz"
-        //   },
-        //   description: "This is a description"
-        // }],
-        // inlinedArray: [{ first: "Michael" }],
-
-        // inlinedArrayString: ['michael', 'vergoz', 'did', 'it', 'well']
-      }
+      input: { }
     }, true)
   }
 

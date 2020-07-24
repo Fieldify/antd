@@ -2,7 +2,7 @@ import { types as types$1, fieldifyType, schema as schema$1, input, utils } from
 import React, { Component } from 'react';
 import RecycledComponent from 'react-recycling';
 import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
-import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, CheckSquareOutlined, SelectOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, LinkOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 function _extends() {
@@ -567,9 +567,18 @@ var Number = {
 
 class CheckboxForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React.createElement(Input$1, {
-      placeholder: "Checkbox of characters"
-    }));
+    return super.render( /*#__PURE__*/React.createElement(Checkbox$1, {
+      checked: this.state.value,
+      onChange: (_ref) => {
+        var {
+          target
+        } = _ref;
+        return this.changeValue(target.checked);
+      },
+      style: {
+        width: "100%"
+      }
+    }, this.state.options.placeholder));
   }
 
 }
@@ -577,37 +586,21 @@ class CheckboxForm extends FieldifyTypeForm {
 class CheckboxInfo extends SignderivaTypeInfo {
   render() {
     return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
-      color: "#fadb14",
+      color: "#85144b",
       style: {
-        color: "#555555"
+        color: "white"
       }
-    }, /*#__PURE__*/React.createElement(FieldStringOutlined, null)));
+    }, /*#__PURE__*/React.createElement(CheckSquareOutlined, null)));
   }
 
 }
 
+class CheckboxRender extends FieldifyTypeRender {}
+
 class CheckboxBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
-    this.default = {
-      minSize: 1,
-      maxSize: 128
-    };
     this.configure();
-  }
-
-  render() {
-    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
-      label: "Checkbox min/max size"
-    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
-      min: 0,
-      value: this.state.minSize,
-      onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React.createElement(InputNumber, {
-      min: 0,
-      value: this.state.maxSize,
-      onChange: value => this.changeIt("maxSize", value)
-    }))));
   }
 
 }
@@ -618,7 +611,8 @@ var Checkbox = {
   class: types$1.Checkbox.class,
   Info: CheckboxInfo,
   Builder: CheckboxBuilder,
-  Form: CheckboxForm
+  Form: CheckboxForm,
+  Render: CheckboxRender
 };
 
 class SelectForm extends FieldifyTypeForm {
@@ -1085,6 +1079,57 @@ var KV = {
   Render: KVRender
 };
 
+class HashForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(Input$1, {
+      value: this.state.value,
+      placeholder: this.state.options.placeholder,
+      onChange: (_ref) => {
+        var {
+          target
+        } = _ref;
+        return this.changeValue(target.value);
+      },
+      style: {
+        width: "100%"
+      }
+    }));
+  }
+
+}
+
+class HashRender extends FieldifyTypeRender {}
+
+class HashInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#badb64",
+      style: {
+        color: "#555555"
+      }
+    }, /*#__PURE__*/React.createElement(LinkOutlined, null)));
+  }
+
+}
+
+class HashBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var Hash = {
+  code: types$1.Hash.code,
+  description: types$1.Hash.description,
+  class: types$1.Hash.class,
+  Info: HashInfo,
+  Builder: HashBuilder,
+  Form: HashForm,
+  Render: HashRender
+};
+
 var types = {
   Name,
   Email,
@@ -1092,6 +1137,7 @@ var types = {
   Number,
   Select,
   Checkbox,
+  Hash,
   Object: Object$1,
   Array: Array$1,
   FieldName,

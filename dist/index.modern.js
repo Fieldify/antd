@@ -2,26 +2,8 @@ import { types as types$1, fieldifyType, schema as schema$1, input, utils } from
 import React, { Component } from 'react';
 import RecycledComponent from 'react-recycling';
 import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
-import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, SelectOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, CheckSquareOutlined, SelectOutlined, SmallDashOutlined, DeleteOutlined, EditOutlined, PlusOutlined, LinkOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
 
 class FieldifyTypeForm extends Component {
   constructor(props) {
@@ -31,14 +13,14 @@ class FieldifyTypeForm extends Component {
 
   componentDidUpdate(props, state) {
     if (this.props.schema !== props.schema) {
-      var cycle = this.cycle(this.props);
+      const cycle = this.cycle(this.props);
       this.setState(cycle);
     }
   }
 
   cycle(props) {
     this.schema = props.schema;
-    var state = {
+    const state = {
       value: props.value,
       verify: props.verify,
       feedback: false,
@@ -164,7 +146,7 @@ class FieldifyTypeForm extends Component {
 
 class FieldifyTypeRender extends RecycledComponent {
   cycle(props) {
-    var state = {
+    const state = {
       schema: props.schema,
       value: props.value,
       injected: props.injected
@@ -223,32 +205,35 @@ class SignderivaTypeBuilder extends Component {
     this.props = props;
     this.onChange = props.onChange ? props.onChange : () => {};
     if (props.match) this.path = props.match.path;
-    this.state = _extends({}, props.options);
+    this.state = { ...props.options
+    };
     this.default = {};
   }
 
   componentDidUpdate(prevProps, prevState) {
-    var pNew = this.props.options || {};
-    var pOld = prevProps.options || {};
+    const pNew = this.props.options || {};
+    const pOld = prevProps.options || {};
     var changed = 0;
 
     for (var key in this.default) {
-      var o = pOld[key];
-      var n = pNew[key];
+      const o = pOld[key];
+      const n = pNew[key];
       if (o !== n) changed++;
     }
 
     if (changed > 0) {
       this.setState(pNew);
-      this.onChange(_extends({}, pNew));
+      this.onChange({ ...pNew
+      });
     }
   }
 
   setup(prev) {
-    var state = _extends({}, prev);
+    const state = { ...prev
+    };
 
     for (var a in state) {
-      var p = this.default[a];
+      const p = this.default[a];
       if (!p) delete state[a];
     }
 
@@ -261,14 +246,16 @@ class SignderivaTypeBuilder extends Component {
 
   configure() {
     this.state = this.setup(this.state);
-    this.onChange(_extends({}, this.state));
+    this.onChange({ ...this.state
+    });
   }
 
   changeIt(key, value) {
-    var change = Object.assign({}, this.state);
+    const change = Object.assign({}, this.state);
     change[key] = value;
     this.setState(change);
-    this.onChange(_extends({}, change));
+    this.onChange({ ...change
+    });
   }
 
 }
@@ -278,12 +265,9 @@ class StringForm extends FieldifyTypeForm {
     return super.render( /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.value,
       placeholder: this.state.options.placeholder,
-      onChange: (_ref) => {
-        var {
-          target
-        } = _ref;
-        return this.changeValue(target.value);
-      },
+      onChange: ({
+        target
+      }) => this.changeValue(target.value),
       style: {
         width: "100%"
       }
@@ -342,7 +326,7 @@ var String = {
   Render: StringRender
 };
 
-var StringForm$1 = String.Form;
+const StringForm$1 = String.Form;
 
 class NameForm extends FieldifyTypeForm {
   constructor(props) {
@@ -350,9 +334,10 @@ class NameForm extends FieldifyTypeForm {
   }
 
   cycle(props) {
-    var ret = super.cycle(props);
+    const ret = super.cycle(props);
     if (!ret.value) ret.value = {};
-    this.result = _extends({}, ret.value);
+    this.result = { ...ret.value
+    };
     return ret;
   }
 
@@ -457,12 +442,9 @@ class EmailForm extends FieldifyTypeForm {
     return super.render( /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.value,
       placeholder: this.state.options.placeholder,
-      onChange: (_ref) => {
-        var {
-          target
-        } = _ref;
-        return this.changeValue(target.value);
-      }
+      onChange: ({
+        target
+      }) => this.changeValue(target.value)
     }));
   }
 
@@ -493,12 +475,9 @@ class EmailBuilder extends SignderivaTypeBuilder {
       label: "Sub-addressing"
     }, /*#__PURE__*/React.createElement(Checkbox$1, {
       checked: this.state.subAddressing,
-      onChange: (_ref2) => {
-        var {
-          target
-        } = _ref2;
-        return this.changeIt("subAddressing", target.checked);
-      }
+      onChange: ({
+        target
+      }) => this.changeIt("subAddressing", target.checked)
     }, "Allowed")));
   }
 
@@ -567,9 +546,15 @@ var Number = {
 
 class CheckboxForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React.createElement(Input$1, {
-      placeholder: "Checkbox of characters"
-    }));
+    return super.render( /*#__PURE__*/React.createElement(Checkbox$1, {
+      checked: this.state.value,
+      onChange: ({
+        target
+      }) => this.changeValue(target.checked),
+      style: {
+        width: "100%"
+      }
+    }, this.state.options.placeholder));
   }
 
 }
@@ -577,37 +562,21 @@ class CheckboxForm extends FieldifyTypeForm {
 class CheckboxInfo extends SignderivaTypeInfo {
   render() {
     return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
-      color: "#fadb14",
+      color: "#85144b",
       style: {
-        color: "#555555"
+        color: "white"
       }
-    }, /*#__PURE__*/React.createElement(FieldStringOutlined, null)));
+    }, /*#__PURE__*/React.createElement(CheckSquareOutlined, null)));
   }
 
 }
 
+class CheckboxRender extends FieldifyTypeRender {}
+
 class CheckboxBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
-    this.default = {
-      minSize: 1,
-      maxSize: 128
-    };
     this.configure();
-  }
-
-  render() {
-    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
-      label: "Checkbox min/max size"
-    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
-      min: 0,
-      value: this.state.minSize,
-      onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React.createElement(InputNumber, {
-      min: 0,
-      value: this.state.maxSize,
-      onChange: value => this.changeIt("maxSize", value)
-    }))));
   }
 
 }
@@ -618,7 +587,8 @@ var Checkbox = {
   class: types$1.Checkbox.class,
   Info: CheckboxInfo,
   Builder: CheckboxBuilder,
-  Form: CheckboxForm
+  Form: CheckboxForm,
+  Render: CheckboxRender
 };
 
 class SelectForm extends FieldifyTypeForm {
@@ -640,10 +610,10 @@ class SelectForm extends FieldifyTypeForm {
 
   updateItems() {
     if (!this.state.options.items) return [];
-    var options = [];
+    const options = [];
 
     for (var key in this.state.options.items) {
-      var value = this.state.options.items[key];
+      const value = this.state.options.items[key];
       options.push( /*#__PURE__*/React.createElement(Select$1.Option, {
         value: key,
         key: key
@@ -678,7 +648,7 @@ class SelectRender extends FieldifyTypeRender {
   static getDerivedStateFromProps(props, state) {
     if (typeof state.value === "string") {
       if (props.schema.$options && props.schema.$options.items) {
-        var ptr = props.schema.$options.items;
+        const ptr = props.schema.$options.items;
         if (ptr[state.value]) state.value = ptr[state.value];
       }
     }
@@ -768,7 +738,7 @@ class FieldNameForm extends String.Form {
       }
 
       if (this.props.user && input in this.props.user) {
-        var msg = "Field name already used";
+        const msg = `Field name already used`;
         this.onError(true, msg);
         return cb({
           status: "error",
@@ -817,26 +787,26 @@ class KVForm extends FieldifyTypeForm {
   }
 
   cycle(props) {
-    var ret = super.cycle(props);
+    const ret = super.cycle(props);
     if (!ret.value) ret.value = {};
-    this.result = _extends({}, ret.value);
+    this.result = { ...ret.value
+    };
     ret.modal = false;
     ret.modalCurrent = {
       key: "",
       value: ""
     };
-    ret.dataTree = _extends({}, ret.value);
+    ret.dataTree = { ...ret.value
+    };
     ret.dataSource = this.computeDataSource(ret.dataTree);
     return ret;
   }
 
   computeDataSource(tree) {
-    var _this = this;
+    const ds = [];
 
-    var ds = [];
-
-    var _loop = function _loop(key) {
-      var value = tree[key];
+    for (let key in tree) {
+      const value = tree[key];
       ds.push({
         key: key,
         value: value,
@@ -844,27 +814,23 @@ class KVForm extends FieldifyTypeForm {
           className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
         }, /*#__PURE__*/React.createElement("span", {
           className: "ant-radio-button-wrapper",
-          onClick: () => _this.removeKey(key)
+          onClick: () => this.removeKey(key)
         }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null))), /*#__PURE__*/React.createElement("span", {
           className: "ant-radio-button-wrapper",
-          onClick: () => _this.openModal({
+          onClick: () => this.openModal({
             key,
             value
           })
         }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(EditOutlined, null))))
       });
-    };
-
-    for (var key in tree) {
-      _loop(key);
     }
 
     return ds;
   }
 
   handleModalChange(key, value) {
-    var modalCurrent = _extends({}, this.state.modalCurrent);
-
+    const modalCurrent = { ...this.state.modalCurrent
+    };
     modalCurrent[key] = value;
     this.setState({
       modalCurrent
@@ -872,7 +838,7 @@ class KVForm extends FieldifyTypeForm {
   }
 
   openModal(data) {
-    var state = {
+    const state = {
       modalError: false,
       modalInitial: null,
       modalCurrent: data || {
@@ -881,13 +847,14 @@ class KVForm extends FieldifyTypeForm {
       },
       modal: true
     };
-    if (data) state.modalInitial = _extends({}, state.modalCurrent);
+    if (data) state.modalInitial = { ...state.modalCurrent
+    };
     this.setState(state);
   }
 
   removeKey(key) {
-    var state = _extends({}, this.state);
-
+    const state = { ...this.state
+    };
     delete state.dataTree[key];
     state.dataSource = this.computeDataSource(state.dataTree);
     this.setState(state);
@@ -895,11 +862,11 @@ class KVForm extends FieldifyTypeForm {
   }
 
   editedButton() {
-    var state = _extends({}, this.state);
-
-    var mc = this.state.modalCurrent;
-    var type = this.schema.$_type;
-    var data = {};
+    const state = { ...this.state
+    };
+    const mc = this.state.modalCurrent;
+    const type = this.schema.$_type;
+    const data = {};
     data[mc.key] = mc.value;
     type.verify(data, (error, message) => {
       state.modalError = error;
@@ -921,13 +888,13 @@ class KVForm extends FieldifyTypeForm {
   }
 
   render() {
-    var onCancel = () => {
+    const onCancel = () => {
       this.setState({
         modal: false
       });
     };
 
-    var columns = [{
+    const columns = [{
       title: 'Key',
       dataIndex: 'key',
       key: 'key'
@@ -946,7 +913,7 @@ class KVForm extends FieldifyTypeForm {
       key: 'actions',
       align: "right"
     }];
-    var layout = {
+    const layout = {
       labelCol: {
         span: 8
       },
@@ -973,22 +940,16 @@ class KVForm extends FieldifyTypeForm {
       label: "Key"
     }, /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.modalCurrent.key,
-      onChange: (_ref) => {
-        var {
-          target
-        } = _ref;
-        return this.handleModalChange("key", target.value);
-      }
+      onChange: ({
+        target
+      }) => this.handleModalChange("key", target.value)
     })), /*#__PURE__*/React.createElement(Form.Item, {
       label: "Value"
     }, /*#__PURE__*/React.createElement(Input$1, {
       value: this.state.modalCurrent.value,
-      onChange: (_ref2) => {
-        var {
-          target
-        } = _ref2;
-        return this.handleModalChange("value", target.value);
-      }
+      onChange: ({
+        target
+      }) => this.handleModalChange("value", target.value)
     })))), /*#__PURE__*/React.createElement(Table, {
       size: "small",
       dataSource: this.state.dataSource,
@@ -1014,19 +975,21 @@ class KVInfo extends SignderivaTypeInfo {
 
 class KVRender extends FieldifyTypeRender {
   cycle(props) {
-    var ret = super.cycle(props);
+    const ret = super.cycle(props);
     if (!ret.value) ret.value = {};
-    this.result = _extends({}, ret.value);
-    ret.dataTree = _extends({}, ret.value);
+    this.result = { ...ret.value
+    };
+    ret.dataTree = { ...ret.value
+    };
     ret.dataSource = this.computeDataSource(ret.dataTree);
     return ret;
   }
 
   computeDataSource(tree) {
-    var ds = [];
+    const ds = [];
 
-    for (var key in tree) {
-      var value = tree[key];
+    for (let key in tree) {
+      const value = tree[key];
       ds.push({
         key: key,
         value: value
@@ -1037,7 +1000,7 @@ class KVRender extends FieldifyTypeRender {
   }
 
   render() {
-    var columns = [{
+    const columns = [{
       dataIndex: 'key',
       key: 'key'
     }, {
@@ -1085,6 +1048,54 @@ var KV = {
   Render: KVRender
 };
 
+class HashForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(Input$1, {
+      value: this.state.value,
+      placeholder: this.state.options.placeholder,
+      onChange: ({
+        target
+      }) => this.changeValue(target.value),
+      style: {
+        width: "100%"
+      }
+    }));
+  }
+
+}
+
+class HashRender extends FieldifyTypeRender {}
+
+class HashInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#badb64",
+      style: {
+        color: "#555555"
+      }
+    }, /*#__PURE__*/React.createElement(LinkOutlined, null)));
+  }
+
+}
+
+class HashBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var Hash = {
+  code: types$1.Hash.code,
+  description: types$1.Hash.description,
+  class: types$1.Hash.class,
+  Info: HashInfo,
+  Builder: HashBuilder,
+  Form: HashForm,
+  Render: HashRender
+};
+
 var types = {
   Name,
   Email,
@@ -1092,6 +1103,7 @@ var types = {
   Number,
   Select,
   Checkbox,
+  Hash,
   Object: Object$1,
   Array: Array$1,
   FieldName,
@@ -1120,7 +1132,7 @@ class TypeDataset extends RecycledComponent {
   }
 
   cycle(props, first) {
-    var state = {
+    const state = {
       layout: props.layout ? props.layout : "horizontal"
     };
     state.rawSchema = props.schema;
@@ -1151,7 +1163,7 @@ class TypeDataset extends RecycledComponent {
   clickAddArray(line) {
     this.state.input.set(line);
 
-    var _value = this.state.input.getValue();
+    const _value = this.state.input.getValue();
 
     this.onChange(this.state.input, _value);
     this.setState({
@@ -1168,7 +1180,7 @@ class TypeDataset extends RecycledComponent {
   clickRemoveArrayItem(line) {
     this.state.input.remove(line);
 
-    var _value = this.state.input.getValue();
+    const _value = this.state.input.getValue();
 
     this.onChange(this.state.input, _value);
     this.setState({
@@ -1186,7 +1198,7 @@ class TypeDataset extends RecycledComponent {
     if (!this.state.input) return;
     this.state.input.set(line, value);
 
-    var _value = this.state.input.getValue();
+    const _value = this.state.input.getValue();
 
     this.onChange(this.state.input, _value);
     this.setState({
@@ -1195,8 +1207,6 @@ class TypeDataset extends RecycledComponent {
   }
 
   update(up) {
-    var _this = this;
-
     var {
       root,
       input,
@@ -1204,21 +1214,20 @@ class TypeDataset extends RecycledComponent {
       state
     } = up;
 
-    var follower = (schema, schematized, input, ret, line) => {
+    const follower = (schema, schematized, input, ret, line) => {
       line = line || "";
       if (!input) input = {};
       utils.orderedRead(schema, (index, item) => {
-        var source = _extends({}, Array.isArray(item) ? item[0] : item);
-
-        var schematizedSrc = schematized[source.$_key];
-
-        var sourceSchematized = _extends({}, Array.isArray(schematizedSrc) ? schematizedSrc[0] : schematizedSrc);
-
-        var inputPtr = input ? input[source.$_key] : null;
-        var lineKey = line + "." + source.$_key;
+        const source = { ...(Array.isArray(item) ? item[0] : item)
+        };
+        const schematizedSrc = schematized[source.$_key];
+        const sourceSchematized = { ...(Array.isArray(schematizedSrc) ? schematizedSrc[0] : schematizedSrc)
+        };
+        const inputPtr = input ? input[source.$_key] : null;
+        const lineKey = line + "." + source.$_key;
 
         if (source.$_array === true) {
-          var columns = [{
+          const columns = [{
             dataIndex: 'form',
             key: 'form',
             width: "100%"
@@ -1232,10 +1241,10 @@ class TypeDataset extends RecycledComponent {
             });
           }
 
-          var dataSource = [];
+          const dataSource = [];
           var inputPtr2 = inputPtr;
-          var options = source.$array || {};
-          var min = options.min ? options.min : source.$required === true ? 1 : 0;
+          const options = source.$array || {};
+          const min = options.min ? options.min : source.$required === true ? 1 : 0;
 
           if (source.$_nested === true) {
             var inputPtr2 = input[source.$_key];
@@ -1247,12 +1256,12 @@ class TypeDataset extends RecycledComponent {
               }
             }
 
-            var _loop = function _loop() {
-              var value = inputPtr2[a];
-              var key = lineKey + "." + a;
-              var child = [];
+            for (var a = 0; a < inputPtr2.length; a++) {
+              const value = inputPtr2[a];
+              const key = lineKey + "." + a;
+              const child = [];
               follower(source, sourceSchematized, value, child, key);
-              var toPush = {
+              const toPush = {
                 key,
                 form: child
               };
@@ -1260,19 +1269,15 @@ class TypeDataset extends RecycledComponent {
               if (state.actions === true) {
                 toPush.actions = /*#__PURE__*/React.createElement(Button, {
                   size: "small",
-                  onClick: () => _this.clickRemoveArrayItem(key)
+                  onClick: () => this.clickRemoveArrayItem(key)
                 }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)));
               }
 
               dataSource.push(toPush);
-            };
-
-            for (var a = 0; a < inputPtr2.length; a++) {
-              _loop();
             }
           } else if (source.$type) {
             delete sourceSchematized.$doc;
-            var TypeForm = source.$type[state.generator];
+            const TypeForm = source.$type[state.generator];
 
             if (!Array.isArray(inputPtr)) {
               input[source.$_key] = [];
@@ -1287,26 +1292,26 @@ class TypeDataset extends RecycledComponent {
               }
             }
 
-            var _loop2 = function _loop2() {
-              var value = inputPtr2[a];
-              var key = lineKey + "." + a;
-              var toPush = {
+            for (var a = 0; a < inputPtr2.length; a++) {
+              const value = inputPtr2[a];
+              const key = lineKey + "." + a;
+              const toPush = {
                 key,
                 form: /*#__PURE__*/React.createElement(TypeForm, {
                   schema: sourceSchematized,
                   value: value,
                   verify: verify,
-                  user: _this.props.user,
-                  onChange: (schema, value) => _this.setValue(key, value),
+                  user: this.props.user,
+                  onChange: (schema, value) => this.setValue(key, value),
                   isInjected: true,
                   onError: (error, message) => {
                     if (error === true) {
-                      _this.references[key] = message;
+                      this.references[key] = message;
                     } else {
-                      var ref = _this.references[key];
+                      const ref = this.references[key];
 
                       if (ref) {
-                        delete _this.references[key];
+                        delete this.references[key];
                       }
                     }
                   }
@@ -1316,15 +1321,11 @@ class TypeDataset extends RecycledComponent {
               if (state.actions === true) {
                 toPush.actions = /*#__PURE__*/React.createElement(Button, {
                   size: "small",
-                  onClick: () => _this.clickRemoveArrayItem(key)
+                  onClick: () => this.clickRemoveArrayItem(key)
                 }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(DeleteOutlined, null)));
               }
 
               dataSource.push(toPush);
-            };
-
-            for (var a = 0; a < inputPtr2.length; a++) {
-              _loop2();
             }
           }
 
@@ -1357,7 +1358,7 @@ class TypeDataset extends RecycledComponent {
           })))));
         } else {
           if (source.$_nested === true) {
-            var child = [];
+            const child = [];
             follower(source, sourceSchematized, inputPtr, child, lineKey);
             ret.push( /*#__PURE__*/React.createElement("div", {
               key: source.$_wire,
@@ -1367,8 +1368,8 @@ class TypeDataset extends RecycledComponent {
               title: source.$doc
             }, child)));
           } else if (item.$type) {
-            var _TypeForm = item.$type[state.generator];
-            ret.push( /*#__PURE__*/React.createElement(_TypeForm, {
+            const TypeForm = item.$type[state.generator];
+            ret.push( /*#__PURE__*/React.createElement(TypeForm, {
               schema: sourceSchematized,
               value: inputPtr,
               key: source.$_wire,
@@ -1379,7 +1380,7 @@ class TypeDataset extends RecycledComponent {
                 if (error === true) {
                   this.references[source.$_wire] = message;
                 } else {
-                  var ref = this.references[source.$_wire];
+                  const ref = this.references[source.$_wire];
 
                   if (ref) {
                     delete this.references[source.$_wire];
@@ -1393,7 +1394,7 @@ class TypeDataset extends RecycledComponent {
       return ret;
     };
 
-    var ret = [];
+    const ret = [];
     follower(root.handler.schema, root.handlerSchematized.schema, input, ret);
     return ret;
   }
@@ -1412,7 +1413,7 @@ class TypeDataset extends RecycledComponent {
       };
     }
 
-    return /*#__PURE__*/React.createElement(Form, _extends({
+    return /*#__PURE__*/React.createElement(Form, Object.assign({
       layout: this.state.layout,
       key: this.formRef
     }, layout, {
@@ -1424,7 +1425,7 @@ class TypeDataset extends RecycledComponent {
 
 class FieldifySchemaForm extends RecycledComponent {
   cycle(props) {
-    var state = {
+    const state = {
       layout: props.layout,
       schema: props.schema,
       input: props.input,
@@ -1446,8 +1447,8 @@ class FieldifySchemaForm extends RecycledComponent {
 
 }
 
-var allTypes = {};
-var allTypesNoArray = {};
+const allTypes = {};
+const allTypesNoArray = {};
 
 for (var a in types) {
   allTypes[a] = types[a].description;
@@ -1457,7 +1458,7 @@ for (var a in types) {
   }
 }
 
-var baseSchema = {
+const baseSchema = {
   key: {
     $doc: "Name of the field",
     $type: types.FieldName,
@@ -1500,8 +1501,8 @@ class FieldifySchemaBuilderModal extends React.Component {
 
   componentDidUpdate(props) {
     var changed = false;
-
-    var state = _extends({}, this.state);
+    var state = { ...this.state
+    };
 
     if (this.props.visible !== props.visible) {
       this.currentSchema = baseSchema;
@@ -1513,7 +1514,7 @@ class FieldifySchemaBuilderModal extends React.Component {
   }
 
   cycle(props, first) {
-    var state = {
+    const state = {
       edition: false,
       original: props.value,
       form: {
@@ -1531,7 +1532,7 @@ class FieldifySchemaBuilderModal extends React.Component {
     } else state.initialPath = '';
 
     if (props.value) {
-      var val = props.value;
+      const val = props.value;
       state.edition = true;
 
       if (val.$_array !== true && val.$_nested !== true) {
@@ -1591,13 +1592,14 @@ class FieldifySchemaBuilderModal extends React.Component {
   }
 
   driveSchema(state, force) {
-    var value = state.value;
-    var Type = types[value.type];
+    const value = state.value;
+    const Type = types[value.type];
 
     if (Type && Type !== this.currentType) {
-      var TypeObject = new Type.class();
-      var configuration = TypeObject.configuration();
-      this.currentSchema = _extends({}, baseSchema);
+      const TypeObject = new Type.class();
+      const configuration = TypeObject.configuration();
+      this.currentSchema = { ...baseSchema
+      };
 
       if (value.type === "Array") {
         this.currentSchema.content = {
@@ -1612,9 +1614,9 @@ class FieldifySchemaBuilderModal extends React.Component {
         };
       }
 
-      if (configuration) this.currentSchema.options = _extends({}, configuration, {
+      if (configuration) this.currentSchema.options = { ...configuration,
         $doc: "Type configuration"
-      });
+      };
       state.currentType = Type;
       state.schema = new FieldifySchema("modal");
       state.schema.compile(this.currentSchema);
@@ -1627,16 +1629,18 @@ class FieldifySchemaBuilderModal extends React.Component {
   }
 
   formChanged(value) {
-    var state = {
+    const state = {
       schema: this.state.schema,
       input: this.state.input,
-      value: _extends({}, this.state.value, value)
+      value: { ...this.state.value,
+        ...value
+      }
     };
     this.driveSchema(state);
     state.input.setValue(state.value);
     this.setState(state);
     state.input.verify(result => {
-      var state = {
+      const state = {
         form: {}
       };
       state.verify = true;
@@ -1656,7 +1660,7 @@ class FieldifySchemaBuilderModal extends React.Component {
 
   handleOK() {
     this.state.input.verify(result => {
-      var state = {
+      const state = {
         form: {}
       };
       state.verify = true;
@@ -1669,26 +1673,24 @@ class FieldifySchemaBuilderModal extends React.Component {
         state.form.color = "green";
         state.form.state = "Passed";
         this.setState(state);
-        var value = result.result;
+        const value = result.result;
         var nvalue = {};
 
-        for (var key in value) {
-          nvalue['$' + key] = value[key];
-        }
+        for (var key in value) nvalue['$' + key] = value[key];
 
-        var source = this.state.initialPath.split('.');
+        const source = this.state.initialPath.split('.');
         source.pop();
         source.push(value.key);
-        var npath = source.join('.');
+        const npath = source.join('.');
         delete nvalue.$key;
 
         if (nvalue.$type === "Array" && nvalue.$content === "Object") {
           if (this.state.edition === true) {
             if (this.props.user.$_wire) {
-              var no = utils.getNO(this.props.user);
+              const no = utils.getNO(this.props.user);
 
               for (var a in no.nestedObject) {
-                var p = no.nestedObject[a];
+                const p = no.nestedObject[a];
                 nvalue[p[0]] = p[1];
               }
             }
@@ -1704,11 +1706,11 @@ class FieldifySchemaBuilderModal extends React.Component {
           } else if (nvalue.$type === "Object") {
               if (this.state.edition === true) {
                 if (this.props.user.$_wire) {
-                  var _no = utils.getNO(this.props.user);
+                  const no = utils.getNO(this.props.user);
 
-                  for (var a in _no.nestedObject) {
-                    var _p = _no.nestedObject[a];
-                    nvalue[_p[0]] = _p[1];
+                  for (var a in no.nestedObject) {
+                    const p = no.nestedObject[a];
+                    nvalue[p[0]] = p[1];
                   }
                 }
               } else if (!nvalue.$doc) nvalue.$doc = "";
@@ -1738,7 +1740,7 @@ class FieldifySchemaBuilderModal extends React.Component {
 
   render() {
 
-    var onCancel = () => {
+    const onCancel = () => {
       this.props.onCancel(this.state);
     };
     return /*#__PURE__*/React.createElement(Modal, {
@@ -1764,7 +1766,7 @@ class FieldifySchemaBuilderModal extends React.Component {
 
 class FieldifySchemaBuilder extends RecycledComponent {
   cycle(props, first) {
-    var state = {
+    const state = {
       modal: false,
       modalUser: null,
       schemaDataSource: []
@@ -1799,24 +1801,24 @@ class FieldifySchemaBuilder extends RecycledComponent {
   }
 
   fireOnChange() {
-    var ex = this.state.schema.export();
+    const ex = this.state.schema.export();
     this.onChange(ex);
   }
 
   itemChanged(arg) {
     if (arg.edition === true) {
-      var lineup = this.state.schema.getLineup(arg.oldPath);
+      const lineup = this.state.schema.getLineup(arg.oldPath);
       this.state.schema.removeLineup(arg.oldPath);
       this.state.schema.setLineup(arg.newPath, arg.value);
       notification.success({
         message: "Field updated",
-        description: "Field at " + arg.oldPath + " has been successfully updated"
+        description: `Field at ${arg.oldPath} has been successfully updated`
       });
     } else {
         this.state.schema.setLineup(arg.newPath, arg.value);
         notification.success({
           message: "Field added",
-          description: "Field at " + arg.newPath + " has been successfully added"
+          description: `Field at ${arg.newPath} has been successfully added`
         });
       }
 
@@ -1837,14 +1839,14 @@ class FieldifySchemaBuilder extends RecycledComponent {
     });
     notification.success({
       message: "Field removed",
-      description: "Field at " + item.$_wire + " has been successfully removed"
+      description: `Field at ${item.$_wire} has been successfully removed`
     });
   }
 
   handlingAdd(path) {
     path = path || ".";
-    var lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
-    var state = {
+    const lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
+    const state = {
       modal: true,
       modalContent: null,
       modalUser: lineup
@@ -1853,9 +1855,9 @@ class FieldifySchemaBuilder extends RecycledComponent {
   }
 
   handlingEdit(item) {
-    var path = item.$_wire || ".";
-    var lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
-    var state = {
+    const path = item.$_wire || ".";
+    const lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
+    const state = {
       modal: true,
       modalContent: item,
       modalUser: lineup
@@ -1864,11 +1866,11 @@ class FieldifySchemaBuilder extends RecycledComponent {
   }
 
   updateDataSource(root) {
-    var self = this;
+    const self = this;
 
     function fieldify2antDataTable(schema, wire) {
       if (!wire) wire = "";
-      var current = [];
+      const current = [];
       utils.orderedRead(schema, (index, item) => {
         var path = wire + "." + item.$_key;
         item.$_path = path;
@@ -1884,7 +1886,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
           }, /*#__PURE__*/React.createElement(UnorderedListOutlined, null)));
 
           if ("$type" in item[0]) {
-            var TypeInfo = item[0].$type.Info;
+            const TypeInfo = item[0].$type.Info;
             composite = /*#__PURE__*/React.createElement(TypeInfo, null);
           } else {
             item[0].$_nested = true;
@@ -1947,11 +1949,11 @@ class FieldifySchemaBuilder extends RecycledComponent {
               }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(PlusOutlined, null))))
             });
           } else {
-            var _TypeInfo = item.$type.Info;
+            const TypeInfo = item.$type.Info;
             current.push({
               ptr: item,
               key: path,
-              name: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(_TypeInfo, null), " ", item.$_key),
+              name: /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(TypeInfo, null), " ", item.$_key),
               doc: item.$doc,
               actions: /*#__PURE__*/React.createElement("div", {
                 className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
@@ -1983,7 +1985,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
   }
 
   render() {
-    var sds = this.state.schemaDataSource;
+    const sds = this.state.schemaDataSource;
     return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(FieldifySchemaBuilderModal, {
       user: this.state.modalUser,
       visible: this.state.modal,
@@ -2011,7 +2013,7 @@ class FieldifySchemaBuilder extends RecycledComponent {
 
 class FieldifySchemaRender extends RecycledComponent {
   cycle(props) {
-    var state = {
+    const state = {
       layout: props.layout,
       schema: props.schema,
       input: props.input
@@ -2042,8 +2044,8 @@ var schema = {
 };
 
 class Input extends input {}
-var Schema = schema;
-var Types = types;
+const Schema = schema;
+const Types = types;
 
 export { Input, Schema, Types };
 //# sourceMappingURL=index.modern.js.map

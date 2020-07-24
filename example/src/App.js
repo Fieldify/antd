@@ -20,10 +20,37 @@ class App extends React.Component {
   constructor(props) {
     super(props)
 
-    const initial = { }
+    const initial = {
+      // "fds": {
+      //   "$type": "Hash",
+      //   "$doc": "ffre",
+      //   "$position": 0,
+      //   "$options": {
+      //     "mode": "sha512"
+      //   },
+      //   "$required": false,
+      //   "$read": true,
+      //   "$write": true
+      // },
+      "cdsacdsa": {
+        "$type": "String",
+        "$position": 32,
+        "$options": {
+          "placeholder": "cdsa",
+          "help": "cdsa",
+          "min": 321,
+          "max": 32132
+        }
+      },
+      // "checkbox": {
+      //   "$type": "Checkbox",
+      //   "$doc": "Ceci est une case a cocher"
+      // }
+    }
+
     this.state = this.cycle({
       schema: initial,
-      input: { }
+      input: {}
     }, true)
   }
 

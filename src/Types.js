@@ -8,6 +8,7 @@ import Object from "./Types/Object"
 import Array from "./Types/Array"
 import FieldName from "./Types/FieldName"
 import KV from "./Types/KV"
+import Hash from "./Types/Hash"
 
 export default {
   Name,
@@ -16,6 +17,7 @@ export default {
   Number,
   Select,
   Checkbox,
+  Hash,
   Object,
   Array,
   FieldName,

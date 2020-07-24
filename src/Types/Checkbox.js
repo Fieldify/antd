@@ -10,14 +10,16 @@ import {
   Tag,
   Input,
   Col,
-  Row
+  Row,
+  Checkbox
 } from "antd";
 
-import { FieldStringOutlined as Icon } from '@ant-design/icons';
+import { CheckSquareOutlined as Icon } from '@ant-design/icons';
 
 import TypeForm from '../lib/TypeForm';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
+import TypeRender from '../lib/TypeRender';
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
@@ -27,7 +29,13 @@ import TypeBuilder from '../lib/TypeBuilder';
 class CheckboxForm extends TypeForm {
   render() {
     return (super.render(
-      <Input placeholder="Checkbox of characters" />
+      <Checkbox
+        checked={this.state.value}
+        onChange={({ target }) => this.changeValue(target.checked)}
+        style={{ width: "100%" }}
+      >
+        {this.state.options.placeholder}
+      </Checkbox>
     ))
   }
 }
@@ -41,10 +49,18 @@ class CheckboxInfo extends TypeInfo {
   render() {
     return (
       <span>
-        <Tag color="#fadb14" style={{ color: "#555555" }}><Icon /></Tag>
+        <Tag color="#85144b" style={{ color: "white" }}><Icon /></Tag>
       </span>
     )
   }
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *
+ * Rendering of the field
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+class CheckboxRender extends TypeRender {
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -55,29 +71,9 @@ class CheckboxInfo extends TypeInfo {
 class CheckboxBuilder extends TypeBuilder {
   constructor(props) {
     super(props)
-
-    this.default = {
-      minSize: 1,
-      maxSize: 128
-    }
-
     this.configure()
   }
 
-  render() {
-    return (
-      <div>
-        <Form.Item label="Checkbox min/max size">
-          <Space>
-            <InputNumber min={0} value={this.state.minSize} onChange={(value) => this.changeIt("minSize", value)} />
-
-            <InputNumber min={0} value={this.state.maxSize} onChange={(value) => this.changeIt("maxSize", value)} />
-          </Space>
-        </Form.Item>
-
-      </div>
-    )
-  }
 }
 
 export default {
@@ -87,7 +83,8 @@ export default {
 
   Info: CheckboxInfo,
   Builder: CheckboxBuilder,
-  Form: CheckboxForm
+  Form: CheckboxForm,
+  Render: CheckboxRender,
 }
 
 

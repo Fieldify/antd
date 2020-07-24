@@ -570,9 +570,18 @@ var Number = {
 
 class CheckboxForm extends FieldifyTypeForm {
   render() {
-    return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
-      placeholder: "Checkbox of characters"
-    }));
+    return super.render( /*#__PURE__*/React__default.createElement(antd.Checkbox, {
+      checked: this.state.value,
+      onChange: (_ref) => {
+        var {
+          target
+        } = _ref;
+        return this.changeValue(target.checked);
+      },
+      style: {
+        width: "100%"
+      }
+    }, this.state.options.placeholder));
   }
 
 }
@@ -580,37 +589,21 @@ class CheckboxForm extends FieldifyTypeForm {
 class CheckboxInfo extends SignderivaTypeInfo {
   render() {
     return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
-      color: "#fadb14",
+      color: "#85144b",
       style: {
-        color: "#555555"
+        color: "white"
       }
-    }, /*#__PURE__*/React__default.createElement(icons.FieldStringOutlined, null)));
+    }, /*#__PURE__*/React__default.createElement(icons.CheckSquareOutlined, null)));
   }
 
 }
 
+class CheckboxRender extends FieldifyTypeRender {}
+
 class CheckboxBuilder extends SignderivaTypeBuilder {
   constructor(props) {
     super(props);
-    this.default = {
-      minSize: 1,
-      maxSize: 128
-    };
     this.configure();
-  }
-
-  render() {
-    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Form.Item, {
-      label: "Checkbox min/max size"
-    }, /*#__PURE__*/React__default.createElement(antd.Space, null, /*#__PURE__*/React__default.createElement(antd.InputNumber, {
-      min: 0,
-      value: this.state.minSize,
-      onChange: value => this.changeIt("minSize", value)
-    }), /*#__PURE__*/React__default.createElement(antd.InputNumber, {
-      min: 0,
-      value: this.state.maxSize,
-      onChange: value => this.changeIt("maxSize", value)
-    }))));
   }
 
 }
@@ -621,7 +614,8 @@ var Checkbox = {
   class: fieldify.types.Checkbox.class,
   Info: CheckboxInfo,
   Builder: CheckboxBuilder,
-  Form: CheckboxForm
+  Form: CheckboxForm,
+  Render: CheckboxRender
 };
 
 class SelectForm extends FieldifyTypeForm {
@@ -1088,6 +1082,57 @@ var KV = {
   Render: KVRender
 };
 
+class HashForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
+      value: this.state.value,
+      placeholder: this.state.options.placeholder,
+      onChange: (_ref) => {
+        var {
+          target
+        } = _ref;
+        return this.changeValue(target.value);
+      },
+      style: {
+        width: "100%"
+      }
+    }));
+  }
+
+}
+
+class HashRender extends FieldifyTypeRender {}
+
+class HashInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(antd.Tag, {
+      color: "#badb64",
+      style: {
+        color: "#555555"
+      }
+    }, /*#__PURE__*/React__default.createElement(icons.LinkOutlined, null)));
+  }
+
+}
+
+class HashBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var Hash = {
+  code: fieldify.types.Hash.code,
+  description: fieldify.types.Hash.description,
+  class: fieldify.types.Hash.class,
+  Info: HashInfo,
+  Builder: HashBuilder,
+  Form: HashForm,
+  Render: HashRender
+};
+
 var types = {
   Name,
   Email,
@@ -1095,6 +1140,7 @@ var types = {
   Number,
   Select,
   Checkbox,
+  Hash,
   Object: Object$1,
   Array: Array$1,
   FieldName,

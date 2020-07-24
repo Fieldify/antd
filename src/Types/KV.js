@@ -1,5 +1,5 @@
 
-import { types, input as FieldifyInput } from 'fieldify'
+import { types } from 'fieldify'
 
 import React from 'react';
 

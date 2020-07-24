@@ -4,6 +4,7 @@ import String from "./Types/String"
 import Number from "./Types/Number"
 import Checkbox from "./Types/Checkbox"
 import Select from "./Types/Select"
+import Radio from "./Types/Radio"
 import Object from "./Types/Object"
 import Array from "./Types/Array"
 import FieldName from "./Types/FieldName"
@@ -16,6 +17,7 @@ export default {
   String,
   Number,
   Select,
+  Radio,
   Checkbox,
   Hash,
   Object,

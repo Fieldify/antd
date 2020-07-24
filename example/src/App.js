@@ -42,6 +42,17 @@ class App extends React.Component {
           "max": 32132
         }
       },
+      "lal": {
+        "$type": "Radio",
+        "$doc": "Super description",
+        "$options": {
+          "default": "1",
+          "items": {
+            "1": "Une cle",
+            "2": "2 Cle"
+          }
+        }
+      }
       // "checkbox": {
       //   "$type": "Checkbox",
       //   "$doc": "Ceci est une case a cocher"

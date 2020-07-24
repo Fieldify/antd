@@ -1,8 +1,8 @@
 import { types as types$1, fieldifyType, schema as schema$1, input, utils } from 'fieldify';
 import React, { Component } from 'react';
 import RecycledComponent from 'react-recycling';
-import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
-import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, CheckSquareOutlined, SelectOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, LinkOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Radio as Radio$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
+import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, CheckSquareOutlined, SelectOutlined, FieldBinaryOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, LinkOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 function _extends() {
@@ -718,6 +718,133 @@ var Select = {
   Render: SelectRender
 };
 
+var _radioVertical = {
+  display: 'block',
+  height: '30px',
+  lineHeight: '30px'
+};
+
+class RadioForm extends FieldifyTypeForm {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: props.value,
+      options: {}
+    };
+    if (props.schema.$options) this.state.options = props.schema.$options;
+
+    if (!this.state.value && this.state.options.default) {
+      this.state.value = this.state.options.default;
+      this.onChange(this.schema, this.state.value);
+    }
+
+    this.state.items = this.updateItems();
+  }
+
+  componentDidUpdate(props, state) {
+    var changed = false;
+    if (state.default !== this.state.default) changed = true;
+    if (state.items !== this.state.items) changed = true;
+    if (state.horizontal !== this.state.horizontal) changed = true;
+    if (changed === true) this.setState({
+      items: this.updateItems()
+    });
+  }
+
+  updateItems() {
+    var style = _radioVertical;
+    if (this.state.options.horizontal === true) style = null;
+    if (!this.state.options.items) return [];
+    var options = [];
+
+    for (var key in this.state.options.items) {
+      var value = this.state.options.items[key];
+      options.push( /*#__PURE__*/React.createElement(Radio$1, {
+        style: style,
+        value: key,
+        key: key
+      }, value));
+    }
+
+    return options;
+  }
+
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(Radio$1.Group, {
+      value: this.state.value,
+      onChange: (_ref) => {
+        var {
+          target
+        } = _ref;
+        return this.changeValue(target.value);
+      }
+    }, this.state.items));
+  }
+
+}
+
+class RadioInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#096dd9",
+      style: {
+        color: "white"
+      }
+    }, /*#__PURE__*/React.createElement(FieldBinaryOutlined, null)));
+  }
+
+}
+
+class RadioRender extends FieldifyTypeRender {
+  static getDerivedStateFromProps(props, state) {
+    if (typeof state.value === "string") {
+      if (props.schema.$options && props.schema.$options.items) {
+        var ptr = props.schema.$options.items;
+        if (ptr[state.value]) state.value = ptr[state.value];
+      }
+    }
+
+    return state;
+  }
+
+}
+
+class RadioBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.default = {
+      minSize: 1,
+      maxSize: 128
+    };
+    this.configure();
+  }
+
+  render() {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
+      label: "Select min/max size"
+    }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
+      min: 0,
+      value: this.state.minSize,
+      onChange: value => this.changeIt("minSize", value)
+    }), /*#__PURE__*/React.createElement(InputNumber, {
+      min: 0,
+      value: this.state.maxSize,
+      onChange: value => this.changeIt("maxSize", value)
+    }))));
+  }
+
+}
+
+var Radio = {
+  code: types$1.Radio.code,
+  description: types$1.Radio.description,
+  class: types$1.Radio.class,
+  Info: RadioInfo,
+  Builder: RadioBuilder,
+  Form: RadioForm,
+  Render: RadioRender
+};
+
 class ObjectClass extends fieldifyType {}
 
 var Object$1 = {
@@ -1136,6 +1263,7 @@ var types = {
   String,
   Number,
   Select,
+  Radio,
   Checkbox,
   Hash,
   Object: Object$1,

@@ -742,23 +742,23 @@ class RadioForm extends FieldifyTypeForm {
   }
 
   componentDidUpdate(props, state) {
-    var changed = false;
-    if (state.default !== this.state.default) changed = true;
-    if (state.items !== this.state.items) changed = true;
-    if (state.horizontal !== this.state.horizontal) changed = true;
-    if (changed === true) this.setState({
-      items: this.updateItems()
-    });
+    if (props.schema !== this.props.schema) {
+      this.setState({
+        options: props.schema.$options,
+        items: this.updateItems()
+      });
+      this.onChange(this.schema, this.state.value);
+    }
   }
 
   updateItems() {
     var style = _radioVertical;
-    if (this.state.options.horizontal === true) style = null;
-    if (!this.state.options.items) return [];
+    if (this.props.schema.$options.horizontal === true) style = null;
+    if (!this.props.schema.$options.items) return [];
     var options = [];
 
-    for (var key in this.state.options.items) {
-      var value = this.state.options.items[key];
+    for (var key in this.props.schema.$options.items) {
+      var value = this.props.schema.$options.items[key];
       options.push( /*#__PURE__*/React.createElement(Radio$1, {
         style: style,
         value: key,
@@ -821,7 +821,7 @@ class RadioBuilder extends SignderivaTypeBuilder {
 
   render() {
     return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Form.Item, {
-      label: "Select min/max size"
+      label: "Radio min/max size"
     }, /*#__PURE__*/React.createElement(Space, null, /*#__PURE__*/React.createElement(InputNumber, {
       min: 0,
       value: this.state.minSize,

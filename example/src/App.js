@@ -34,23 +34,37 @@ class App extends React.Component {
       // },
       "cdsacdsa": {
         "$type": "String",
-        "$position": 32,
+        "$position": 0,
         "$options": {
           "placeholder": "cdsa",
           "help": "cdsa",
           "min": 321,
           "max": 32132
-        }
+        },
+        "$required": false,
+        "$read": true,
+        "$write": true
       },
-      "lal": {
+      "name": {
+        "$type": "Name",
+        "$doc": "First and last name",
+        "$position": 2,
+        "$required": false,
+        "$read": true,
+        "$write": true
+      },
+      "lala": {
         "$type": "Radio",
-        "$doc": "Super description",
+        "$doc": "Radio description",
+        "$position": 1,
         "$options": {
           "default": "1",
           "items": {
             "1": "Une cle",
-            "2": "2 Cle"
-          }
+            "2": "2 Cle",
+            "3": "key 3"
+          },
+          "horizontal": true
         }
       }
       // "checkbox": {
@@ -97,7 +111,7 @@ class App extends React.Component {
         json: JSON.stringify(schema, null, "  ")
       }
     }
-
+    
     this.setState(state)
   }
 
@@ -130,7 +144,7 @@ class App extends React.Component {
   }
 
   render() {
-    const style = { padding: '8px' };
+    const style = { padding: '8px',  };
 
     return <div style={{ width: "100%" }}>
       <h1>Welcome in @fieldify/antd</h1>
@@ -162,7 +176,9 @@ class App extends React.Component {
                     <Form.Item label="Form Layout" name="layout">
                       <Radio.Group
                         value={this.state.form.layout}
-                        onChange={({ target }) => this.setState({ form: { ...this.state.form, layout: target.value } })}
+                        onChange={({ target }) => {
+                          this.setState({ form: { ...this.state.form, layout: target.value } })
+                      }}
                       >
                         <Radio.Button value="horizontal">Horizontal</Radio.Button>
                         <Radio.Button value="vertical">Vertical</Radio.Button>
@@ -171,7 +187,6 @@ class App extends React.Component {
                     </Form.Item>
                   </Form>
                   <Divider />
-
                   <FieldifySchemaForm schema={this.state.schema} input={this.state.input} layout={this.state.form.layout} onChange={this.formChanged.bind(this)} />
                 </TabPane>
                 <TabPane tab="Sanatized JSON Input" key="2">

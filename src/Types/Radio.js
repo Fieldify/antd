@@ -53,23 +53,29 @@ class RadioForm extends TypeForm {
   }
 
   componentDidUpdate(props, state) {
-    var changed = false;
+    // if(state.options.default !== this.state.options.default) changed = true;
+    // if(state.items !== this.state.items) changed = true;
+    // if(state.options.horizontal !== this.state.options.horizontal) changed = true;
 
-    if(state.default !== this.state.default) changed = true;
-    if(state.items !== this.state.items) changed = true;
-    if(state.horizontal !== this.state.horizontal) changed = true;
+    if (props.schema !== this.props.schema) {
+      this.setState({
+        options: props.schema.$options,
+        items: this.updateItems()
+      });
+      this.onChange(this.schema, this.state.value);
+    }
 
-    if(changed === true) this.setState({items: this.updateItems()})
+    // if(changed === true) this.setState({items: this.updateItems()})
   }
 
   updateItems() {
     var style = _radioVertical;
-    if(this.state.options.horizontal === true) style = null;
-    if (!this.state.options.items) return ([])
+    if(this.props.schema.$options.horizontal === true) style = null;
+    if (!this.props.schema.$options.items) return ([])
 
     const options = []
-    for (var key in this.state.options.items) {
-      const value = this.state.options.items[key];
+    for (var key in this.props.schema.$options.items) {
+      const value = this.props.schema.$options.items[key];
       options.push(<Radio style={style} value={key} key={key}>{value}</Radio>)
     }
 
@@ -78,7 +84,7 @@ class RadioForm extends TypeForm {
 
   render() {
     return (super.render(
-      <Radio.Group value={this.state.value} onChange={({ target }) => this.changeValue(target.value)}>
+      <Radio.Group value={this.state.value} onChange={({ target }) => this.changeValue(target.value) }>
         {this.state.items}
       </Radio.Group>
     ))
@@ -144,7 +150,7 @@ class RadioBuilder extends TypeBuilder {
   render() {
     return (
       <div>
-        <Form.Item label="Select min/max size">
+        <Form.Item label="Radio min/max size">
           <Space>
             <InputNumber min={0} value={this.state.minSize} onChange={(value) => this.changeIt("minSize", value)} />
 

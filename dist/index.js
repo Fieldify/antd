@@ -2474,7 +2474,7 @@ var schema = {
 };
 
 var name = "@fieldify/antd";
-var version = "1.0.8";
+var version = "1.0.9";
 var description = "Rendering Fieldify&#x27; Types Using Ant Design Framework";
 var author = "";
 var license = "GPL-3.0";

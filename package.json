@@ -4,7 +4,7 @@
   "description": "Rendering Fieldify&#x27; Types Using Ant Design Framework",
   "author": "",
   "license": "GPL-3.0",
-  "repository": "https://github.com/Fieldify/ant-design",
+  "repository": "https://github.com/Fieldify/antd",
   "main": "dist/index.js",
   "source": "src/index.js",
   "engines": {

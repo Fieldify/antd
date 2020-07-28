@@ -2476,7 +2476,7 @@
   var description = "Rendering Fieldify&#x27; Types Using Ant Design Framework";
   var author = "";
   var license = "GPL-3.0";
-  var repository = "https://github.com/Fieldify/ant-design";
+  var repository = "https://github.com/Fieldify/antd";
   var main = "dist/index.js";
   var source = "src/index.js";
   var engines = {

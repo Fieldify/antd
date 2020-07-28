@@ -26,58 +26,103 @@ class App extends React.Component {
     super(props)
 
     const initial = {
-      // "fds": {
-      //   "$type": "Hash",
-      //   "$doc": "ffre",
-      //   "$position": 0,
-      //   "$options": {
-      //     "mode": "sha512"
-      //   },
-      //   "$required": false,
-      //   "$read": true,
-      //   "$write": true
-      // },
-      "cdsacdsa": {
-        "$type": "String",
-        "$position": 0,
-        "$options": {
-          "placeholder": "cdsa",
-          "help": "cdsa",
-          "min": 321,
-          "max": 32132
+      company: {
+        $doc: "Your company name",
+        $type: "String",
+        $position: 0
+      },
+      name: {
+        $doc: "Civility",
+        $type: "Name",
+        $position: 1
+      },
+
+      email: {
+        $doc: "Votre e-mail",
+        $type: "Email",
+        $position: 2
+      },
+
+      age: {
+        $doc: "Age",
+        $type: "Number",
+        $position: 3
+      },
+
+      KV: {
+        $doc: "Key and Value",
+        $type: "KV",
+        $position: 4
+      },
+
+      types: {
+        $doc: 'What kind of number to accept',
+        $required: true,
+        $type: 'Select',
+        $options: {
+          default: 'both',
+          items: {
+            both: 'Both Integer & Float',
+            integer: 'Only Integer',
+            float: 'Only Float'
+          }
+        }
+      },
+
+      address: {
+        $doc: "Address",
+        home: {
+          $doc: "Home",
+          street: { $doc: "Street", $type: "String", $options: { min: 2, placeholder: "Your street" } },
+          zip: { $doc: "ZIP", $type: "String" },
+          country: { $doc: "Country", $type: "String" },
         },
-        "$required": false,
-        "$read": true,
-        "$write": true
+        work: {
+          $doc: "Work",
+          street: { $doc: "Street", $type: "String" },
+          zip: { $doc: "ZIP", $type: "String" },
+          country: { $doc: "Country", $type: "String" },
+        },
       },
 
-      "DateTimePicker": {
-        "$type": "DateTimePicker",
-        "$doc": "DateTimePicker",
-      },
+      nestedArray: [{
+        $doc: "Array of Objects (nested)",
+        name: {
+          $doc: "Civility",
+          $type: "Name",
+          $position: 1
+        },
+        description: { $doc: "Description", $type: "String", $options: { strict: true } },
+        price: { $doc: "Price", $type: "String" },
+        $array: {
+          min: 2
+        }
+      }],
 
-      "DatePicker": {
-        "$type": "DatePicker",
-        "$doc": "DatePicker"
-      },
-      "DatePickerRange": {
-        "$type": "DatePickerRange",
-        "$doc": "DatePickerRange"
-      },
+      inlinedArray: [{
+        $required: true,
+        $doc: "Array of User Defined types (non-nested)",
+        $type: "Name",
+        $options: { min: 2 },
+        $array: {
+          min: 2,
+          max: 100
+        }
+      }],
 
-      "TimePicker": {
-        "$type": "TimePicker",
-        "$doc": "TimePicker"
-      },
-      "TimePickerRange": {
-        "$type": "TimePickerRange",
-        "$doc": "TimePickerRange"
-      },
+      inlinedArrayString: [{
+        $required: true,
+        $doc: "Array of String type (non-nested)",
+        $type: "String",
+        $array: {
+          min: 1,
+          max: 100
+        }
+      }],
 
-      "lala": {
+      Radio: {
         "$type": "Radio",
         "$doc": "Radio description",
-        "$position": 1,
         "$options": {
           "default": "1",
           "items": {
@@ -85,9 +130,42 @@ class App extends React.Component {
             "2": "2 Cle",
             "3": "key 3"
           },
-          "horizontal": true
+          "horizontal": false
         }
-      }
+      },
+
+      Checkbox: {
+        "$type": "Checkbox",
+        "$doc": "Checkbox description",
+        "$options": {
+          "placeholder": "With placeholder"
+        }
+      },
+
+      DateTimePicker: {
+        "$type": "DateTimePicker",
+        "$doc": "DateTimePicker",
+      },
+
+      DatePicker: {
+        "$type": "DatePicker",
+        "$doc": "DatePicker"
+      },
+      DatePickerRange: {
+        "$type": "DatePickerRange",
+        "$doc": "DatePickerRange"
+      },
+
+      TimePicker: {
+        "$type": "TimePicker",
+        "$doc": "TimePicker"
+      },
+      TimePickerRange: {
+        "$type": "TimePickerRange",
+        "$doc": "TimePickerRange"
+      },
+
+
     }
 
     this.state = this.cycle({
@@ -175,9 +253,9 @@ class App extends React.Component {
   render() {
     const style = { padding: '8px', };
 
-    return <Layout style={{ margin: '0 auto', padding: 10}}>
+    return <Layout style={{ margin: '0 auto', padding: 10 }}>
       <Row>
-        <h1><img src={logoIcon} width={40}/> @fieldify/antd</h1>
+        <h1><img src={logoIcon} width={40} /> @fieldify/antd</h1>
       </Row>
 
       <Row>

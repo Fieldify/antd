@@ -9,7 +9,7 @@ import {
   Input,
   Col,
   Row,
-  DatePicker
+  TimePicker
 } from "antd";
 
 import { FieldTimeOutlined } from '@ant-design/icons';
@@ -25,10 +25,10 @@ import TypeBuilder from '../lib/TypeBuilder';
  *
  * Rendering of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerForm extends TypeForm {
+class TimePickerForm extends TypeForm {
   render() {
     return (super.render(
-      <DatePicker defaultValue={this.state.value} onChange={(date, dateString) => this.changeValue(dateString)} />
+      <TimePicker defaultValue={this.state.value} onChange={(date, dateString) => this.changeValue(dateString)} />
     ));
   }
 }
@@ -38,7 +38,7 @@ class DatePickerForm extends TypeForm {
  *
  * Information of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerInfo extends TypeInfo {
+class TimePickerInfo extends TypeInfo {
   render() {
     return (
       <span>
@@ -53,7 +53,7 @@ class DatePickerInfo extends TypeInfo {
  *
  * Rendering of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerRender extends TypeRender {
+class TimePickerRender extends TypeRender {
 }
 
 
@@ -62,7 +62,7 @@ class DatePickerRender extends TypeRender {
  *
  * Complement builder
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerBuilder extends TypeBuilder {
+class TimePickerBuilder extends TypeBuilder {
   constructor(props) {
     super(props)
     this.configure()
@@ -71,12 +71,12 @@ class DatePickerBuilder extends TypeBuilder {
 
 
 export default {
-  code: types.DatePicker.code,
-  description: types.DatePicker.description,
-  class: types.DatePicker.class,
+  code: types.TimePicker.code,
+  description: types.TimePicker.description,
+  class: types.TimePicker.class,
 
-  Info: DatePickerInfo,
-  Builder: DatePickerBuilder,
-  Form: DatePickerForm,
-  Render: DatePickerRender
+  Info: TimePickerInfo,
+  Builder: TimePickerBuilder,
+  Form: TimePickerForm,
+  Render: TimePickerRender
 }

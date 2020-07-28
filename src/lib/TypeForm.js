@@ -80,7 +80,6 @@ export default class FieldifyTypeForm extends Component {
 
   changeValue(value, speed) {
     speed = speed || 100;
-
     this.setState({
       value: value
     })
@@ -94,7 +93,7 @@ export default class FieldifyTypeForm extends Component {
           end();
           return;
         }
-        
+        // console.log("TypeForm", this.schema, this._lastValue);
         this.onChange(this.schema, this._lastValue);
         end();
       })

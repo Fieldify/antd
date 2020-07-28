@@ -15,5 +15,9 @@ export const Schema = schema;
 // export types
 export const Types = types;
 
+// get current version
+import pack from '../package.json'
+export const Version = pack.version;
+
 import "antd/dist/antd.css";
 

@@ -19,16 +19,32 @@ import TypeRender from '../lib/TypeRender';
 import TypeInfo from '../lib/TypeInfo';
 import TypeBuilder from '../lib/TypeBuilder';
 
+const { RangePicker } = DatePicker;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *
  * Rendering of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerForm extends TypeForm {
+class DatePickerRangeForm extends TypeForm {
   render() {
     return (super.render(
-      <DatePicker defaultValue={this.state.value} onChange={(date, dateString) => this.changeValue(dateString)} />
+      <RangePicker onChange={(date, dateString) => {
+        if(date) {
+          const res = {
+            from: dateString[0],
+            to: dateString[1],
+          }
+          this.changeValue(res);
+        }
+        else {
+          const res = {
+            from: null,
+            to: null,
+          }
+          this.changeValue(res);
+        }
+      }} />
     ));
   }
 }
@@ -38,7 +54,7 @@ class DatePickerForm extends TypeForm {
  *
  * Information of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerInfo extends TypeInfo {
+class DatePickerRangeInfo extends TypeInfo {
   render() {
     return (
       <span>
@@ -53,7 +69,15 @@ class DatePickerInfo extends TypeInfo {
  *
  * Rendering of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerRender extends TypeRender {
+class DatePickerRangeRender extends TypeRender {
+  render() {
+    return (this.subRender(
+      <div style={{ width: "100%" }}>
+        {typeof this.state.value === "object" && this.state.value.from && this.state.value.to ? 
+          `${this.state.value.from} - ${this.state.value.to}` : `-`}
+      </div>
+    ));
+  }
 }
 
 
@@ -62,7 +86,7 @@ class DatePickerRender extends TypeRender {
  *
  * Complement builder
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerBuilder extends TypeBuilder {
+class DatePickerRangeBuilder extends TypeBuilder {
   constructor(props) {
     super(props)
     this.configure()
@@ -71,12 +95,12 @@ class DatePickerBuilder extends TypeBuilder {
 
 
 export default {
-  code: types.DatePicker.code,
-  description: types.DatePicker.description,
-  class: types.DatePicker.class,
+  code: types.DatePickerRange.code,
+  description: types.DatePickerRange.description,
+  class: types.DatePickerRange.class,
 
-  Info: DatePickerInfo,
-  Builder: DatePickerBuilder,
-  Form: DatePickerForm,
-  Render: DatePickerRender
+  Info: DatePickerRangeInfo,
+  Builder: DatePickerRangeBuilder,
+  Form: DatePickerRangeForm,
+  Render: DatePickerRangeRender
 }

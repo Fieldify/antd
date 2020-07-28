@@ -1,11 +1,12 @@
 import React from 'react'
 
 
-import { Schema, Types, Input } from '@fieldify/antd'
+import { Schema, Types, Input, Version as faVersion } from '@fieldify/antd'
 
 import { Row, Col, Card, Tabs, Tag, Form, Radio, Divider } from 'antd';
 
 import "antd/dist/antd.css";
+import { fieldifyType, version as fVersion } from 'fieldify';
 
 const {
   FieldifySchemaBuilder,
@@ -45,14 +46,30 @@ class App extends React.Component {
         "$read": true,
         "$write": true
       },
-      "name": {
-        "$type": "Name",
-        "$doc": "First and last name",
-        "$position": 2,
-        "$required": false,
-        "$read": true,
-        "$write": true
+
+      "DateTimePicker": {
+        "$type": "DateTimePicker",
+        "$doc": "DateTimePicker",
       },
+
+      "DatePicker": {
+        "$type": "DatePicker",
+        "$doc": "DatePicker"
+      },
+      "DatePickerRange": {
+        "$type": "DatePickerRange",
+        "$doc": "DatePickerRange"
+      },
+
+      "TimePicker": {
+        "$type": "TimePicker",
+        "$doc": "TimePicker"
+      },
+      "TimePickerRange": {
+        "$type": "TimePickerRange",
+        "$doc": "TimePickerRange"
+      },
+
       "lala": {
         "$type": "Radio",
         "$doc": "Radio description",
@@ -111,7 +128,7 @@ class App extends React.Component {
         json: JSON.stringify(schema, null, "  ")
       }
     }
-    
+
     this.setState(state)
   }
 
@@ -144,10 +161,11 @@ class App extends React.Component {
   }
 
   render() {
-    const style = { padding: '8px',  };
+    const style = { padding: '8px', };
 
     return <div style={{ width: "100%" }}>
       <h1>Welcome in @fieldify/antd</h1>
+  <small>Fieldify Engine v{fVersion} / Fieldify For antd v{faVersion}</small>
       <h2>Schema Builder</h2>
 
       <Row>
@@ -178,7 +196,7 @@ class App extends React.Component {
                         value={this.state.form.layout}
                         onChange={({ target }) => {
                           this.setState({ form: { ...this.state.form, layout: target.value } })
-                      }}
+                        }}
                       >
                         <Radio.Button value="horizontal">Horizontal</Radio.Button>
                         <Radio.Button value="vertical">Vertical</Radio.Button>

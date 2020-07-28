@@ -1,8 +1,8 @@
 import { types as types$1, fieldifyType, schema as schema$1, input, utils } from 'fieldify';
 import React, { Component } from 'react';
 import RecycledComponent from 'react-recycling';
-import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, Select as Select$1, Radio as Radio$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
-import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, CheckSquareOutlined, SelectOutlined, FieldBinaryOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, LinkOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { Form, Input as Input$1, Tag, Space, InputNumber, Row, Col, Checkbox as Checkbox$1, DatePicker as DatePicker$1, TimePicker as TimePicker$1, Select as Select$1, Radio as Radio$1, Modal, Alert, Table, Card, Button, notification, Tooltip, Popconfirm } from 'antd';
+import { FieldStringOutlined, UserSwitchOutlined, MailOutlined, NumberOutlined, CheckSquareOutlined, FieldTimeOutlined, SelectOutlined, FieldBinaryOutlined, SmallDashOutlined, PlusOutlined, DeleteOutlined, EditOutlined, LinkOutlined, CopyOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 function _extends() {
@@ -613,6 +613,256 @@ var Checkbox = {
   Builder: CheckboxBuilder,
   Form: CheckboxForm,
   Render: CheckboxRender
+};
+
+class DateTimePickerForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(DatePicker$1, {
+      showTime: true,
+      defaultValue: this.state.value,
+      onChange: date => {
+        if (date) this.changeValue(date.format());else this.changeValue(null);
+      }
+    }));
+  }
+
+}
+
+class DateTimePickerInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#fa541c"
+    }, /*#__PURE__*/React.createElement(FieldTimeOutlined, null)));
+  }
+
+}
+
+class DateTimePickerRender extends FieldifyTypeRender {}
+
+class DateTimePickerBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var DateTimePicker = {
+  code: types$1.DateTimePicker.code,
+  description: types$1.DateTimePicker.description,
+  class: types$1.DateTimePicker.class,
+  Info: DateTimePickerInfo,
+  Builder: DateTimePickerBuilder,
+  Form: DateTimePickerForm,
+  Render: DateTimePickerRender
+};
+
+class DatePickerForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(DatePicker$1, {
+      defaultValue: this.state.value,
+      onChange: (date, dateString) => this.changeValue(dateString)
+    }));
+  }
+
+}
+
+class DatePickerInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#ad2102"
+    }, /*#__PURE__*/React.createElement(FieldTimeOutlined, null)));
+  }
+
+}
+
+class DatePickerRender extends FieldifyTypeRender {}
+
+class DatePickerBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var DatePicker = {
+  code: types$1.DatePicker.code,
+  description: types$1.DatePicker.description,
+  class: types$1.DatePicker.class,
+  Info: DatePickerInfo,
+  Builder: DatePickerBuilder,
+  Form: DatePickerForm,
+  Render: DatePickerRender
+};
+
+var {
+  RangePicker
+} = DatePicker$1;
+
+class DatePickerRangeForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(RangePicker, {
+      onChange: (date, dateString) => {
+        if (date) {
+          var res = {
+            from: dateString[0],
+            to: dateString[1]
+          };
+          this.changeValue(res);
+        } else {
+          var _res = {
+            from: null,
+            to: null
+          };
+          this.changeValue(_res);
+        }
+      }
+    }));
+  }
+
+}
+
+class DatePickerRangeInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#ad2102"
+    }, /*#__PURE__*/React.createElement(FieldTimeOutlined, null)));
+  }
+
+}
+
+class DatePickerRangeRender extends FieldifyTypeRender {
+  render() {
+    return this.subRender( /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%"
+      }
+    }, typeof this.state.value === "object" && this.state.value.from && this.state.value.to ? this.state.value.from + " - " + this.state.value.to : "-"));
+  }
+
+}
+
+class DatePickerRangeBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var DatePickerRange = {
+  code: types$1.DatePickerRange.code,
+  description: types$1.DatePickerRange.description,
+  class: types$1.DatePickerRange.class,
+  Info: DatePickerRangeInfo,
+  Builder: DatePickerRangeBuilder,
+  Form: DatePickerRangeForm,
+  Render: DatePickerRangeRender
+};
+
+class TimePickerForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(TimePicker$1, {
+      defaultValue: this.state.value,
+      onChange: (date, dateString) => this.changeValue(dateString)
+    }));
+  }
+
+}
+
+class TimePickerInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#ad2102"
+    }, /*#__PURE__*/React.createElement(FieldTimeOutlined, null)));
+  }
+
+}
+
+class TimePickerRender extends FieldifyTypeRender {}
+
+class TimePickerBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var TimePicker = {
+  code: types$1.TimePicker.code,
+  description: types$1.TimePicker.description,
+  class: types$1.TimePicker.class,
+  Info: TimePickerInfo,
+  Builder: TimePickerBuilder,
+  Form: TimePickerForm,
+  Render: TimePickerRender
+};
+
+var {
+  RangePicker: RangePicker$1
+} = TimePicker$1;
+
+class TimePickerRangeForm extends FieldifyTypeForm {
+  render() {
+    return super.render( /*#__PURE__*/React.createElement(RangePicker$1, {
+      onChange: (date, dateString) => {
+        if (date) {
+          var res = {
+            from: dateString[0],
+            to: dateString[1]
+          };
+          this.changeValue(res);
+        } else {
+          var _res = {
+            from: null,
+            to: null
+          };
+          this.changeValue(_res);
+        }
+      }
+    }));
+  }
+
+}
+
+class TimePickerRangeInfo extends SignderivaTypeInfo {
+  render() {
+    return /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement(Tag, {
+      color: "#ad2102"
+    }, /*#__PURE__*/React.createElement(FieldTimeOutlined, null)));
+  }
+
+}
+
+class TimePickerRangeRender extends FieldifyTypeRender {
+  render() {
+    return this.subRender( /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%"
+      }
+    }, typeof this.state.value === "object" ? this.state.value.from + " - " + this.state.value.to : "-"));
+  }
+
+}
+
+class TimePickerRangeBuilder extends SignderivaTypeBuilder {
+  constructor(props) {
+    super(props);
+    this.configure();
+  }
+
+}
+
+var TimePickerRange = {
+  code: types$1.TimePickerRange.code,
+  description: types$1.TimePickerRange.description,
+  class: types$1.TimePickerRange.class,
+  Info: TimePickerRangeInfo,
+  Builder: TimePickerRangeBuilder,
+  Form: TimePickerRangeForm,
+  Render: TimePickerRangeRender
 };
 
 class SelectForm extends FieldifyTypeForm {
@@ -1265,6 +1515,11 @@ var types = {
   Select,
   Radio,
   Checkbox,
+  DateTimePicker,
+  DatePicker,
+  DatePickerRange,
+  TimePicker,
+  TimePickerRange,
   Hash,
   Object: Object$1,
   Array: Array$1,
@@ -2215,9 +2470,94 @@ var schema = {
   FieldifySchema: FieldifySchema
 };
 
+var name = "@fieldify/antd";
+var version = "1.0.7";
+var description = "Rendering Fieldify&#x27; Types Using Ant Design Framework";
+var author = "";
+var license = "GPL-3.0";
+var repository = "https://github.com/Fieldify/ant-design";
+var main = "dist/index.js";
+var source = "src/index.js";
+var engines = {
+	node: ">=10"
+};
+var scripts = {
+	build: "microbundle-crl build --no-compress",
+	start: "microbundle-crl watch --no-compress",
+	prepublish: "run-s build",
+	test: "run-s test:unit test:lint test:build",
+	"test:build": "run-s build",
+	"test:lint": "eslint .",
+	"test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
+	"test:watch": "react-scripts test --env=jsdom",
+	predeploy: "cd example && yarn install && yarn run build",
+	deploy: "gh-pages -d example/build",
+	docs: "cd example; yarn build; rm -rf ../docs; cp -a ./build ../docs"
+};
+var peerDependencies = {
+	"@ant-design/icons": "^4.1.0",
+	antd: "^4.2.4",
+	react: "^16.13.1",
+	"react-dom": "^16.13.1",
+	"react-recycling": "^1.0.2",
+	"react-scripts": "^3.4.1"
+};
+var devDependencies = {
+	"@ant-design/icons": "^4.1.0",
+	antd: "^4.4.1",
+	"babel-core": "^6.26.3",
+	"babel-eslint": "^10.0.3",
+	"babel-plugin-external-helpers": "^6.22.0",
+	"babel-preset-env": "^1.7.0",
+	"babel-preset-react": "^6.24.1",
+	"babel-preset-stage-0": "^6.24.1",
+	"cross-env": "^7.0.2",
+	eslint: "^6.8.0",
+	"eslint-config-prettier": "^6.7.0",
+	"eslint-config-standard": "^14.1.0",
+	"eslint-config-standard-react": "^9.2.0",
+	"eslint-plugin-import": "^2.22.0",
+	"eslint-plugin-node": "^11.0.0",
+	"eslint-plugin-prettier": "^3.1.4",
+	"eslint-plugin-promise": "^4.2.1",
+	"eslint-plugin-react": "^7.20.3",
+	"eslint-plugin-standard": "^4.0.1",
+	"gh-pages": "^2.2.0",
+	"microbundle-crl": "^0.13.11",
+	"npm-run-all": "^4.1.5",
+	prettier: "^2.0.4",
+	react: "^16.13.1",
+	"react-dom": "^16.13.1",
+	"react-recycling": "^1.0.3",
+	"react-scripts": "^3.4.1"
+};
+var files = [
+	"dist"
+];
+var dependencies = {
+	fieldify: "^1.1.2"
+};
+var pack = {
+	name: name,
+	version: version,
+	description: description,
+	author: author,
+	license: license,
+	repository: repository,
+	main: main,
+	source: source,
+	engines: engines,
+	scripts: scripts,
+	peerDependencies: peerDependencies,
+	devDependencies: devDependencies,
+	files: files,
+	dependencies: dependencies
+};
+
 class Input extends input {}
 var Schema = schema;
 var Types = types;
+var Version = pack.version;
 
-export { Input, Schema, Types };
+export { Input, Schema, Types, Version };
 //# sourceMappingURL=index.esm.js.map

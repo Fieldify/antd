@@ -25,10 +25,14 @@ import TypeBuilder from '../lib/TypeBuilder';
  *
  * Rendering of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerForm extends TypeForm {
+class DateTimePickerForm extends TypeForm {
   render() {
     return (super.render(
-      <DatePicker defaultValue={this.state.value} onChange={(date, dateString) => this.changeValue(dateString)} />
+      <DatePicker showTime defaultValue={this.state.value} onChange={(date) => {
+        if(date) this.changeValue(date.format())
+        else this.changeValue(null)
+      }}
+      />
     ));
   }
 }
@@ -38,11 +42,11 @@ class DatePickerForm extends TypeForm {
  *
  * Information of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerInfo extends TypeInfo {
+class DateTimePickerInfo extends TypeInfo {
   render() {
     return (
       <span>
-        <Tag color="#ad2102"><FieldTimeOutlined /></Tag>
+        <Tag color="#fa541c"><FieldTimeOutlined /></Tag>
       </span>
     )
   }
@@ -53,7 +57,7 @@ class DatePickerInfo extends TypeInfo {
  *
  * Rendering of the field
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerRender extends TypeRender {
+class DateTimePickerRender extends TypeRender {
 }
 
 
@@ -62,7 +66,7 @@ class DatePickerRender extends TypeRender {
  *
  * Complement builder
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-class DatePickerBuilder extends TypeBuilder {
+class DateTimePickerBuilder extends TypeBuilder {
   constructor(props) {
     super(props)
     this.configure()
@@ -71,12 +75,12 @@ class DatePickerBuilder extends TypeBuilder {
 
 
 export default {
-  code: types.DatePicker.code,
-  description: types.DatePicker.description,
-  class: types.DatePicker.class,
+  code: types.DateTimePicker.code,
+  description: types.DateTimePicker.description,
+  class: types.DateTimePicker.class,
 
-  Info: DatePickerInfo,
-  Builder: DatePickerBuilder,
-  Form: DatePickerForm,
-  Render: DatePickerRender
+  Info: DateTimePickerInfo,
+  Builder: DateTimePickerBuilder,
+  Form: DateTimePickerForm,
+  Render: DateTimePickerRender
 }

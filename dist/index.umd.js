@@ -279,7 +279,7 @@
       return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
         value: this.state.value,
         placeholder: this.state.options.placeholder,
-        onChange: (_ref) => {
+        onChange: _ref => {
           var {
             target
           } = _ref;
@@ -458,7 +458,7 @@
       return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
         value: this.state.value,
         placeholder: this.state.options.placeholder,
-        onChange: (_ref) => {
+        onChange: _ref => {
           var {
             target
           } = _ref;
@@ -494,7 +494,7 @@
         label: "Sub-addressing"
       }, /*#__PURE__*/React__default.createElement(antd.Checkbox, {
         checked: this.state.subAddressing,
-        onChange: (_ref2) => {
+        onChange: _ref2 => {
           var {
             target
           } = _ref2;
@@ -570,7 +570,7 @@
     render() {
       return super.render( /*#__PURE__*/React__default.createElement(antd.Checkbox, {
         checked: this.state.value,
-        onChange: (_ref) => {
+        onChange: _ref => {
           var {
             target
           } = _ref;
@@ -1023,7 +1023,7 @@
     render() {
       return super.render( /*#__PURE__*/React__default.createElement(antd.Radio.Group, {
         value: this.state.value,
-        onChange: (_ref) => {
+        onChange: _ref => {
           var {
             target
           } = _ref;
@@ -1345,7 +1345,7 @@
         label: "Key"
       }, /*#__PURE__*/React__default.createElement(antd.Input, {
         value: this.state.modalCurrent.key,
-        onChange: (_ref) => {
+        onChange: _ref => {
           var {
             target
           } = _ref;
@@ -1355,7 +1355,7 @@
         label: "Value"
       }, /*#__PURE__*/React__default.createElement(antd.Input, {
         value: this.state.modalCurrent.value,
-        onChange: (_ref2) => {
+        onChange: _ref2 => {
           var {
             target
           } = _ref2;
@@ -1462,7 +1462,7 @@
       return super.render( /*#__PURE__*/React__default.createElement(antd.Input, {
         value: this.state.value,
         placeholder: this.state.options.placeholder,
-        onChange: (_ref) => {
+        onChange: _ref => {
           var {
             target
           } = _ref;
@@ -1976,44 +1976,44 @@
             position: val.$position
           };
         } else if (val.$_array === true && val.$_nested === true) {
-            state.value = {
-              key: val.$_key,
-              type: "Array",
-              content: "Object",
-              doc: val.$doc,
-              required: val.$required,
-              read: val.$read,
-              write: val.$write,
-              options: val.$options,
-              position: val.$position
-            };
-          } else if (val.$_array === true && val.$_nested !== true) {
-              state.value = {
-                key: val.$_key,
-                type: "Array",
-                content: typeof val.$type === "string" ? val.$type : val.$type.code,
-                doc: val.$doc,
-                required: val.$required,
-                read: val.$read,
-                write: val.$write,
-                options: val.$options,
-                position: val.$position
-              };
-            } else if (val.$_array !== true && val.$_nested === true) {
-                state.value = {
-                  key: val.$_key,
-                  type: "Object",
-                  doc: val.$doc,
-                  required: val.$required,
-                  read: val.$read,
-                  write: val.$write,
-                  options: val.$options,
-                  position: val.$position
-                };
-              }
-      } else {
-          state.value = {};
+          state.value = {
+            key: val.$_key,
+            type: "Array",
+            content: "Object",
+            doc: val.$doc,
+            required: val.$required,
+            read: val.$read,
+            write: val.$write,
+            options: val.$options,
+            position: val.$position
+          };
+        } else if (val.$_array === true && val.$_nested !== true) {
+          state.value = {
+            key: val.$_key,
+            type: "Array",
+            content: typeof val.$type === "string" ? val.$type : val.$type.code,
+            doc: val.$doc,
+            required: val.$required,
+            read: val.$read,
+            write: val.$write,
+            options: val.$options,
+            position: val.$position
+          };
+        } else if (val.$_array !== true && val.$_nested === true) {
+          state.value = {
+            key: val.$_key,
+            type: "Object",
+            doc: val.$doc,
+            required: val.$required,
+            read: val.$read,
+            write: val.$write,
+            options: val.$options,
+            position: val.$position
+          };
         }
+      } else {
+        state.value = {};
+      }
 
       this.driveSchema(state);
       state.input.setValue(state.value);
@@ -2128,23 +2128,23 @@
             delete nvalue.$content;
             nvalue = [nvalue];
           } else if (nvalue.$type === "Array" && nvalue.$content !== "Object") {
-              nvalue.$type = nvalue.$content;
-              delete nvalue.$content;
-              nvalue = [nvalue];
-            } else if (nvalue.$type === "Object") {
-                if (this.state.edition === true) {
-                  if (this.props.user.$_wire) {
-                    var _no = fieldify.utils.getNO(this.props.user);
+            nvalue.$type = nvalue.$content;
+            delete nvalue.$content;
+            nvalue = [nvalue];
+          } else if (nvalue.$type === "Object") {
+            if (this.state.edition === true) {
+              if (this.props.user.$_wire) {
+                var _no = fieldify.utils.getNO(this.props.user);
 
-                    for (var a in _no.nestedObject) {
-                      var _p = _no.nestedObject[a];
-                      nvalue[_p[0]] = _p[1];
-                    }
-                  }
-                } else if (!nvalue.$doc) nvalue.$doc = "";
-
-                delete nvalue.$type;
+                for (var a in _no.nestedObject) {
+                  var _p = _no.nestedObject[a];
+                  nvalue[_p[0]] = _p[1];
+                }
               }
+            } else if (!nvalue.$doc) nvalue.$doc = "";
+
+            delete nvalue.$type;
+          }
 
           if (this.state.edition === true) {
             this.props.onOk({
@@ -2243,12 +2243,12 @@
           description: "Field at " + arg.oldPath + " has been successfully updated"
         });
       } else {
-          this.state.schema.setLineup(arg.newPath, arg.value);
-          antd.notification.success({
-            message: "Field added",
-            description: "Field at " + arg.newPath + " has been successfully added"
-          });
-        }
+        this.state.schema.setLineup(arg.newPath, arg.value);
+        antd.notification.success({
+          message: "Field added",
+          description: "Field at " + arg.newPath + " has been successfully added"
+        });
+      }
 
       this.fireOnChange();
       this.setState({
@@ -2348,56 +2348,56 @@
               }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))) : null)
             });
           } else if (typeof item === "object" && !item.$type) {
-              item.$_nested = true;
-              current.push({
-                ptr: item,
-                key: path,
-                name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Tooltip, {
-                  title: "This field is an object"
-                }, /*#__PURE__*/React__default.createElement(antd.Tag, {
-                  color: "#722ed1"
-                }, /*#__PURE__*/React__default.createElement(icons.UnorderedListOutlined, null))), /*#__PURE__*/React__default.createElement("strong", null, item.$_key)),
-                doc: item.$doc,
-                children: fieldify2antDataTable(item, path),
-                actions: /*#__PURE__*/React__default.createElement("div", {
-                  className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-                }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
-                  title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete Object ", /*#__PURE__*/React__default.createElement("strong", null, path)),
-                  onConfirm: () => self.itemRemove(item),
-                  okText: "Yes",
-                  cancelText: "No"
-                }, /*#__PURE__*/React__default.createElement("span", {
-                  className: "ant-radio-button-wrapper"
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
-                  className: "ant-radio-button-wrapper",
-                  onClick: () => self.handlingEdit(item)
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))), /*#__PURE__*/React__default.createElement("span", {
-                  className: "ant-radio-button-wrapper",
-                  onClick: () => self.handlingAdd(path)
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))))
-              });
-            } else {
-              var _TypeInfo = item.$type.Info;
-              current.push({
-                ptr: item,
-                key: path,
-                name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(_TypeInfo, null), " ", item.$_key),
-                doc: item.$doc,
-                actions: /*#__PURE__*/React__default.createElement("div", {
-                  className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
-                }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
-                  title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete ", /*#__PURE__*/React__default.createElement("strong", null, path)),
-                  onConfirm: () => self.itemRemove(item),
-                  okText: "Yes",
-                  cancelText: "No"
-                }, /*#__PURE__*/React__default.createElement("span", {
-                  className: "ant-radio-button-wrapper"
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
-                  className: "ant-radio-button-wrapper",
-                  onClick: () => self.handlingEdit(item)
-                }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))))
-              });
-            }
+            item.$_nested = true;
+            current.push({
+              ptr: item,
+              key: path,
+              name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(antd.Tooltip, {
+                title: "This field is an object"
+              }, /*#__PURE__*/React__default.createElement(antd.Tag, {
+                color: "#722ed1"
+              }, /*#__PURE__*/React__default.createElement(icons.UnorderedListOutlined, null))), /*#__PURE__*/React__default.createElement("strong", null, item.$_key)),
+              doc: item.$doc,
+              children: fieldify2antDataTable(item, path),
+              actions: /*#__PURE__*/React__default.createElement("div", {
+                className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
+              }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
+                title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete Object ", /*#__PURE__*/React__default.createElement("strong", null, path)),
+                onConfirm: () => self.itemRemove(item),
+                okText: "Yes",
+                cancelText: "No"
+              }, /*#__PURE__*/React__default.createElement("span", {
+                className: "ant-radio-button-wrapper"
+              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
+                className: "ant-radio-button-wrapper",
+                onClick: () => self.handlingEdit(item)
+              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))), /*#__PURE__*/React__default.createElement("span", {
+                className: "ant-radio-button-wrapper",
+                onClick: () => self.handlingAdd(path)
+              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.PlusOutlined, null))))
+            });
+          } else {
+            var _TypeInfo = item.$type.Info;
+            current.push({
+              ptr: item,
+              key: path,
+              name: /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(_TypeInfo, null), " ", item.$_key),
+              doc: item.$doc,
+              actions: /*#__PURE__*/React__default.createElement("div", {
+                className: "ant-radio-group ant-radio-group-outline ant-radio-group-small"
+              }, /*#__PURE__*/React__default.createElement(antd.Popconfirm, {
+                title: /*#__PURE__*/React__default.createElement("span", null, "Are you sure to delete ", /*#__PURE__*/React__default.createElement("strong", null, path)),
+                onConfirm: () => self.itemRemove(item),
+                okText: "Yes",
+                cancelText: "No"
+              }, /*#__PURE__*/React__default.createElement("span", {
+                className: "ant-radio-button-wrapper"
+              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.DeleteOutlined, null)))), /*#__PURE__*/React__default.createElement("span", {
+                className: "ant-radio-button-wrapper",
+                onClick: () => self.handlingEdit(item)
+              }, /*#__PURE__*/React__default.createElement("span", null, /*#__PURE__*/React__default.createElement(icons.EditOutlined, null))))
+            });
+          }
         });
         return current;
       }
@@ -2496,47 +2496,47 @@
   	docs: "cd example; yarn build; rm -rf ../docs; cp -a ./build ../docs"
   };
   var peerDependencies = {
-  	"@ant-design/icons": "^4.1.0",
-  	antd: "^4.2.4",
-  	react: "^16.13.1",
-  	"react-dom": "^16.13.1",
-  	"react-recycling": "^1.0.2",
-  	"react-scripts": "^3.4.1"
+  	"@ant-design/icons": "^4.6.4",
+  	antd: "^4.16.13",
+  	react: "^17.0.2",
+  	"react-dom": "^17.0.2",
+  	"react-recycling": "^1.0.4",
+  	"react-scripts": "^4.0.3"
   };
   var devDependencies = {
-  	"@ant-design/icons": "^4.1.0",
-  	antd: "^4.4.1",
+  	"@ant-design/icons": "^4.6.4",
+  	antd: "^4.16.13",
   	"babel-core": "^6.26.3",
   	"babel-eslint": "^10.0.3",
   	"babel-plugin-external-helpers": "^6.22.0",
   	"babel-preset-env": "^1.7.0",
   	"babel-preset-react": "^6.24.1",
   	"babel-preset-stage-0": "^6.24.1",
-  	"cross-env": "^7.0.2",
-  	eslint: "^6.8.0",
-  	"eslint-config-prettier": "^6.7.0",
-  	"eslint-config-standard": "^14.1.0",
-  	"eslint-config-standard-react": "^9.2.0",
-  	"eslint-plugin-import": "^2.22.0",
-  	"eslint-plugin-node": "^11.0.0",
-  	"eslint-plugin-prettier": "^3.1.4",
-  	"eslint-plugin-promise": "^4.2.1",
-  	"eslint-plugin-react": "^7.20.3",
-  	"eslint-plugin-standard": "^4.0.1",
-  	"gh-pages": "^2.2.0",
+  	"cross-env": "^7.0.3",
+  	eslint: "^7.32.0",
+  	"eslint-config-prettier": "^8.3.0",
+  	"eslint-config-standard": "^16.0.3",
+  	"eslint-config-standard-react": "^11.0.1",
+  	"eslint-plugin-import": "^2.24.2",
+  	"eslint-plugin-node": "^11.1.0",
+  	"eslint-plugin-prettier": "^4.0.0",
+  	"eslint-plugin-promise": "^5.1.0",
+  	"eslint-plugin-react": "^7.25.1",
+  	"eslint-plugin-standard": "^4.1.0",
+  	"gh-pages": "^3.2.3",
   	"microbundle-crl": "^0.13.11",
   	"npm-run-all": "^4.1.5",
-  	prettier: "^2.0.4",
-  	react: "^16.13.1",
-  	"react-dom": "^16.13.1",
-  	"react-recycling": "^1.0.3",
-  	"react-scripts": "^3.4.1"
+  	prettier: "^2.4.0",
+  	react: "^17.0.2",
+  	"react-dom": "^17.0.2",
+  	"react-recycling": "^1.0.4",
+  	"react-scripts": "^4.0.3"
   };
   var files = [
   	"dist"
   ];
   var dependencies = {
-  	fieldify: "^1.1.2"
+  	fieldify: "^1.2.2"
   };
   var pack = {
   	name: name,

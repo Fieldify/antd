@@ -113,7 +113,7 @@ class FieldifyTypeForm extends Component {
     }
 
     this.handler.verify(value, (error, message) => {
-      if (error === false) {
+      if (!error) {
         this.onError(false);
         return cb({
           status: "success",

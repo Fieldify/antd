@@ -8,7 +8,7 @@ import { Checkbox, Space, Row, Col, Card, Tabs, Tag, Form, Radio, Divider, Layou
 import "antd/dist/antd.css";
 import "./index.css";
 
-import { fieldifyType, version as fVersion } from 'fieldify';
+import { version as fVersion } from 'fieldify';
 
 import logoIcon from './fieldify.png'
 

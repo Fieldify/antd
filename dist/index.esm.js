@@ -1536,10 +1536,6 @@ class FieldifySchema extends schema$1 {
     return types[type];
   }
 
-  compile(schema) {
-    super.compile(schema);
-  }
-
 }
 
 class TypeDataset extends RecycledComponent {

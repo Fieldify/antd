@@ -41,8 +41,8 @@ export class FieldifySchemaBuilder extends RecycledComponent {
       schemaDataSource: []
     };
 
-    this.onChange = ()=>{}
-    if(props.onChange) this.onChange = props.onChange
+    this.onChange = () => { }
+    if (props.onChange) this.onChange = props.onChange
 
     // compile the schema
     state.schema = new FieldifySchema("form")
@@ -73,7 +73,7 @@ export class FieldifySchemaBuilder extends RecycledComponent {
       },
     ];
 
-    return(state)
+    return (state)
   }
 
   fireOnChange() {
@@ -143,8 +143,8 @@ export class FieldifySchemaBuilder extends RecycledComponent {
     const lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
 
     const state = {
-      modal: true, 
-      modalContent: null, 
+      modal: true,
+      modalContent: null,
       modalUser: lineup
     }
 
@@ -157,8 +157,8 @@ export class FieldifySchemaBuilder extends RecycledComponent {
     const lineup = this.state.schema.getLineup(path) || this.state.schema.handler.schema;
 
     const state = {
-      modal: true, 
-      modalContent: item, 
+      modal: true,
+      modalContent: item,
       modalUser: lineup
     }
 

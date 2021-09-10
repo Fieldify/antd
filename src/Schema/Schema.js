@@ -10,8 +10,8 @@ export class FieldifySchema extends schema {
     return (Types[type])
   }
 
-  compile(schema) {
-    // process normal compilation
-    super.compile(schema);
-  }
+  // compile(schema) {
+  //   // process normal compilation
+  //   super.compile(schema);
+  // }
 }

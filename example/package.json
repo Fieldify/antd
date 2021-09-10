@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@fieldify/antd": "link:..",
+    "fieldify": "^1.2.2",
     "react": "link:../node_modules/react",
     "react-dom": "link:../node_modules/react-dom",
     "react-scripts": "link:../node_modules/react-scripts"

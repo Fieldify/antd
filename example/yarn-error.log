@@ -1,20 +1,20 @@
 Arguments: 
-  /Users/pulse/.nvm/versions/node/v14.17.4/bin/node /Users/pulse/.nvm/versions/node/v14.17.4/bin/yarn
+  /Users/mykii/.nvm/versions/node/v14.18.0/bin/node /Users/mykii/.nvm/versions/node/v14.18.0/bin/yarn install
 
 PATH: 
-  /Users/pulse/.nvm/versions/node/v14.17.4/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/pulse/.nvm/versions/node/v14.17.4/bin
+  /usr/local/opt/mysql-client/bin:/Users/mykii/.nvm/versions/node/v14.18.0/bin:/Users/mykii/.nvm/versions/node/v14.18.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Xamarin Workbooks.app/Contents/SharedSupport/path-bin:/usr/local/opt/mysql-client/bin:/Users/mykii/.cargo/bin:/Users/mykii/.nvm/versions/node/v14.18.0/bin
 
 Yarn version: 
-  1.22.11
+  1.22.17
 
 Node version: 
-  14.17.4
+  14.18.0
 
 Platform: 
   darwin x64
 
 Trace: 
-  Error: ENOENT: no such file or directory, lstat '/Users/pulse/Documents/projets/pulse/fieldify/antd/node_modules/react-scripts/node_modules/@babel/parser'
+  Error: ENOENT: no such file or directory, lstat '/Users/mykii/Documents/Clients/fieldify/antd/node_modules/react-scripts/node_modules/@babel/parser'
 
 npm manifest: 
   {

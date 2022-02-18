@@ -64,6 +64,6 @@
     "dist"
   ],
   "dependencies": {
-    "fieldify": "^1.2.2"
+    "fieldify": "^1.3.0"
   }
 }

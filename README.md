@@ -183,14 +183,6 @@ Website: https://www.signderiva.com/
 
 <hr size="1">
 
-![Pulse.digital](data/logo-pulse.png)
-
-Thanks to Pulse.digital a swiss based company specialized in Web Marketing and Nearshore for helping us.
-
-Website: https://pulse.digital/
-
-<hr size="1">
-
 Of course, thanks to all contributors!
 
 ## License
